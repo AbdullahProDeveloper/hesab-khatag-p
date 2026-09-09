@@ -15,19 +15,26 @@
         :root {
             --primary: #6c5ce7;
             --primary-dark: #5a4bd1;
+            --primary-light: #a29bfe;
             --secondary: #00cec9;
             --accent: #fd79a8;
             --warning: #fdcb6e;
             --danger: #e17055;
             --success: #00b894;
+            --info: #0984e3;
             --dark: #0c0c1d;
             --dark-light: #1e1e32;
+            --dark-card: #1a1a2e;
             --text-light: #a0a0b8;
+            --text-white: #ffffff;
             --border-radius: 16px;
+            --border-radius-lg: 24px;
             --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.08);
             --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.12);
             --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.18);
+            --shadow-xl: 0 30px 70px rgba(0, 0, 0, 0.25);
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         * {
@@ -39,6 +46,7 @@
             background: #f0f2f5;
             margin: 0;
             min-height: 100vh;
+            overflow-x: hidden;
         }
 
         ::-webkit-scrollbar {
@@ -72,6 +80,16 @@
             height: 200%;
             background: radial-gradient(circle at 30% 50%, rgba(108, 92, 231, 0.25) 0%, transparent 50%);
             animation: aurora 15s infinite;
+        }
+        .auth-bg::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 70% 50%, rgba(0, 206, 201, 0.15) 0%, transparent 50%);
+            animation: aurora 20s infinite reverse;
         }
         @keyframes aurora {
             0%, 100% { transform: translate(0, 0) rotate(0deg); }
@@ -129,6 +147,24 @@
             transition: var(--transition);
             letter-spacing: 0.3px;
             cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-auth::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        .btn-auth:hover::after {
+            width: 300px;
+            height: 300px;
         }
         .btn-auth:hover {
             transform: translateY(-3px);
@@ -148,7 +184,7 @@
         /* ===== SIDEBAR ===== */
         .sidebar {
             background: var(--dark);
-            width: 280px;
+            width: 300px;
             min-height: 100vh;
             position: fixed;
             left: 0;
@@ -156,9 +192,10 @@
             z-index: 1050;
             padding: 28px 18px;
             box-shadow: 4px 0 30px rgba(0, 0, 0, 0.3);
-            transition: left 0.3s ease;
+            transition: left 0.3s ease, width 0.3s ease;
             display: flex;
             flex-direction: column;
+            overflow-y: auto;
         }
         .brand-head {
             color: #fff;
@@ -184,7 +221,7 @@
             flex-direction: column;
             gap: 4px;
         }
-        .sidebar a {
+        .sidebar .nav-menu a {
             color: var(--text-light);
             padding: 14px 18px;
             margin: 2px 0;
@@ -197,18 +234,37 @@
             font-size: 0.95rem;
             transition: var(--transition);
             position: relative;
+            overflow: hidden;
         }
-        .sidebar a:hover {
-            background: rgba(108, 92, 231, 0.15);
+        .sidebar .nav-menu a::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            opacity: 0;
+            transition: var(--transition);
+            border-radius: 14px;
+            z-index: -1;
+        }
+        .sidebar .nav-menu a:hover {
             color: #fff;
             transform: translateX(4px);
         }
-        .sidebar a.active {
+        .sidebar .nav-menu a:hover::before {
+            opacity: 0.15;
+        }
+        .sidebar .nav-menu a.active {
             background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             color: #fff;
             box-shadow: 0 8px 20px rgba(108, 92, 231, 0.4);
         }
-        .sidebar a i {
+        .sidebar .nav-menu a.active::before {
+            opacity: 1;
+        }
+        .sidebar .nav-menu a i {
             width: 24px;
             text-align: center;
             font-size: 1.1rem;
@@ -221,15 +277,25 @@
         .sidebar .logout-btn {
             color: var(--danger);
             margin-top: auto;
+            transition: var(--transition);
         }
         .sidebar .logout-btn:hover {
             background: rgba(225, 112, 85, 0.15);
             color: var(--danger);
+            transform: translateX(4px);
+        }
+        .sidebar .admin-badge {
+            background: linear-gradient(135deg, var(--warning), #f39c12);
+            color: #000;
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 700;
         }
 
         /* ===== HEADER ===== */
         .header {
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
             padding: 16px 30px;
@@ -239,6 +305,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
         }
         .header .user-badge {
             background: linear-gradient(135deg, var(--primary), var(--primary-dark));
@@ -256,6 +323,10 @@
         .notification-badge {
             position: relative;
             cursor: pointer;
+            transition: var(--transition);
+        }
+        .notification-badge:hover {
+            transform: scale(1.1);
         }
         .notification-badge .dot {
             position: absolute;
@@ -266,17 +337,39 @@
             background: var(--danger);
             border-radius: 50%;
             border: 2px solid #fff;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+        }
+        .header .search-bar {
+            background: #f5f6fa;
+            border-radius: 12px;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 250px;
+        }
+        .header .search-bar input {
+            border: none;
+            background: transparent;
+            outline: none;
+            font-size: 0.9rem;
+            width: 100%;
         }
 
         /* ===== MAIN CONTENT ===== */
         .main-content {
-            margin-left: 280px;
+            margin-left: 300px;
             padding: 30px;
             min-height: 100vh;
+            transition: margin-left 0.3s ease;
         }
         @media (max-width: 992px) {
             .sidebar {
-                left: -300px;
+                left: -320px;
             }
             .sidebar.show {
                 left: 0;
@@ -291,6 +384,9 @@
             .menu-btn {
                 display: inline-block !important;
             }
+            .header .search-bar {
+                display: none;
+            }
         }
         .menu-btn {
             display: none;
@@ -299,6 +395,10 @@
             font-size: 1.5rem;
             color: #333;
             cursor: pointer;
+            transition: var(--transition);
+        }
+        .menu-btn:hover {
+            color: var(--primary);
         }
 
         /* ===== CARDS ===== */
@@ -312,6 +412,7 @@
             box-shadow: var(--shadow-sm);
             transition: var(--transition);
             cursor: pointer;
+            min-height: 150px;
         }
         .stat-card:hover {
             transform: translateY(-6px);
@@ -323,6 +424,11 @@
             bottom: -12px;
             font-size: 80px;
             opacity: 0.15;
+            transition: var(--transition);
+        }
+        .stat-card:hover .icon-bg {
+            transform: scale(1.1) rotate(5deg);
+            opacity: 0.25;
         }
         .stat-card h6 {
             font-size: 0.9rem;
@@ -348,6 +454,15 @@
         .bg-orange-grad {
             background: linear-gradient(145deg, #fdcb6e, #f39c12);
         }
+        .bg-cyan-grad {
+            background: linear-gradient(145deg, #00cec9, #00a8a5);
+        }
+        .bg-pink-grad {
+            background: linear-gradient(145deg, #fd79a8, #d6336c);
+        }
+        .bg-indigo-grad {
+            background: linear-gradient(145deg, #6c5ce7, #4a3cb5);
+        }
 
         .card-premium {
             border: none;
@@ -355,9 +470,19 @@
             background: #fff;
             box-shadow: var(--shadow-sm);
             transition: var(--transition);
+            overflow: hidden;
         }
         .card-premium:hover {
             box-shadow: var(--shadow-md);
+        }
+        .card-premium .card-header-premium {
+            background: #f8f9fd;
+            padding: 16px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            font-weight: 700;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         /* ===== TABLES ===== */
@@ -384,6 +509,9 @@
         .table tbody tr:hover {
             background: #fafbff;
         }
+        .table tbody tr:last-child td {
+            border-bottom: none;
+        }
 
         /* ===== BUTTONS ===== */
         .btn-gradient {
@@ -396,6 +524,24 @@
             font-size: 0.95rem;
             transition: var(--transition);
             cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-gradient::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        .btn-gradient:hover::after {
+            width: 300px;
+            height: 300px;
         }
         .btn-gradient:hover {
             transform: translateY(-2px);
@@ -414,6 +560,7 @@
         .btn-outline-premium:hover {
             background: var(--primary);
             color: #fff;
+            box-shadow: 0 8px 20px rgba(108, 92, 231, 0.3);
         }
         .btn-success-soft {
             background: rgba(0, 184, 148, 0.1);
@@ -428,6 +575,7 @@
         .btn-success-soft:hover {
             background: var(--success);
             color: #fff;
+            box-shadow: 0 8px 20px rgba(0, 184, 148, 0.3);
         }
         .btn-danger-soft {
             background: rgba(225, 112, 85, 0.1);
@@ -442,6 +590,22 @@
         .btn-danger-soft:hover {
             background: var(--danger);
             color: #fff;
+            box-shadow: 0 8px 20px rgba(225, 112, 85, 0.3);
+        }
+        .btn-warning-soft {
+            background: rgba(253, 203, 110, 0.15);
+            color: #f39c12;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-weight: 700;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+        .btn-warning-soft:hover {
+            background: var(--warning);
+            color: #000;
+            box-shadow: 0 8px 20px rgba(253, 203, 110, 0.3);
         }
 
         /* ===== FORMS ===== */
@@ -538,6 +702,24 @@
             border-top: 1px solid #f0f0f0;
             padding: 16px 24px;
         }
+        .toast-notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 99999;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: var(--shadow-lg);
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
     </style>
 </head>
 <body>
@@ -615,8 +797,9 @@
             <a href="#" id="nav-expenses" onclick="showSection('expenses')"><i class="fas fa-hand-holding-usd"></i>খরচ</a>
             <a href="#" id="nav-invoices" onclick="showSection('invoices')"><i class="fas fa-file-invoice-dollar"></i>ইনভয়েস</a>
             <a href="#" id="nav-reports" onclick="showSection('reports')"><i class="fas fa-chart-pie"></i>রিপোর্টস</a>
+            <a href="#" id="nav-analytics" onclick="showSection('analytics')"><i class="fas fa-chart-bar"></i>অ্যানালিটিক্স</a>
             <!-- ADMIN SECTION -->
-            <a href="#" id="nav-admin" onclick="showSection('admin')" style="background: rgba(253,203,110,0.15); color: #fdcb6e;"><i class="fas fa-shield-halved"></i>অ্যাডমিন কন্ট্রোল</a>
+            <a href="#" id="nav-admin" onclick="showSection('admin')" style="background: rgba(253,203,110,0.15); color: #fdcb6e;"><i class="fas fa-shield-halved"></i>অ্যাডমিন কন্ট্রোল <span class="admin-badge ms-auto">ADMIN</span></a>
             <a href="#" id="nav-users" onclick="showSection('users')"><i class="fas fa-user-shield"></i>টিম মেম্বার</a>
         </div>
         <div class="divider"></div>
@@ -624,12 +807,16 @@
     </div>
 
     <!-- HEADER -->
-    <div class="header" style="margin-left: 280px;">
-        <div class="d-flex align-items-center">
-            <button class="btn menu-btn me-3" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+    <div class="header" style="margin-left: 300px;">
+        <div class="d-flex align-items-center gap-3">
+            <button class="btn menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
             <h5 class="fw-bold mb-0" id="pageTitle">ড্যাশবোর্ড</h5>
         </div>
         <div class="d-flex align-items-center gap-3">
+            <div class="search-bar d-none d-lg-flex">
+                <i class="fas fa-search text-muted"></i>
+                <input type="text" placeholder="দ্রুত খুঁজুন..." id="globalSearchInput" oninput="globalSearch()">
+            </div>
             <span class="badge bg-light text-dark p-2 d-none d-md-block"><i class="fas fa-calendar me-1"></i><span id="currentDate"></span></span>
             <div class="notification-badge">
                 <i class="fas fa-bell text-secondary fs-5"></i>
@@ -653,9 +840,23 @@
                 <div class="col-xl-3 col-md-6"><div class="stat-card bg-red-grad"><h6><i class="fas fa-hand-holding-usd me-1"></i>মোট বাকি</h6><h3>৳ <span id="totalDue">0.00</span></h3><i class="fas fa-credit-card icon-bg"></i></div></div>
                 <div class="col-xl-3 col-md-6"><div class="stat-card bg-blue-grad"><h6><i class="fas fa-wallet me-1"></i>মোট খরচ</h6><h3>৳ <span id="totalExpense">0.00</span></h3><i class="fas fa-receipt icon-bg"></i></div></div>
             </div>
-            <div class="card-premium p-4 mb-4">
-                <div class="d-flex justify-content-between align-items-center mb-3"><h5 class="fw-bold mb-0">📊 সেলস ট্রেন্ড (৭ দিন)</h5><span class="text-secondary small"><i class="fas fa-sync-alt me-1"></i>রিয়েল-টাইম</span></div>
-                <canvas id="salesChart" height="110"></canvas>
+            <div class="row g-4 mb-4">
+                <div class="col-md-8">
+                    <div class="card-premium p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3"><h5 class="fw-bold mb-0">📊 সেলস ট্রেন্ড (৭ দিন)</h5><span class="text-secondary small"><i class="fas fa-sync-alt me-1"></i>রিয়েল-টাইম</span></div>
+                        <canvas id="salesChart" height="130"></canvas>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card-premium p-4 h-100">
+                        <h6 class="fw-bold mb-3">📈 দ্রুত সারাংশ</h6>
+                        <div class="d-flex justify-content-between py-2"><span>মোট পণ্য</span><strong id="totalProducts">0</strong></div>
+                        <div class="d-flex justify-content-between py-2"><span>মোট কাস্টমার</span><strong id="totalCustomers">0</strong></div>
+                        <div class="d-flex justify-content-between py-2"><span>স্টক সতর্কতা</span><strong id="lowStockCount" class="text-danger">0</strong></div>
+                        <div class="d-flex justify-content-between py-2"><span>নিট লাভ</span><strong class="text-success" id="netProfitQuick">৳0</strong></div>
+                        <button class="btn btn-gradient w-100 mt-3" onclick="showSection('reports')"><i class="fas fa-chart-pie me-1"></i>বিস্তারিত রিপোর্ট</button>
+                    </div>
+                </div>
             </div>
             <div class="row g-4">
                 <div class="col-md-6"><div class="card-premium p-4"><h6 class="fw-bold mb-3"><i class="fas fa-boxes me-2 text-primary"></i>স্টক সতর্কতা</h6><ul id="lowStockList" class="list-group list-group-flush"></ul></div></div>
@@ -706,7 +907,7 @@
         <div id="inventory-section" style="display: none;">
             <div class="card-premium p-4">
                 <div class="d-flex justify-content-between align-items-center mb-3"><h4 class="fw-bold mb-0"><i class="fas fa-boxes-stacked me-2"></i>পণ্য তালিকা</h4><button class="btn btn-gradient" data-bs-toggle="modal" data-bs-target="#addProductModal">+ নতুন পণ্য</button></div>
-                <div class="table-responsive"><table class="table table-hover"><thead><tr><th>নাম</th><th>স্টক</th><th>ক্রয় মূল্য</th><th>বিক্রয় মূল্য</th><th>অ্যাকশন</th></tr></thead><tbody id="inventoryTableBody"></tbody></table></div>
+                <div class="table-responsive"><table class="table table-hover"><thead><tr><th>নাম</th><th>স্টক</th><th>ক্রয় মূল্য</th><th>বিক্রয় মূল্য</th><th>লাভ</th><th>অ্যাকশন</th></tr></thead><tbody id="inventoryTableBody"></tbody></table></div>
             </div>
         </div>
 
@@ -714,7 +915,7 @@
         <div id="customers-section" style="display: none;">
             <div class="card-premium p-4">
                 <div class="d-flex justify-content-between align-items-center mb-3"><h4 class="fw-bold mb-0"><i class="fas fa-users me-2"></i>কাস্টমার</h4><button class="btn btn-gradient" data-bs-toggle="modal" data-bs-target="#addCustomerModal">+ নতুন কাস্টমার</button></div>
-                <div class="table-responsive"><table class="table table-hover"><thead><tr><th>নাম</th><th>ফোন</th><th>বাকি</th><th>অ্যাকশন</th></tr></thead><tbody id="customerTableBody"></tbody></table></div>
+                <div class="table-responsive"><table class="table table-hover"><thead><tr><th>নাম</th><th>ফোন</th><th>বাকি</th><th>মোট কেনা</th><th>অ্যাকশন</th></tr></thead><tbody id="customerTableBody"></tbody></table></div>
             </div>
         </div>
 
@@ -739,9 +940,21 @@
             <div class="card-premium p-4">
                 <h4 class="fw-bold mb-4">📋 রিপোর্ট ও সারাংশ</h4>
                 <div class="row g-4">
-                    <div class="col-md-4"><div class="p-4 bg-success bg-opacity-10 rounded-4"><small class="text-muted">মোট আয়</small><h3 class="text-success fw-bold">৳ <span id="repSales">0.00</span></h3></div></div>
-                    <div class="col-md-4"><div class="p-4 bg-danger bg-opacity-10 rounded-4"><small class="text-muted">মোট খরচ</small><h3 class="text-danger fw-bold">৳ <span id="repExpense">0.00</span></h3></div></div>
-                    <div class="col-md-4"><div class="p-4 bg-primary bg-opacity-10 rounded-4"><small class="text-muted">নিট লাভ</small><h3 class="text-primary fw-bold">৳ <span id="repProfit">0.00</span></h3></div></div>
+                    <div class="col-md-3"><div class="p-4 bg-success bg-opacity-10 rounded-4"><small class="text-muted">মোট আয়</small><h3 class="text-success fw-bold">৳ <span id="repSales">0.00</span></h3></div></div>
+                    <div class="col-md-3"><div class="p-4 bg-danger bg-opacity-10 rounded-4"><small class="text-muted">মোট খরচ</small><h3 class="text-danger fw-bold">৳ <span id="repExpense">0.00</span></h3></div></div>
+                    <div class="col-md-3"><div class="p-4 bg-primary bg-opacity-10 rounded-4"><small class="text-muted">নিট লাভ</small><h3 class="text-primary fw-bold">৳ <span id="repProfit">0.00</span></h3></div></div>
+                    <div class="col-md-3"><div class="p-4 bg-warning bg-opacity-10 rounded-4"><small class="text-muted">বাকি আছে</small><h3 class="text-warning fw-bold">৳ <span id="repDue">0.00</span></h3></div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ANALYTICS -->
+        <div id="analytics-section" style="display: none;">
+            <div class="card-premium p-4">
+                <h4 class="fw-bold mb-4">📈 অ্যানালিটিক্স</h4>
+                <div class="row g-4">
+                    <div class="col-md-6"><canvas id="categoryChart"></canvas></div>
+                    <div class="col-md-6"><canvas id="paymentChart"></canvas></div>
                 </div>
             </div>
         </div>
@@ -788,7 +1001,7 @@
                             <option value="Manager">Manager</option>
                             <option value="Staff">Staff</option>
                         </select>
-                        <button class="btn btn-warning" onclick="updateUserRole()"><i class="fas fa-save me-1"></i>রোল আপডেট</button>
+                        <button class="btn btn-warning-soft" onclick="updateUserRole()"><i class="fas fa-save me-1"></i>রোল আপডেট</button>
                     </div>
                 </div>
             </div>
@@ -830,7 +1043,10 @@
     window.currentCustomerDue = 0;
     window.currentCustomerId = null;
     window.myChart = null;
+    window.categoryChart = null;
+    window.paymentChart = null;
     window.allUsersCache = [];
+    window.allSalesCache = [];
 
     // ---------- AUTH ----------
     window.showLogin = () => { document.getElementById('loginForm').style.display='block'; document.getElementById('registerForm').style.display='none'; document.getElementById('forgotForm').style.display='none'; };
@@ -865,7 +1081,6 @@
                 const data = snap.val();
                 document.getElementById('userName').innerText=data.fullName || 'User';
                 window.currentUserRole = data.role || 'Staff';
-                // Show/hide admin section based on role
                 document.getElementById('nav-admin').style.display = (window.currentUserRole === 'Admin') ? 'flex' : 'none';
             }
             document.getElementById('authScreen').style.display='none';
@@ -881,9 +1096,9 @@
     function initApp(){
         const uid=window.currentUser.uid;
         // Load own data
-        onValue(ref(db,'users/'+uid+'/inventory'),(snap)=>{ window.inventory=snap.val()?Object.values(snap.val()):[]; renderInventory(); renderCustomerSelect(); renderLowStock(); });
-        onValue(ref(db,'users/'+uid+'/customers'),(snap)=>{ window.customers=snap.val()?Object.values(snap.val()):[]; renderCustomers(); renderCustomerSelect(); });
-        onValue(ref(db,'users/'+uid+'/sales'),(snap)=>{ let sales=snap.val()?Object.values(snap.val()):[]; renderDashboard(sales); renderInvoices(sales); renderRecentTransactions(sales); });
+        onValue(ref(db,'users/'+uid+'/inventory'),(snap)=>{ window.inventory=snap.val()?Object.values(snap.val()):[]; renderInventory(); renderCustomerSelect(); renderLowStock(); updateQuickStats(); });
+        onValue(ref(db,'users/'+uid+'/customers'),(snap)=>{ window.customers=snap.val()?Object.values(snap.val()):[]; renderCustomers(); renderCustomerSelect(); updateQuickStats(); });
+        onValue(ref(db,'users/'+uid+'/sales'),(snap)=>{ let sales=snap.val()?Object.values(snap.val()):[]; window.allSalesCache=sales; renderDashboard(sales); renderInvoices(sales); renderRecentTransactions(sales); renderAnalytics(sales); });
         onValue(ref(db,'users/'+uid+'/expenses'),(snap)=>{ let exp=snap.val()?Object.values(snap.val()):[]; renderExpenses(exp); updateTotalExpense(exp); });
 
         // Admin: load all users
@@ -896,6 +1111,13 @@
             if(q.length>0){ window.inventory.filter(i=>i.name.toLowerCase().includes(q) && parseInt(i.qty)>0).forEach(item=>{ res.innerHTML+=`<button class="list-group-item list-group-item-action d-flex justify-content-between" onclick="selectProduct('${item.id}')"><span>${item.name} (স্টক:${item.qty})</span><b>৳${item.sellPrice}</b></button>`; }); } 
         });
         window.selectProduct = (id) => { window.lastSelectedProductId = id; let item=window.inventory.find(i=>i.id===id); if(item){ document.getElementById('productSearch').value = item.name; document.getElementById('productSearchResults').innerHTML=''; } };
+    }
+
+    // ---------- QUICK STATS ----------
+    function updateQuickStats() {
+        document.getElementById('totalProducts').innerText = window.inventory.length;
+        document.getElementById('totalCustomers').innerText = window.customers.length;
+        document.getElementById('lowStockCount').innerText = window.inventory.filter(i=>parseInt(i.qty)<=5).length;
     }
 
     // ---------- ADMIN FUNCTIONS ----------
@@ -933,10 +1155,10 @@
         const managers = users.filter(u => u.role === 'Manager').length;
         const staff = users.filter(u => u.role === 'Staff' || !u.role).length;
         container.innerHTML = `
-            <div class="col-6"><div class="p-2 bg-light rounded"><small>মোট ইউজার</small><h5>${totalUsers}</h5></div></div>
-            <div class="col-6"><div class="p-2 bg-warning bg-opacity-10 rounded"><small>অ্যাডমিন</small><h5>${admins}</h5></div></div>
-            <div class="col-6"><div class="p-2 bg-info bg-opacity-10 rounded"><small>ম্যানেজার</small><h5>${managers}</h5></div></div>
-            <div class="col-6"><div class="p-2 bg-success bg-opacity-10 rounded"><small>স্টাফ</small><h5>${staff}</h5></div></div>
+            <div class="col-6"><div class="p-3 bg-light rounded"><small>মোট ইউজার</small><h5>${totalUsers}</h5></div></div>
+            <div class="col-6"><div class="p-3 bg-warning bg-opacity-10 rounded"><small>অ্যাডমিন</small><h5>${admins}</h5></div></div>
+            <div class="col-6"><div class="p-3 bg-info bg-opacity-10 rounded"><small>ম্যানেজার</small><h5>${managers}</h5></div></div>
+            <div class="col-6"><div class="p-3 bg-success bg-opacity-10 rounded"><small>স্টাফ</small><h5>${staff}</h5></div></div>
         `;
     }
 
@@ -992,12 +1214,12 @@
     window.deleteItem = async (col,id)=>{ await remove(ref(db,'users/'+window.currentUser.uid+'/'+col+'/'+id)); Swal.fire({icon:'success',title:'ডিলিট',toast:true,timer:1200}); };
 
     // ---------- RENDER & UI ----------
-    window.renderInventory=()=>{ let t=document.getElementById('inventoryTableBody'); t.innerHTML=''; window.inventory.forEach(i=>{ t.innerHTML+=`<tr><td>${i.name}</td><td><span class="badge ${parseInt(i.qty)<=5?'bg-danger':'bg-success'}">${i.qty}</span></td><td>৳${i.buyPrice}</td><td>৳${i.sellPrice}</td><td><button class="btn btn-sm btn-outline-danger" onclick="deleteItem('inventory','${i.id}')"><i class="fas fa-trash"></i></button></td></tr>`; }); };
-    window.renderCustomers=()=>{ let t=document.getElementById('customerTableBody'); t.innerHTML=''; window.customers.forEach(c=>{ t.innerHTML+=`<tr><td>${c.name}</td><td>${c.phone||'—'}</td><td class="text-danger fw-bold">৳${c.due||0}</td><td><button class="btn btn-sm btn-outline-danger" onclick="deleteItem('customers','${c.id}')"><i class="fas fa-trash"></i></button></td></tr>`; }); };
+    window.renderInventory=()=>{ let t=document.getElementById('inventoryTableBody'); t.innerHTML=''; window.inventory.forEach(i=>{ const profit = parseFloat(i.sellPrice)-parseFloat(i.buyPrice); t.innerHTML+=`<tr><td>${i.name}</td><td><span class="badge ${parseInt(i.qty)<=5?'bg-danger':'bg-success'}">${i.qty}</span></td><td>৳${i.buyPrice}</td><td>৳${i.sellPrice}</td><td class="text-success">৳${profit.toFixed(2)}</td><td><button class="btn btn-sm btn-outline-danger" onclick="deleteItem('inventory','${i.id}')"><i class="fas fa-trash"></i></button></td></tr>`; }); };
+    window.renderCustomers=()=>{ let t=document.getElementById('customerTableBody'); t.innerHTML=''; window.customers.forEach(c=>{ const totalBought = window.allSalesCache.filter(s=>s.customerId===c.id).reduce((sum,s)=>sum+parseFloat(s.totalAmount||0),0); t.innerHTML+=`<tr><td>${c.name}</td><td>${c.phone||'—'}</td><td class="text-danger fw-bold">৳${c.due||0}</td><td>৳${totalBought.toFixed(2)}</td><td><button class="btn btn-sm btn-outline-danger" onclick="deleteItem('customers','${c.id}')"><i class="fas fa-trash"></i></button></td></tr>`; }); };
     window.renderExpenses=(exp)=>{ let t=document.getElementById('expenseTableBody'); t.innerHTML=''; exp.forEach(e=>{ t.innerHTML+=`<tr><td>${e.title}</td><td>৳${e.amount}</td><td>${e.date}</td><td><button class="btn btn-sm btn-outline-danger" onclick="deleteItem('expenses','${e.id}')"><i class="fas fa-trash"></i></button></td></tr>`; }); };
-    window.renderDashboard=(sales)=>{ let today=new Date().toISOString().split('T')[0]; document.getElementById('totalSales').innerText=sales.reduce((s,i)=>s+parseFloat(i.totalAmount||0),0).toFixed(2); document.getElementById('todaySales').innerText=sales.filter(i=>i.date===today).reduce((s,i)=>s+parseFloat(i.totalAmount||0),0).toFixed(2); document.getElementById('totalDue').innerText=sales.reduce((s,i)=>s+parseFloat(i.due||0),0).toFixed(2); let labels=[],data=[]; for(let i=6;i>=0;i--){ let d=new Date(); d.setDate(d.getDate()-i); let ds=d.toISOString().split('T')[0]; labels.push(ds); data.push(sales.filter(s=>s.date===ds).reduce((sum,s)=>sum+parseFloat(s.totalAmount||0),0)); } if(window.myChart) window.myChart.destroy(); const ctx=document.getElementById('salesChart').getContext('2d'); window.myChart=new Chart(ctx,{type:'line',data:{labels,datasets:[{label:'বিক্রয়',data,borderColor:'#6c5ce7',backgroundColor:'rgba(108,92,231,0.1)',fill:true,tension:0.4,pointBackgroundColor:'#6c5ce7'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}}); document.getElementById('repSales').innerText=document.getElementById('totalSales').innerText; };
+    window.renderDashboard=(sales)=>{ let today=new Date().toISOString().split('T')[0]; document.getElementById('totalSales').innerText=sales.reduce((s,i)=>s+parseFloat(i.totalAmount||0),0).toFixed(2); document.getElementById('todaySales').innerText=sales.filter(i=>i.date===today).reduce((s,i)=>s+parseFloat(i.totalAmount||0),0).toFixed(2); document.getElementById('totalDue').innerText=sales.reduce((s,i)=>s+parseFloat(i.due||0),0).toFixed(2); document.getElementById('repDue').innerText=sales.reduce((s,i)=>s+parseFloat(i.due||0),0).toFixed(2); let labels=[],data=[]; for(let i=6;i>=0;i--){ let d=new Date(); d.setDate(d.getDate()-i); let ds=d.toISOString().split('T')[0]; labels.push(ds); data.push(sales.filter(s=>s.date===ds).reduce((sum,s)=>sum+parseFloat(s.totalAmount||0),0)); } if(window.myChart) window.myChart.destroy(); const ctx=document.getElementById('salesChart').getContext('2d'); window.myChart=new Chart(ctx,{type:'line',data:{labels,datasets:[{label:'বিক্রয়',data,borderColor:'#6c5ce7',backgroundColor:'rgba(108,92,231,0.1)',fill:true,tension:0.4,pointBackgroundColor:'#6c5ce7',pointRadius:5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}}); document.getElementById('repSales').innerText=document.getElementById('totalSales').innerText; const netProfit = parseFloat(document.getElementById('totalSales').innerText) - parseFloat(document.getElementById('totalExpense').innerText); document.getElementById('netProfitQuick').innerText='৳'+netProfit.toFixed(2); };
     window.renderInvoices=(sales)=>{ let t=document.getElementById('invoiceTableBody'); t.innerHTML=''; sales.slice().reverse().forEach(s=>{ t.innerHTML+=`<tr class="invoice-row"><td>${s.invoiceNo||'N/A'}</td><td>${s.name||''}</td><td>${s.customerName||'সাধারণ'}</td><td>৳${s.totalAmount}</td><td>${s.date}</td><td><button class="btn btn-sm btn-outline-primary"><i class="fas fa-print"></i></button></td></tr>`; }); };
-    function updateTotalExpense(exp){ document.getElementById('totalExpense').innerText=exp.reduce((s,i)=>s+parseFloat(i.amount||0),0).toFixed(2); document.getElementById('repExpense').innerText=document.getElementById('totalExpense').innerText; document.getElementById('repProfit').innerText=(parseFloat(document.getElementById('totalSales').innerText)-parseFloat(document.getElementById('totalExpense').innerText)).toFixed(2); }
+    function updateTotalExpense(exp){ document.getElementById('totalExpense').innerText=exp.reduce((s,i)=>s+parseFloat(i.amount||0),0).toFixed(2); document.getElementById('repExpense').innerText=document.getElementById('totalExpense').innerText; const netProfit = parseFloat(document.getElementById('totalSales').innerText) - parseFloat(document.getElementById('totalExpense').innerText); document.getElementById('repProfit').innerText=netProfit.toFixed(2); document.getElementById('netProfitQuick').innerText='৳'+netProfit.toFixed(2); }
     window.renderCustomerSelect=()=>{ let sel=document.getElementById('customerSelect'); sel.innerHTML='<option value="">সাধারণ কাস্টমার</option>'; window.customers.forEach(c=>{ sel.innerHTML+=`<option value="${c.id}" data-due="${c.due||0}">${c.name} (বাকি:৳${c.due||0})</option>`; }); updateCustomerDue(); };
     window.updateCustomerDue=()=>{ let sel=document.getElementById('customerSelect'); if(sel.selectedIndex>0){ let due=parseFloat(sel.options[sel.selectedIndex].getAttribute('data-due'))||0; window.currentCustomerDue=due; window.currentCustomerId=sel.value; document.getElementById('customerDueBadge').innerText=`বাকি: ৳${due}`; } else { window.currentCustomerDue=0; window.currentCustomerId=null; document.getElementById('customerDueBadge').innerText='বাকি: ৳0'; } };
     window.selectProduct=(id)=>{ window.lastSelectedProductId=id; let item=window.inventory.find(i=>i.id===id); if(item){ document.getElementById('productSearch').value=item.name; document.getElementById('productSearchResults').innerHTML=''; } };
@@ -1009,9 +1231,55 @@
     window.renderLowStock=()=>{ let list=document.getElementById('lowStockList'); list.innerHTML=''; window.inventory.filter(i=>parseInt(i.qty)<=5).forEach(i=>{ list.innerHTML+=`<li class="list-group-item d-flex justify-content-between"><span>${i.name}</span><span class="badge bg-danger">${i.qty} বাকি</span></li>`; }); if(list.innerHTML==='') list.innerHTML='<li class="list-group-item text-muted">কোনো সতর্কতা নেই</li>'; };
     window.renderRecentTransactions=(sales)=>{ let list=document.getElementById('recentTransactions'); list.innerHTML=''; sales.slice().reverse().slice(0,5).forEach(s=>{ list.innerHTML+=`<li class="list-group-item d-flex justify-content-between"><span><i class="fas fa-receipt me-2 text-primary"></i>${s.invoiceNo}</span><span>৳${s.totalAmount}</span></li>`; }); };
 
+    // ---------- ANALYTICS ----------
+    function renderAnalytics(sales) {
+        // Category distribution by product names
+        const productCounts = {};
+        sales.forEach(s => {
+            const names = s.name ? s.name.split(', ') : [];
+            names.forEach(n => { productCounts[n] = (productCounts[n] || 0) + 1; });
+        });
+        const topProducts = Object.entries(productCounts).sort((a,b)=>b[1]-a[1]).slice(0,5);
+        const catLabels = topProducts.map(p=>p[0]);
+        const catData = topProducts.map(p=>p[1]);
+        if (window.categoryChart) window.categoryChart.destroy();
+        const catCtx = document.getElementById('categoryChart')?.getContext('2d');
+        if (catCtx) {
+            window.categoryChart = new Chart(catCtx, {type:'doughnut', data:{labels:catLabels, datasets:[{data:catData, backgroundColor:['#6c5ce7','#00cec9','#fd79a8','#fdcb6e','#00b894']}]}, options:{responsive:true, plugins:{title:{display:true, text:'শীর্ষ পণ্য'}}}});
+        }
+        // Payment method: cash vs due
+        const paidTotal = sales.reduce((s,i)=>s+parseFloat(i.paid||0),0);
+        const dueTotal = sales.reduce((s,i)=>s+parseFloat(i.due||0),0);
+        if (window.paymentChart) window.paymentChart.destroy();
+        const payCtx = document.getElementById('paymentChart')?.getContext('2d');
+        if (payCtx) {
+            window.paymentChart = new Chart(payCtx, {type:'pie', data:{labels:['ক্যাশ পেমেন্ট','বাকি'], datasets:[{data:[paidTotal, dueTotal], backgroundColor:['#00b894','#e17055']}]}, options:{responsive:true, plugins:{title:{display:true, text:'পেমেন্ট স্ট্যাটাস'}}}});
+        }
+    }
+
+    // ---------- GLOBAL SEARCH ----------
+    window.globalSearch = () => {
+        const q = document.getElementById('globalSearchInput').value.toLowerCase();
+        if (!q) return;
+        const results = window.inventory.filter(i=>i.name.toLowerCase().includes(q));
+        if (results.length > 0) {
+            showSection('inventory');
+            Swal.fire({title:'সার্চ রেজাল্ট', html: results.map(r=>`${r.name} - স্টক: ${r.qty}`).join('<br>'), icon:'info'});
+        }
+    };
+
     // Navigation & loader
     window.toggleSidebar=()=>{ document.getElementById('sidebar').classList.toggle('show'); };
-    window.showSection=(sec)=>{ document.querySelectorAll('.main-content > div').forEach(d=>d.style.display='none'); document.getElementById(sec+'-section').style.display='block'; document.querySelectorAll('.sidebar a').forEach(a=>a.classList.remove('active')); document.getElementById('nav-'+sec).classList.add('active'); };
+    window.showSection=(sec)=>{ 
+        document.querySelectorAll('.main-content > div').forEach(d=>d.style.display='none'); 
+        const section = document.getElementById(sec+'-section');
+        if (section) section.style.display='block';
+        document.querySelectorAll('.sidebar a').forEach(a=>a.classList.remove('active')); 
+        const navBtn = document.getElementById('nav-'+sec);
+        if (navBtn) navBtn.classList.add('active');
+        const titles = {dashboard:'ড্যাশবোর্ড', sales:'বিক্রয় (POS)', inventory:'পণ্য ম্যানেজমেন্ট', customers:'কাস্টমার', expenses:'খরচ', invoices:'ইনভয়েস', reports:'রিপোর্টস', analytics:'অ্যানালিটিক্স', admin:'অ্যাডমিন কন্ট্রোল', users:'টিম মেম্বার'};
+        document.getElementById('pageTitle').innerText = titles[sec] || 'ড্যাশবোর্ড';
+    };
     window.showLoader=(s)=>{ document.getElementById('loaderOverlay').classList.toggle('show',s); };
 
     // Date
