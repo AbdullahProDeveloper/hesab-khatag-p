@@ -1,12 +1,11 @@
 /* =====================================================
-   HesabKhata Enterprise Pro - Main Script
+   HesabKhata Enterprise Pro - Main Script v4.0
    ===================================================== */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getDatabase, ref, push, set, onValue, remove, update, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-/* ================== FIREBASE ================== */
 const firebaseConfig = {
   apiKey: "AIzaSyBiBGWukd3PNjxK6-gv_4qiCHmwAfO3GzQ",
   authDomain: "hesab-khata.firebaseapp.com",
@@ -24,8 +23,10 @@ const auth = getAuth(app);
 /* ================== GLOBALS ================== */
 window.currentUser = null;
 window.currentUserRole = 'Staff';
+window.currentUserData = {};
 window.currentUserShopName = '';
 window.currentUserAddress = '';
+window.currentUserFullName = '';
 window.inventory = [];
 window.customers = [];
 window.cart = [];
@@ -38,17 +39,29 @@ window.allUsersCache = [];
 window.allSalesCache = [];
 window.allExpensesCache = [];
 window.activityLog = [];
+window.loginHistory = [];
 window.editingProductId = window.editingCustomerId = window.payingCustomerId = null;
 window.unsubscribers = [];
 window.dataLoaded = { inventory:false, customers:false, sales:false, expenses:false };
+window.userSettings = {};
+window.currentIP = '—';
+window.currentLocation = '—';
+window.impersonatingUser = null;
+window.originalAdminUid = null;
+window.selectedAdminUser = null;
+
+const DEFAULT_SETTINGS = {
+  color: 'indigo', mode: 'light', radius: 16, fontSize: 100,
+  compactMode: false, animations: true, sidebarCollapsed: false,
+  notifStock: true, notifDue: true, notifDaily: true, soundEffect: false,
+  saveHistory: true, autoLogout: false, sessionTrack: true
+};
 
 /* ================== TOAST ================== */
 window.showToast = (type, title, message = '') => {
   const container = document.getElementById('toastContainer');
-  const icons = {
-    success: 'fas fa-check-circle', error: 'fas fa-times-circle',
-    warning: 'fas fa-exclamation-triangle', info: 'fas fa-info-circle'
-  };
+  if (!container) return;
+  const icons = { success:'fas fa-check-circle', error:'fas fa-times-circle', warning:'fas fa-exclamation-triangle', info:'fas fa-info-circle' };
   const toast = document.createElement('div');
   toast.className = `toast-pro ${type}`;
   toast.innerHTML = `
@@ -62,12 +75,27 @@ window.showToast = (type, title, message = '') => {
     <div class="toast-progress"></div>
   `;
   container.appendChild(toast);
+  if (window.userSettings.soundEffect) playSound(type);
   setTimeout(() => {
     if (!toast.parentElement) return;
     toast.classList.add('slide-out');
     setTimeout(() => toast.remove(), 600);
-  }, 2000);
+  }, 2400);
 };
+
+function playSound(type) {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.frequency.value = type === 'success' ? 800 : type === 'error' ? 300 : 600;
+    osc.type = 'sine';
+    gain.gain.setValueAtTime(0.1, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
+    osc.start(); osc.stop(ctx.currentTime + 0.2);
+  } catch(e) {}
+}
 
 window.getFirebaseErrorMessage = (code) => {
   const messages = {
@@ -77,18 +105,20 @@ window.getFirebaseErrorMessage = (code) => {
     'auth/user-not-found': 'এই ইমেইলে কোনো অ্যাকাউন্ট নেই',
     'auth/wrong-password': 'পাসওয়ার্ড ভুল হয়েছে',
     'auth/invalid-credential': 'ইমেইল বা পাসওয়ার্ড ভুল',
-    'auth/too-many-requests': 'অনেকবার চেষ্টা হয়েছে, কিছুক্ষণ পর আবার চেষ্টা করুন',
+    'auth/too-many-requests': 'অনেকবার চেষ্টা, কিছুক্ষণ পর করুন',
     'auth/network-request-failed': 'ইন্টারনেট সংযোগ নেই',
-    'auth/operation-not-allowed': 'এই অপারেশন অনুমোদিত নয়',
     'auth/missing-email': 'ইমেইল দিন'
   };
-  return messages[code] || 'একটি সমস্যা হয়েছে, আবার চেষ্টা করুন';
+  return messages[code] || 'একটি সমস্যা হয়েছে';
 };
 
 /* ================== UTILS ================== */
-window.showLoader = (show) => {
+window.showLoader = (show, text = 'লোড হচ্ছে...') => {
   const el = document.getElementById('loaderOverlay');
-  if (el) el.classList.toggle('show', show);
+  if (!el) return;
+  const sub = document.getElementById('loaderSubtext');
+  if (sub) sub.textContent = text;
+  el.classList.toggle('show', show);
 };
 
 function getDateBn(date) {
@@ -109,9 +139,85 @@ window.formatDateBn = (dateStr) => {
   } catch(e) { return dateStr; }
 };
 
-/* ================== ACTIVITY LOG (ENHANCED) ================== */
-window.activityLog = window.activityLog || [];
+/* ================== IP & DEVICE ================== */
+async function fetchIPInfo() {
+  try {
+    const r = await fetch('https://ipapi.co/json/');
+    if (!r.ok) throw new Error('Failed');
+    const data = await r.json();
+    window.currentIP = data.ip || '—';
+    window.currentLocation = `${data.city || ''}${data.city && data.country_name ? ', ' : ''}${data.country_name || ''}` || '—';
+    return { ip: window.currentIP, location: window.currentLocation, isp: data.org || '—' };
+  } catch(e) {
+    try {
+      const r2 = await fetch('https://api.ipify.org?format=json');
+      const d2 = await r2.json();
+      window.currentIP = d2.ip || '—';
+      window.currentLocation = '—';
+      return { ip: window.currentIP, location: '—', isp: '—' };
+    } catch(e2) {
+      return { ip: '—', location: '—', isp: '—' };
+    }
+  }
+}
 
+function getDeviceInfo() {
+  const ua = navigator.userAgent;
+  let device = 'Unknown', browser = 'Unknown', os = 'Unknown';
+  if (/Windows/i.test(ua)) os = 'Windows';
+  else if (/Mac/i.test(ua)) os = 'macOS';
+  else if (/Linux/i.test(ua)) os = 'Linux';
+  else if (/Android/i.test(ua)) os = 'Android';
+  else if (/iPhone|iPad|iPod/i.test(ua)) os = 'iOS';
+  if (/Mobile/i.test(ua)) device = 'Mobile';
+  else if (/Tablet|iPad/i.test(ua)) device = 'Tablet';
+  else device = 'Desktop';
+  if (/Edg/i.test(ua)) browser = 'Edge';
+  else if (/Chrome/i.test(ua)) browser = 'Chrome';
+  else if (/Firefox/i.test(ua)) browser = 'Firefox';
+  else if (/Safari/i.test(ua)) browser = 'Safari';
+  else if (/Opera|OPR/i.test(ua)) browser = 'Opera';
+  return { device, browser, os, platform: navigator.platform || '—', language: navigator.language || '—' };
+}
+
+/* ================== CONFIRM ================== */
+window.showConfirm = (title, text, options = {}) => {
+  return new Promise((resolve) => {
+    const modalEl = document.getElementById('confirmModal');
+    if (!modalEl) { resolve(confirm(title + '\n' + text)); return; }
+    const modal = new bootstrap.Modal(modalEl);
+    const iconEl = document.getElementById('confirmIcon');
+    const okBtn = document.getElementById('confirmOk');
+    const cancelBtn = document.getElementById('confirmCancel');
+
+    document.getElementById('confirmTitle').textContent = title || 'নিশ্চিত করুন';
+    document.getElementById('confirmText').textContent = text || '';
+
+    const type = options.type || 'question';
+    const iconMap = {
+      question: { icon:'fas fa-question-circle', bg:'var(--primary-soft)', color:'var(--primary)' },
+      warning: { icon:'fas fa-exclamation-triangle', bg:'var(--warning-soft)', color:'var(--warning)' },
+      danger: { icon:'fas fa-trash', bg:'var(--danger-soft)', color:'var(--danger)' },
+      success: { icon:'fas fa-check-circle', bg:'var(--success-soft)', color:'var(--success)' }
+    };
+    const style = iconMap[type] || iconMap.question;
+    iconEl.innerHTML = `<i class="${style.icon}"></i>`;
+    iconEl.style.background = style.bg;
+    iconEl.style.color = style.color;
+    okBtn.textContent = options.okText || 'হ্যাঁ, নিশ্চিত';
+    cancelBtn.textContent = options.cancelText || 'বাতিল';
+    okBtn.style.background = options.danger ? 'linear-gradient(135deg,var(--danger),#dc2626)' : 'linear-gradient(135deg,var(--primary),var(--primary-dark))';
+
+    const handleOk = () => { cleanup(); resolve(true); modal.hide(); };
+    const handleCancel = () => { cleanup(); resolve(false); modal.hide(); };
+    function cleanup() { okBtn.removeEventListener('click', handleOk); cancelBtn.removeEventListener('click', handleCancel); }
+    okBtn.addEventListener('click', handleOk);
+    cancelBtn.addEventListener('click', handleCancel);
+    modal.show();
+  });
+};
+
+/* ================== ACTIVITY LOG ================== */
 window.logActivity = (action, details, amount = null, extraData = {}) => {
   const now = new Date();
   const entry = {
@@ -121,12 +227,11 @@ window.logActivity = (action, details, amount = null, extraData = {}) => {
     date: now.toISOString().split('T')[0],
     time: getTimeBn(now),
     timestamp: now.getTime(),
-    fullDateTime: now.toLocaleString('bn-BD'),
     ...extraData
   };
   window.activityLog.unshift(entry);
   if (window.activityLog.length > 500) window.activityLog.pop();
-  try { localStorage.setItem('hesabkhata_activity_' + (window.currentUser?.uid || 'guest'), JSON.stringify(window.activityLog)); } catch(e) {}
+  try { localStorage.setItem('hk_activity_' + (window.currentUser?.uid || 'guest'), JSON.stringify(window.activityLog)); } catch(e) {}
   renderActivityLog();
   renderActivityLogAdvanced();
   updateActivityStats();
@@ -135,7 +240,7 @@ window.logActivity = (action, details, amount = null, extraData = {}) => {
 
 window.loadActivityLog = () => {
   try {
-    const saved = localStorage.getItem('hesabkhata_activity_' + (window.currentUser?.uid || 'guest'));
+    const saved = localStorage.getItem('hk_activity_' + (window.currentUser?.uid || 'guest'));
     if (saved) window.activityLog = JSON.parse(saved);
   } catch(e) { window.activityLog = []; }
 };
@@ -162,15 +267,16 @@ window.renderActivityLog = () => {
 };
 
 function getActivityMeta(action) {
-  if (action.includes('বিক্রয়') || action.includes('বিক্রি')) return { icon: 'fas fa-cart-plus', color: 'bg-success bg-opacity-10 text-success', type: 'বিক্রয়' };
-  if (action.includes('ক্রয়')) return { icon: 'fas fa-shopping-cart', color: 'bg-warning bg-opacity-10 text-warning', type: 'ক্রয়' };
-  if (action.includes('পরিশোধ')) return { icon: 'fas fa-hand-holding-usd', color: 'bg-info bg-opacity-10 text-info', type: 'পরিশোধ' };
-  if (action.includes('খরচ')) return { icon: 'fas fa-receipt', color: 'bg-danger bg-opacity-10 text-danger', type: 'খরচ' };
-  if (action.includes('কাস্টমার')) return { icon: 'fas fa-user', color: 'bg-info bg-opacity-10 text-info', type: 'কাস্টমার' };
-  if (action.includes('পণ্য')) return { icon: 'fas fa-box', color: 'bg-secondary bg-opacity-10 text-secondary', type: 'পণ্য' };
-  if (action.includes('লগইন')) return { icon: 'fas fa-sign-in-alt', color: 'bg-primary bg-opacity-10 text-primary', type: 'লগইন' };
-  if (action.includes('ডিলিট')) return { icon: 'fas fa-trash', color: 'bg-danger bg-opacity-10 text-danger', type: 'ডিলিট' };
-  return { icon: 'fas fa-info-circle', color: 'bg-primary bg-opacity-10 text-primary', type: 'অন্যান্য' };
+  if (action.includes('বিক্রয়') || action.includes('বিক্রি')) return { icon:'fas fa-cart-plus', color:'bg-success-soft', type:'বিক্রয়' };
+  if (action.includes('ক্রয়')) return { icon:'fas fa-shopping-cart', color:'bg-warning-soft', type:'ক্রয়' };
+  if (action.includes('পরিশোধ')) return { icon:'fas fa-hand-holding-usd', color:'bg-info-soft', type:'পরিশোধ' };
+  if (action.includes('খরচ')) return { icon:'fas fa-receipt', color:'bg-danger-soft', type:'খরচ' };
+  if (action.includes('কাস্টমার')) return { icon:'fas fa-user', color:'bg-info-soft', type:'কাস্টমার' };
+  if (action.includes('পণ্য')) return { icon:'fas fa-box', color:'bg-primary-soft', type:'পণ্য' };
+  if (action.includes('লগইন')) return { icon:'fas fa-sign-in-alt', color:'bg-primary-soft', type:'লগইন' };
+  if (action.includes('ডিলিট')) return { icon:'fas fa-trash', color:'bg-danger-soft', type:'ডিলিট' };
+  if (action.includes('ব্লক')) return { icon:'fas fa-user-slash', color:'bg-danger-soft', type:'ব্লক' };
+  return { icon:'fas fa-info-circle', color:'bg-primary-soft', type:'অন্যান্য' };
 }
 
 window.updateActivityStats = () => {
@@ -195,11 +301,7 @@ window.renderActivityLogAdvanced = () => {
   const type = document.getElementById('activityTypeFilter')?.value || '';
 
   let filtered = [...window.activityLog];
-  if (q) filtered = filtered.filter(a =>
-    a.action.toLowerCase().includes(q) ||
-    (a.details||'').toLowerCase().includes(q) ||
-    (a.amount && String(a.amount).includes(q))
-  );
+  if (q) filtered = filtered.filter(a => a.action.toLowerCase().includes(q) || (a.details||'').toLowerCase().includes(q) || (a.amount && String(a.amount).includes(q)));
   if (from) filtered = filtered.filter(a => a.date >= from);
   if (to) filtered = filtered.filter(a => a.date <= to);
   if (type) filtered = filtered.filter(a => a.action.includes(type) || getActivityMeta(a.action).type === type);
@@ -218,10 +320,10 @@ window.renderActivityLogAdvanced = () => {
   sortedDates.forEach(date => {
     const dayItems = grouped[date];
     const dayTotal = dayItems.filter(a => a.amount).reduce((s,a) => s + (a.amount||0), 0);
-    c.innerHTML += `<div style="display:flex;align-items:center;gap:10px;margin:16px 0 10px;padding:8px 12px;background:linear-gradient(135deg,rgba(99,102,241,0.08),rgba(6,182,212,0.08));border-radius:10px;border-left:4px solid var(--primary);">
+    c.innerHTML += `<div style="display:flex;align-items:center;gap:10px;margin:16px 0 10px;padding:8px 12px;background:var(--primary-soft);border-radius:10px;border-left:4px solid var(--primary);flex-wrap:wrap;">
       <i class="fas fa-calendar-day text-primary"></i>
       <strong>${window.formatDateBn(date)}</strong>
-      <span class="tag tag-primary ms-auto">${dayItems.length} টি কার্যক্রম</span>
+      <span class="tag tag-primary ms-auto">${dayItems.length} টি</span>
       ${dayTotal > 0 ? `<span class="tag tag-success">মোট: ৳${dayTotal.toFixed(2)}</span>` : ''}
     </div>`;
     dayItems.forEach(a => {
@@ -255,43 +357,140 @@ window.renderActivityLogAdvanced = () => {
 window.setActivityChip = (el) => {
   document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
   el.classList.add('active');
-  const t = el.dataset.type;
-  document.getElementById('activityTypeFilter').value = t;
+  document.getElementById('activityTypeFilter').value = el.dataset.type;
   renderActivityLogAdvanced();
 };
 
 window.resetActivityFilters = () => {
-  const f = (id, v='') => { const el = document.getElementById(id); if (el) el.value = v; };
-  f('activitySearchInput'); f('activityDateFrom'); f('activityDateTo'); f('activityTypeFilter');
+  ['activitySearchInput','activityDateFrom','activityDateTo','activityTypeFilter'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
   document.querySelectorAll('.filter-chip').forEach((c,i) => c.classList.toggle('active', i===0));
   renderActivityLogAdvanced();
 };
 
 window.exportActivityLog = () => {
-  let c = 'তারিখ,সময়,কার্যক্রম,বিবরণ,পরিমাণ (টাকা)\n';
-  window.activityLog.forEach(a => {
-    c += `${a.date},${a.time},"${a.action}","${(a.details||'').replace(/"/g,'""')}",${a.amount||0}\n`;
-  });
-  const b = new Blob(['\uFEFF' + c], { type: 'text/csv;charset=utf-8' });
-  const u = URL.createObjectURL(b);
-  const a = document.createElement('a');
-  a.href = u; a.download = `activity-log-${new Date().toISOString().split('T')[0]}.csv`; a.click();
-  URL.revokeObjectURL(u);
+  let c = 'তারিখ,সময়,কার্যক্রম,বিবরণ,পরিমাণ\n';
+  window.activityLog.forEach(a => { c += `${a.date},${a.time},"${a.action}","${(a.details||'').replace(/"/g,'""')}",${a.amount||0}\n`; });
+  downloadFile(c, `activity-log-${new Date().toISOString().split('T')[0]}.csv`);
   showToast('success', 'এক্সপোর্ট সফল', 'activity-log.csv');
 };
 
 window.clearActivityLog = async () => {
-  const r = await Swal.fire({ title:'নিশ্চিত?', text:'সব অ্যাক্টিভিটি লগ মুছে যাবে', icon:'warning', showCancelButton:true, confirmButtonText:'হ্যাঁ, মুছুন', cancelButtonText:'বাতিল', confirmButtonColor:'#ef4444' });
-  if (!r.isConfirmed) return;
+  const ok = await showConfirm('লগ ক্লিয়ার করবেন?', 'সব অ্যাক্টিভিটি লগ মুছে যাবে।', { type:'danger', danger:true });
+  if (!ok) return;
   window.activityLog = [];
-  try { localStorage.removeItem('hesabkhata_activity_' + (window.currentUser?.uid || 'guest')); } catch(e) {}
-  renderActivityLog();
-  renderActivityLogAdvanced();
-  updateActivityStats();
+  try { localStorage.removeItem('hk_activity_' + (window.currentUser?.uid || 'guest')); } catch(e) {}
+  renderActivityLog(); renderActivityLogAdvanced(); updateActivityStats();
   showToast('success', 'লগ ক্লিয়ার হয়েছে');
 };
 
-/* ================== PASSWORD STRENGTH ================== */
+/* ================== FILE DOWNLOAD ================== */
+function downloadFile(content, filename, mime = 'text/csv') {
+  const blob = new Blob(['\uFEFF' + content], { type: mime + ';charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 100);
+}
+window.downloadFile = downloadFile;
+
+/* ================== THEME ================== */
+window.applySettings = (settings) => {
+  window.userSettings = { ...DEFAULT_SETTINGS, ...settings };
+  const s = window.userSettings;
+  document.documentElement.setAttribute('data-color', s.color);
+  const actualMode = s.mode === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : s.mode;
+  document.documentElement.setAttribute('data-mode', actualMode);
+  document.documentElement.style.setProperty('--radius', s.radius + 'px');
+  document.documentElement.style.setProperty('--radius-sm', (s.radius - 4 > 4 ? s.radius - 4 : 4) + 'px');
+  document.documentElement.style.setProperty('--font-size', s.fontSize + '%');
+  document.body.classList.toggle('compact', s.compactMode);
+  document.body.classList.toggle('no-anim', !s.animations);
+  document.body.classList.toggle('sidebar-collapsed', s.sidebarCollapsed);
+};
+
+window.saveUserSettings = async () => {
+  if (!window.currentUser) return;
+  try { await update(ref(db, 'users/' + window.currentUser.uid), { settings: window.userSettings }); }
+  catch(e) { console.error('Save settings error:', e); }
+};
+
+window.loadUserSettings = (data) => {
+  const saved = data?.settings || {};
+  window.applySettings(saved);
+  syncSettingsUI();
+};
+
+function syncSettingsUI() {
+  const s = window.userSettings;
+  document.querySelectorAll('.color-item').forEach(el => el.classList.toggle('active', el.dataset.color === s.color));
+  document.querySelectorAll('.theme-mode-item').forEach(el => el.classList.toggle('active', el.dataset.mode === s.mode));
+  const radiusEl = document.getElementById('radiusSlider');
+  const fontEl = document.getElementById('fontSlider');
+  if (radiusEl) radiusEl.value = s.radius;
+  if (fontEl) fontEl.value = s.fontSize;
+  const rv = document.getElementById('radiusValue'); if (rv) rv.textContent = s.radius;
+  const fv = document.getElementById('fontValue'); if (fv) fv.textContent = s.fontSize;
+  const map = { compactMode:'compactMode', animationsToggle:'animations', sidebarCollapse:'sidebarCollapsed', notifStock:'notifStock', notifDue:'notifDue', notifDaily:'notifDaily', soundEffect:'soundEffect', saveHistory:'saveHistory', autoLogout:'autoLogout', sessionTrack:'sessionTrack' };
+  Object.keys(map).forEach(id => { const el = document.getElementById(id); if (el) el.checked = !!s[map[id]]; });
+}
+
+window.setThemeColor = (color, el) => {
+  window.userSettings.color = color;
+  document.querySelectorAll('.color-item').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  document.documentElement.setAttribute('data-color', color);
+  saveUserSettings();
+  showToast('success', 'কালার পরিবর্তন', color);
+};
+
+window.setThemeMode = (mode, el) => {
+  window.userSettings.mode = mode;
+  document.querySelectorAll('.theme-mode-item').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  const actual = mode === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : mode;
+  document.documentElement.setAttribute('data-mode', actual);
+  saveUserSettings();
+  showToast('success', 'মোড পরিবর্তন', mode);
+};
+
+window.setRadius = (v) => {
+  window.userSettings.radius = parseInt(v);
+  document.documentElement.style.setProperty('--radius', v + 'px');
+  document.documentElement.style.setProperty('--radius-sm', (v - 4 > 4 ? v - 4 : 4) + 'px');
+  const rv = document.getElementById('radiusValue'); if (rv) rv.textContent = v;
+  saveUserSettings();
+};
+
+window.setFontSize = (v) => {
+  window.userSettings.fontSize = parseInt(v);
+  document.documentElement.style.setProperty('--font-size', v + '%');
+  const fv = document.getElementById('fontValue'); if (fv) fv.textContent = v;
+  saveUserSettings();
+};
+
+window.toggleCompact = (v) => { window.userSettings.compactMode = v; document.body.classList.toggle('compact', v); saveUserSettings(); };
+window.toggleAnimations = (v) => { window.userSettings.animations = v; document.body.classList.toggle('no-anim', !v); saveUserSettings(); };
+window.toggleSidebarCollapse = (v) => { window.userSettings.sidebarCollapsed = v; document.body.classList.toggle('sidebar-collapsed', v); saveUserSettings(); };
+window.saveSetting = (key, v) => { window.userSettings[key] = v; saveUserSettings(); };
+
+window.resetTheme = async () => {
+  const ok = await showConfirm('ডিফল্টে ফিরবেন?', 'সব সেটিংস ডিফল্টে ফিরে যাবে।', { type:'warning' });
+  if (!ok) return;
+  window.applySettings(DEFAULT_SETTINGS);
+  syncSettingsUI();
+  await saveUserSettings();
+  showToast('success', 'ডিফল্টে ফিরে এসেছে');
+};
+
+window.switchSettingsTab = (tab, el) => {
+  document.querySelectorAll('.settings-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.settings-content').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('settings-' + tab).classList.add('active');
+};
+
+/* ================== PASSWORD ================== */
 window.checkPasswordStrength = () => {
   const p = document.getElementById('regPassword').value;
   const bar = document.getElementById('strengthBar');
@@ -323,8 +522,45 @@ window.login = async () => {
   if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) { showToast('error', 'ভুল ইমেইল', 'সঠিক ইমেইল দিন'); return; }
   const btn = document.getElementById('loginBtn');
   btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>লগইন হচ্ছে...';
-  showLoader(true);
+  showLoader(true, 'যাচাই করা হচ্ছে...');
   try {
+    // Check if user is blocked before login
+    const usersSnap = await get(ref(db, 'users'));
+    if (usersSnap.exists()) {
+      const users = usersSnap.val();
+      const found = Object.values(users).find(u => u.email === email);
+      if (found) {
+        const status = found.status || 'Active';
+        if (status === 'Blocked') {
+          const blockUntil = found.blockUntil ? new Date(found.blockUntil) : null;
+          if (!blockUntil || blockUntil > new Date()) {
+            const untilText = blockUntil ? getDateBn(blockUntil) + ' ' + getTimeBn(blockUntil) : 'চিরতরে';
+            showLoader(false);
+            btn.disabled = false; btn.innerHTML = '<i class="fas fa-sign-in-alt me-2"></i>নিরাপদ লগইন';
+            await Swal.fire({
+              icon: 'error',
+              title: 'অ্যাকাউন্ট ব্লক করা হয়েছে',
+              html: `<div style="text-align:left;font-size:0.9rem;">
+                <p><strong>কারণ:</strong> ${found.blockReason || 'অ্যাডমিন কর্তৃক ব্লক করা হয়েছে'}</p>
+                <p><strong>আনব্লক হবে:</strong> ${untilText}</p>
+                <p class="text-muted small">সাহায্যের জন্য অ্যাডমিনের সাথে যোগাযোগ করুন।</p>
+              </div>`,
+              confirmButtonText: 'ঠিক আছে'
+            });
+            return;
+          } else {
+            // Auto unblock if time passed
+            await update(ref(db, 'users/' + found.uid), { status: 'Active', blockUntil: null, blockReason: null });
+          }
+        }
+        if (status === 'Suspended') {
+          showLoader(false);
+          btn.disabled = false; btn.innerHTML = '<i class="fas fa-sign-in-alt me-2"></i>নিরাপদ লগইন';
+          await Swal.fire({ icon:'error', title:'অ্যাকাউন্ট সাসপেন্ড', text:'আপনার অ্যাকাউন্ট সাসপেন্ড করা হয়েছে। অ্যাডমিনের সাথে যোগাযোগ করুন।', confirmButtonText:'ঠিক আছে' });
+          return;
+        }
+      }
+    }
     await signInWithEmailAndPassword(auth, email, pass);
     showToast('success', 'লগইন সফল!', 'আপনার ড্যাশবোর্ডে স্বাগতম');
   } catch(e) {
@@ -355,21 +591,46 @@ window.register = async () => {
 
   const btn = document.getElementById('registerBtn');
   btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>রেজিস্ট্রেশন হচ্ছে...';
-  showLoader(true);
+  showLoader(true, 'অ্যাকাউন্ট তৈরি হচ্ছে...');
 
   try {
+    const ipInfo = await fetchIPInfo();
+    const device = getDeviceInfo();
     const uc = await createUserWithEmailAndPassword(auth, email, pass);
     const user = uc.user;
+    const now = new Date();
+
     await set(ref(db, 'users/' + user.uid), {
       uid: user.uid,
       fullName: name, email, phone, shopName, address,
       role: 'Staff', status: 'Active',
-      createdAt: new Date().toISOString(),
-      createdAtDate: new Date().toISOString().split('T')[0],
-      createdAtTime: getTimeBn(new Date())
+      createdAt: now.toISOString(),
+      createdAtDate: now.toISOString().split('T')[0],
+      createdAtTime: getTimeBn(now),
+      registrationIp: ipInfo.ip || '—',
+      registrationLocation: ipInfo.location || '—',
+      registrationDevice: device.device,
+      registrationBrowser: device.browser,
+      registrationOS: device.os,
+      settings: DEFAULT_SETTINGS
     });
-    showToast('success', 'রেজিস্ট্রেশন সফল!', 'আপনার ড্যাশবোর্ডে স্বাগতম');
-    ['regName','regEmail','regPhone','regShopName','regAddress','regPassword','regConfirmPassword'].forEach(id => document.getElementById(id).value='');
+
+    const histRef = push(ref(db, 'users/' + user.uid + '/loginHistory'));
+    await set(histRef, {
+      id: histRef.key,
+      date: now.toISOString().split('T')[0],
+      time: getTimeBn(now),
+      timestamp: now.getTime(),
+      ip: ipInfo.ip || '—',
+      location: ipInfo.location || '—',
+      device: device.device,
+      browser: device.browser,
+      os: device.os,
+      action: 'রেজিস্ট্রেশন'
+    });
+
+    showToast('success', 'রেজিস্ট্রেশন সফল!', 'স্বাগতম');
+    ['regName','regEmail','regPhone','regShopName','regAddress','regPassword','regConfirmPassword'].forEach(id => { const el = document.getElementById(id); if (el) el.value=''; });
     document.getElementById('termsCheck').checked = false;
     document.getElementById('strengthBar').style.width = '0%';
     document.getElementById('strengthText').textContent = 'পাসওয়ার্ড দিন';
@@ -393,69 +654,142 @@ window.resetPassword = async () => {
     showToast('success', 'রিসেট লিংক পাঠানো হয়েছে!', `${email} এ চেক করুন`);
     document.getElementById('resetEmail').value = '';
     setTimeout(showLogin, 1500);
-  } catch(e) {
-    showToast('error', 'ব্যর্থ', getFirebaseErrorMessage(e.code));
-  }
+  } catch(e) { showToast('error', 'ব্যর্থ', getFirebaseErrorMessage(e.code)); }
   btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>রিসেট লিংক পাঠান';
 };
 
 /* ================== LOGOUT ================== */
 window.logout = async () => {
+  const ok = await showConfirm('লগ আউট করবেন?', 'আপনি সফলভাবে লগ আউট হবেন।', { type:'question' });
+  if (!ok) return;
   try { await signOut(auth); showToast('info', 'লগ আউট', 'আবার আসবেন!'); }
   catch(e) { showToast('error', 'ব্যর্থ', e.message); }
 };
 
 /* ================== AUTH STATE ================== */
 onAuthStateChanged(auth, async (user) => {
-  console.log('Auth state changed:', user ? user.email : 'null');
   window.unsubscribers.forEach(unsub => { try { unsub(); } catch(e){} });
   window.unsubscribers = [];
   window.dataLoaded = { inventory:false, customers:false, sales:false, expenses:false };
 
   if (user) {
     window.currentUser = user;
-    showLoader(true);
+    showLoader(true, 'প্রোফাইল লোড হচ্ছে...');
     try {
+      // If impersonating, use target UID
+      const effectiveUid = window.impersonatingUser || user.uid;
+      
+      const [ipInfo] = await Promise.all([fetchIPInfo()]);
+      const device = getDeviceInfo();
+
       let data = null;
       const snap = await get(ref(db, 'users/' + user.uid));
       if (!snap.exists()) {
-        console.log('Profile missing, creating...');
+        const now = new Date();
         await set(ref(db, 'users/' + user.uid), {
           uid: user.uid,
           fullName: user.email.split('@')[0],
           email: user.email, phone:'', shopName:'', address:'',
           role: 'Staff', status: 'Active',
-          createdAt: new Date().toISOString()
+          createdAt: now.toISOString(),
+          createdAtDate: now.toISOString().split('T')[0],
+          createdAtTime: getTimeBn(now),
+          registrationIp: ipInfo.ip || '—',
+          registrationLocation: ipInfo.location || '—',
+          settings: DEFAULT_SETTINGS
         });
         data = (await get(ref(db, 'users/' + user.uid))).val();
       } else { data = snap.val(); }
 
-      window.currentUserRole = data.role || 'Staff';
-      window.currentUserShopName = data.shopName || '';
-      window.currentUserAddress = data.address || '';
+      // If impersonating, load target user data
+      let activeData = data;
+      let activeUser = user;
+      if (window.impersonatingUser && window.impersonatingUser !== user.uid) {
+        const targetSnap = await get(ref(db, 'users/' + window.impersonatingUser));
+        if (targetSnap.exists()) {
+          activeData = targetSnap.val();
+          activeUser = { uid: window.impersonatingUser, email: activeData.email };
+        }
+      }
 
+      window.currentUserData = activeData;
+      window.currentUserRole = activeData.role || 'Staff';
+      window.currentUserShopName = activeData.shopName || '';
+      window.currentUserAddress = activeData.address || '';
+      window.currentUserFullName = activeData.fullName || 'User';
+
+      // Track login (skip if impersonating)
+      if (!window.impersonatingUser) {
+        const now = new Date();
+        const newLoginEntry = {
+          date: now.toISOString().split('T')[0],
+          time: getTimeBn(now),
+          timestamp: now.getTime(),
+          ip: ipInfo.ip || '—',
+          location: ipInfo.location || '—',
+          device: device.device,
+          browser: device.browser,
+          os: device.os,
+          action: 'লগইন'
+        };
+        await update(ref(db, 'users/' + user.uid), {
+          lastLogin: newLoginEntry,
+          lastIp: ipInfo.ip || '—',
+          lastLocation: ipInfo.location || '—',
+          lastDevice: device.device,
+          lastBrowser: device.browser,
+          lastOS: device.os
+        });
+        const histRef = push(ref(db, 'users/' + user.uid + '/loginHistory'));
+        await set(histRef, { id: histRef.key, ...newLoginEntry });
+      }
+
+      loadUserSettings(activeData);
+
+      // Update UI
       const el = (id) => document.getElementById(id);
-      if (el('userInitial')) el('userInitial').textContent = (user.email[0] || 'U').toUpperCase();
-      if (el('userName')) el('userName').textContent = data.fullName || 'User';
-      if (el('welcomeName')) el('welcomeName').textContent = data.fullName || 'User';
+      const initial = (activeUser.email[0] || 'U').toUpperCase();
+      if (el('userAvatar')) el('userAvatar').textContent = initial;
+      if (el('dropdownAvatar')) el('dropdownAvatar').textContent = initial;
+      if (el('userName')) el('userName').textContent = activeData.fullName || 'User';
+      if (el('welcomeName')) el('welcomeName').textContent = activeData.fullName || 'User';
       if (el('userRoleLabel')) el('userRoleLabel').textContent = window.currentUserRole;
+      if (el('dropdownName')) el('dropdownName').textContent = activeData.fullName || 'User';
+      if (el('dropdownEmail')) el('dropdownEmail').textContent = activeUser.email;
+      if (el('dropdownRole')) el('dropdownRole').textContent = window.currentUserRole;
 
       const isAdmin = window.currentUserRole === 'Admin';
       if (el('nav-admin')) el('nav-admin').style.display = isAdmin ? 'flex' : 'none';
-      if (el('nav-users')) el('nav-users').style.display = isAdmin ? 'flex' : 'none';
       if (el('adminDivider')) el('adminDivider').style.display = isAdmin ? 'block' : 'none';
       if (el('adminLabel')) el('adminLabel').style.display = isAdmin ? 'block' : 'none';
 
       if (el('authScreen')) el('authScreen').style.display = 'none';
       if (el('mainApp')) el('mainApp').style.display = 'block';
 
+      // Show impersonation banner
+      if (window.impersonatingUser && window.impersonatingUser !== user.uid) {
+        document.body.classList.add('impersonating');
+        if (el('impersonationBanner')) el('impersonationBanner').style.display = 'flex';
+        if (el('impersonatedUser')) el('impersonatedUser').textContent = activeData.fullName || activeData.email;
+      } else {
+        document.body.classList.remove('impersonating');
+        if (el('impersonationBanner')) el('impersonationBanner').style.display = 'none';
+      }
+
       loadActivityLog();
       initApp();
+      renderProfile();
+      loadLoginHistory();
+      if (isAdmin) loadAllUsers();
       showSection('dashboard');
       showLoader(false);
 
       setTimeout(() => {
-        showToast('success', `স্বাগতম, ${data.fullName || 'User'}!`, `রোল: ${window.currentUserRole}`);
+        if (window.impersonatingUser && window.impersonatingUser !== user.uid) {
+          showToast('info', `ইউজার মোড`, `${activeData.fullName || activeData.email} হিসেবে কাজ করছেন`);
+        } else {
+          showToast('success', `স্বাগতম, ${activeData.fullName || 'User'}!`, `রোল: ${window.currentUserRole}`);
+        }
       }, 300);
     } catch(e) {
       console.error('Auth state error:', e);
@@ -465,6 +799,8 @@ onAuthStateChanged(auth, async (user) => {
   } else {
     window.currentUser = null;
     window.currentUserRole = 'Staff';
+    window.impersonatingUser = null;
+    document.body.classList.remove('impersonating');
     document.getElementById('authScreen').style.display = 'flex';
     document.getElementById('mainApp').style.display = 'none';
     showLogin();
@@ -479,8 +815,7 @@ onAuthStateChanged(auth, async (user) => {
 /* ================== INIT APP ================== */
 function initApp() {
   if (!window.currentUser) return;
-  const uid = window.currentUser.uid;
-  console.log('initApp for uid:', uid);
+  const uid = window.impersonatingUser || window.currentUser.uid;
 
   const unsub1 = onValue(ref(db, 'users/' + uid + '/inventory'), (snap) => {
     window.inventory = snap.val() ? Object.values(snap.val()) : [];
@@ -490,7 +825,7 @@ function initApp() {
     renderCustomerSelect();
     renderLowStock();
     updateQuickStats();
-  }, (err) => console.error('Inventory error:', err));
+  });
   window.unsubscribers.push(unsub1);
 
   const unsub2 = onValue(ref(db, 'users/' + uid + '/customers'), (snap) => {
@@ -500,7 +835,7 @@ function initApp() {
     renderCustomerHistoryList();
     renderCustomerSelect();
     updateQuickStats();
-  }, (err) => console.error('Customers error:', err));
+  });
   window.unsubscribers.push(unsub2);
 
   const unsub3 = onValue(ref(db, 'users/' + uid + '/sales'), (snap) => {
@@ -514,7 +849,7 @@ function initApp() {
     renderAnalytics(sales);
     renderReports(sales);
     renderMasterList();
-  }, (err) => console.error('Sales error:', err));
+  });
   window.unsubscribers.push(unsub3);
 
   const unsub4 = onValue(ref(db, 'users/' + uid + '/expenses'), (snap) => {
@@ -525,10 +860,8 @@ function initApp() {
     updateTotalExpense(exp);
     renderExpenseChart(exp);
     renderMasterList();
-  }, (err) => console.error('Expenses error:', err));
+  });
   window.unsubscribers.push(unsub4);
-
-  if (window.currentUserRole === 'Admin') loadAllUsers();
 
   const ps = document.getElementById('productSearch');
   if (ps && !ps.dataset.bound) {
@@ -557,8 +890,147 @@ function initApp() {
 
   const cd = document.getElementById('currentDate');
   if (cd) cd.textContent = getDateBn(new Date());
+
+  if (window.currentUserRole === 'Admin') loadAllUsers();
 }
 
+/* ================== PROFILE ================== */
+function renderProfile() {
+  const data = window.currentUserData || {};
+  const user = window.currentUser;
+  if (!user) return;
+  const email = window.impersonatingUser ? data.email : user.email;
+  const initial = (email[0] || 'U').toUpperCase();
+  const el = (id) => document.getElementById(id);
+
+  if (el('profileAvatar')) el('profileAvatar').textContent = initial;
+  if (el('profileFullName')) el('profileFullName').textContent = data.fullName || 'User';
+  if (el('profileEmail')) el('profileEmail').textContent = email;
+  if (el('profileRole')) el('profileRole').textContent = window.currentUserRole;
+  if (el('infoFullName')) el('infoFullName').textContent = data.fullName || '—';
+  if (el('infoEmail')) el('infoEmail').textContent = email;
+  if (el('infoPhone')) el('infoPhone').textContent = data.phone || '—';
+  if (el('infoShopName')) el('infoShopName').textContent = data.shopName || '—';
+  if (el('infoAddress')) el('infoAddress').textContent = data.address || '—';
+  if (el('infoRole')) el('infoRole').textContent = window.currentUserRole;
+  if (el('infoCreatedDate')) el('infoCreatedDate').textContent = data.createdAtDate || (data.createdAt ? getDateBn(new Date(data.createdAt)) : '—');
+  if (el('infoCreatedTime')) el('infoCreatedTime').textContent = data.createdAtTime || '—';
+  if (el('infoUid')) el('infoUid').textContent = user.uid;
+  if (el('infoIp')) el('infoIp').textContent = data.lastIp || data.registrationIp || window.currentIP || '—';
+  if (el('infoDevice')) el('infoDevice').textContent = data.lastDevice || data.registrationDevice || '—';
+  if (el('infoBrowser')) el('infoBrowser').textContent = data.lastBrowser || data.registrationBrowser || '—';
+  if (el('infoLocation')) el('infoLocation').textContent = data.lastLocation || data.registrationLocation || '—';
+  if (el('infoLastLogin')) el('infoLastLogin').textContent = data.lastLogin ? `${data.lastLogin.date} • ${data.lastLogin.time}` : '—';
+  if (el('infoCreated')) el('infoCreated').textContent = data.createdAt ? new Date(data.createdAt).toLocaleString('bn-BD') : '—';
+  const status = data.status || 'Active';
+  const statusEl = el('infoAccountStatus');
+  if (statusEl) {
+    statusEl.textContent = status;
+    statusEl.className = status === 'Active' ? 'text-success' : 'text-danger';
+  }
+}
+window.renderProfile = renderProfile;
+
+window.openProfile = (e) => { if(e) e.preventDefault(); closeUserDropdown(); showSection('profile'); };
+window.openProfileEdit = (e) => {
+  if(e) e.preventDefault();
+  closeUserDropdown();
+  const data = window.currentUserData || {};
+  document.getElementById('editProfileName').value = data.fullName || '';
+  document.getElementById('editProfilePhone').value = data.phone || '';
+  document.getElementById('editProfileEmail').value = window.currentUser.email;
+  document.getElementById('editProfileShopName').value = data.shopName || '';
+  document.getElementById('editProfileAddress').value = data.address || '';
+  new bootstrap.Modal(document.getElementById('editProfileModal')).show();
+};
+window.openSettings = (e) => { if(e) e.preventDefault(); closeUserDropdown(); showSection('settings'); };
+window.openLoginHistory = (e) => { if(e) e.preventDefault(); closeUserDropdown(); new bootstrap.Modal(document.getElementById('loginHistoryModal')).show(); };
+window.openChangePassword = () => {
+  document.getElementById('pwdEmail').value = window.currentUser.email;
+  new bootstrap.Modal(document.getElementById('changePasswordModal')).show();
+};
+
+window.saveProfile = async () => {
+  const name = document.getElementById('editProfileName').value.trim();
+  const phone = document.getElementById('editProfilePhone').value.trim();
+  const shopName = document.getElementById('editProfileShopName').value.trim();
+  const address = document.getElementById('editProfileAddress').value.trim();
+  if (!name) { showToast('warning', 'সতর্কতা', 'নাম আবশ্যক'); return; }
+  showLoader(true);
+  try {
+    const uid = window.impersonatingUser || window.currentUser.uid;
+    await update(ref(db, 'users/' + uid), { fullName: name, phone, shopName, address });
+    window.currentUserData.fullName = name;
+    window.currentUserData.phone = phone;
+    window.currentUserData.shopName = shopName;
+    window.currentUserData.address = address;
+    window.currentUserFullName = name;
+    window.currentUserShopName = shopName;
+    window.currentUserAddress = address;
+    ['userName','welcomeName','dropdownName'].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = name; });
+    renderProfile();
+    logActivity('প্রোফাইল সম্পাদনা', `নাম: ${name}`);
+    showToast('success', 'প্রোফাইল আপডেট হয়েছে');
+    bootstrap.Modal.getInstance(document.getElementById('editProfileModal')).hide();
+  } catch(e) { showToast('error', 'ব্যর্থ', e.message); }
+  showLoader(false);
+};
+
+window.sendPasswordReset = async () => {
+  try {
+    await sendPasswordResetEmail(auth, window.currentUser.email);
+    showToast('success', 'রিসেট লিংক পাঠানো হয়েছে', window.currentUser.email);
+    bootstrap.Modal.getInstance(document.getElementById('changePasswordModal')).hide();
+  } catch(e) { showToast('error', 'ব্যর্থ', e.message); }
+};
+
+/* ================== LOGIN HISTORY ================== */
+function loadLoginHistory() {
+  if (!window.currentUser) return;
+  const uid = window.impersonatingUser || window.currentUser.uid;
+  const unsub = onValue(ref(db, 'users/' + uid + '/loginHistory'), (snap) => {
+    const data = snap.val() ? Object.values(snap.val()) : [];
+    data.sort((a,b) => (b.timestamp||0) - (a.timestamp||0));
+    window.loginHistory = data;
+    renderLoginHistory();
+  });
+  window.unsubscribers.push(unsub);
+}
+
+function renderLoginHistory() {
+  const el = document.getElementById('loginHistoryList');
+  const cnt = document.getElementById('loginHistoryCount');
+  const modalEl = document.getElementById('loginHistoryModalContent');
+  if (cnt) cnt.textContent = window.loginHistory.length + ' বার';
+  const html = window.loginHistory.length === 0
+    ? `<div class="text-center text-muted py-3"><i class="fas fa-history fa-2x mb-2 opacity-50"></i><p>কোনো লগইন নেই</p></div>`
+    : window.loginHistory.slice(0, 20).map(h => `<div class="login-history-item">
+        <div class="lh-icon"><i class="fas fa-sign-in-alt"></i></div>
+        <div class="lh-content">
+          <div class="lh-title">${h.action || 'লগইন'}</div>
+          <div class="lh-meta">
+            <span><i class="fas fa-calendar"></i> ${h.date} • ${h.time}</span>
+            <span><i class="fas fa-globe"></i> ${h.ip}</span>
+            <span><i class="fas fa-desktop"></i> ${h.device} • ${h.browser}</span>
+          </div>
+        </div>
+      </div>`).join('');
+  if (el) el.innerHTML = html;
+  if (modalEl) modalEl.innerHTML = html;
+}
+
+/* ================== USER DROPDOWN ================== */
+window.toggleUserDropdown = (e) => {
+  e.stopPropagation();
+  document.getElementById('userDropdown').classList.toggle('show');
+};
+function closeUserDropdown() { document.getElementById('userDropdown').classList.remove('show'); }
+document.addEventListener('click', (e) => {
+  const dd = document.getElementById('userDropdown');
+  if (dd && !dd.contains(e.target) && !e.target.closest('.user-menu-btn')) dd.classList.remove('show');
+});
+
+/* ================== LIVE PREVIEWS ================== */
 function updateNotifDot() {
   const ls = window.inventory.filter(i => parseInt(i.qty) <= 5);
   const dc = window.customers.filter(c => parseFloat(c.due) > 0);
@@ -600,6 +1072,8 @@ window.renderProductCards = () => {
   if (!c) return;
   c.innerHTML = '';
   const f = getFilteredInventory();
+  const cnt = document.getElementById('inventoryCardCount');
+  if (cnt) cnt.textContent = `মোট ${f.length} টি পণ্য`;
   if (f.length === 0) {
     c.innerHTML = `<div class="col-12"><div class="empty-state"><i class="fas fa-boxes"></i><h5>কোনো পণ্য নেই</h5><p>নতুন পণ্য যোগ করুন</p>
       <button class="btn btn-gradient" data-bs-toggle="modal" data-bs-target="#addProductModal"><i class="fas fa-plus"></i>নতুন পণ্য</button></div></div>`;
@@ -627,6 +1101,8 @@ window.renderInventoryTable = () => {
   const t = document.getElementById('inventoryTableBody');
   if (!t) return;
   const f = getFilteredInventoryList();
+  const cnt = document.getElementById('inventoryTableCount');
+  if (cnt) cnt.textContent = `মোট ${f.length} টি`;
   t.innerHTML = '';
   if (f.length === 0) { t.innerHTML = `<tr><td colspan="9" class="text-center text-muted py-4">কোনো পণ্য নেই</td></tr>`; return; }
   f.forEach((p, i) => {
@@ -682,7 +1158,8 @@ window.updateInventory = async () => {
   if (!name||qty===''||buy===''||sell==='') { showToast('warning', 'সতর্কতা', 'সব ঘর পূরণ করুন'); return; }
   showLoader(true);
   try {
-    await update(ref(db, 'users/'+window.currentUser.uid+'/inventory/'+window.editingProductId), { name, qty, buyPrice: buy, sellPrice: sell });
+    const uid = window.impersonatingUser || window.currentUser.uid;
+    await update(ref(db, 'users/'+uid+'/inventory/'+window.editingProductId), { name, qty, buyPrice: buy, sellPrice: sell });
     logActivity('পণ্য সম্পাদনা', `${name} আপডেট`);
     showToast('success', 'পণ্য আপডেট হয়েছে', name);
     bootstrap.Modal.getInstance(document.getElementById('editProductModal')).hide();
@@ -722,8 +1199,9 @@ window.purchaseProduct = async () => {
   if (!p) return;
   showLoader(true);
   try {
+    const uid = window.impersonatingUser || window.currentUser.uid;
     const newQty = parseInt(p.qty) + qty;
-    await update(ref(db, 'users/'+window.currentUser.uid+'/inventory/'+p.id), { qty: newQty, buyPrice: price });
+    await update(ref(db, 'users/'+uid+'/inventory/'+p.id), { qty: newQty, buyPrice: price });
     logActivity('পণ্য ক্রয়', `${name} - ${qty} ইউনিট @ ৳${price}`, qty * price);
     showToast('success', 'ক্রয় সম্পন্ন!', `নতুন স্টক: ${newQty}`);
     bootstrap.Modal.getInstance(document.getElementById('purchaseProductModal')).hide();
@@ -737,6 +1215,8 @@ window.renderCustomerCards = () => {
   if (!c) return;
   c.innerHTML = '';
   const f = getFilteredCustomers();
+  const cnt = document.getElementById('customerCount');
+  if (cnt) cnt.textContent = `মোট ${f.length} জন`;
   if (f.length === 0) {
     c.innerHTML = `<div class="col-12"><div class="empty-state"><i class="fas fa-users"></i><h5>কোনো কাস্টমার নেই</h5>
       <button class="btn btn-gradient" data-bs-toggle="modal" data-bs-target="#addCustomerModal"><i class="fas fa-plus"></i>নতুন কাস্টমার</button></div></div>`;
@@ -785,10 +1265,7 @@ window.renderCustomerHistoryList = () => {
   if (to) filtered = filtered.filter(c => (c.createdAt||'').slice(0,10) <= to);
   filtered.sort((a,b) => new Date(b.createdAt||0) - new Date(a.createdAt||0));
   t.innerHTML = '';
-  if (filtered.length === 0) {
-    t.innerHTML = `<tr><td colspan="8" class="text-center text-muted py-4">কোনো কাস্টমার ইতিহাস নেই</td></tr>`;
-    return;
-  }
+  if (filtered.length === 0) { t.innerHTML = `<tr><td colspan="8" class="text-center text-muted py-4">কোনো কাস্টমার ইতিহাস নেই</td></tr>`; return; }
   filtered.forEach((c, i) => {
     const created = c.createdAt ? new Date(c.createdAt) : null;
     const date = created ? getDateBn(created) : '—';
@@ -796,10 +1273,7 @@ window.renderCustomerHistoryList = () => {
     const hasDue = parseFloat(c.due) > 0;
     const statusBadge = hasDue ? `<span class="tag tag-warning">বাকি: ৳${c.due}</span>` : `<span class="tag tag-success">পরিষ্কার</span>`;
     t.innerHTML += `<tr>
-      <td>${i+1}</td>
-      <td><strong>${c.name}</strong></td>
-      <td>${c.phone||'—'}</td>
-      <td>৳${c.due||0}</td>
+      <td>${i+1}</td><td><strong>${c.name}</strong></td><td>${c.phone||'—'}</td><td>৳${c.due||0}</td>
       <td><i class="fas fa-calendar text-primary me-1"></i>${date}</td>
       <td><i class="fas fa-clock text-info me-1"></i>${time}</td>
       <td>${statusBadge}</td>
@@ -834,7 +1308,8 @@ window.updateCustomer = async () => {
   if (!name) { showToast('warning', 'সতর্কতা', 'নাম লিখুন'); return; }
   showLoader(true);
   try {
-    await update(ref(db, 'users/'+window.currentUser.uid+'/customers/'+window.editingCustomerId), { name, phone });
+    const uid = window.impersonatingUser || window.currentUser.uid;
+    await update(ref(db, 'users/'+uid+'/customers/'+window.editingCustomerId), { name, phone });
     logActivity('কাস্টমার সম্পাদনা', `${name} আপডেট`);
     showToast('success', 'কাস্টমার আপডেট হয়েছে', name);
     bootstrap.Modal.getInstance(document.getElementById('editCustomerModal')).hide();
@@ -871,7 +1346,8 @@ window.makePayment = async () => {
   const newDue = Math.max(0, (parseFloat(c.due)||0) - amount);
   showLoader(true);
   try {
-    await update(ref(db, 'users/'+window.currentUser.uid+'/customers/'+window.payingCustomerId), { due: newDue });
+    const uid = window.impersonatingUser || window.currentUser.uid;
+    await update(ref(db, 'users/'+uid+'/customers/'+window.payingCustomerId), { due: newDue });
     logActivity('বাকি পরিশোধ', `${c.name} কে ৳${amount} পরিশোধ`, amount);
     showToast('success', 'পরিশোধ সম্পন্ন!', `বাকি এখন: ৳${newDue}`);
     bootstrap.Modal.getInstance(document.getElementById('payDueModal')).hide();
@@ -885,7 +1361,8 @@ window.quickAddCustomer = async () => {
   if (!name || !phone) { showToast('warning', 'সতর্কতা', 'সব ঘর পূরণ করুন'); return; }
   showLoader(true);
   try {
-    const r = push(ref(db, 'users/'+window.currentUser.uid+'/customers'));
+    const uid = window.impersonatingUser || window.currentUser.uid;
+    const r = push(ref(db, 'users/'+uid+'/customers'));
     await set(r, { id: r.key, name, phone, due: 0, createdAt: new Date().toISOString() });
     logActivity('নতুন কাস্টমার', `${name} - ${phone}`, 0);
     showLoader(false);
@@ -901,6 +1378,8 @@ window.quickAddCustomer = async () => {
 window.renderExpenses = (exp) => {
   const t = document.getElementById('expenseTableBody');
   if (!t) return;
+  const cnt = document.getElementById('expenseCount');
+  if (cnt) cnt.textContent = `মোট ${exp.length} টি`;
   t.innerHTML = '';
   if (exp.length === 0) { t.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-4">কোনো খরচ নেই</td></tr>`; return; }
   exp.slice().reverse().forEach(e => {
@@ -922,9 +1401,7 @@ window.filterExpenseList = () => {
   renderExpenses(exp);
 };
 window.resetExpenseFilters = () => {
-  document.getElementById('expenseSearchFilter').value = '';
-  document.getElementById('expenseDateFrom').value = '';
-  document.getElementById('expenseDateTo').value = '';
+  ['expenseSearchFilter','expenseDateFrom','expenseDateTo'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
   renderExpenses(window.allExpensesCache);
 };
 
@@ -945,17 +1422,19 @@ window.renderExpenseChart = (exp) => {
   });
   const today = new Date().toISOString().split('T')[0];
   const tm = today.slice(0,7);
-  document.getElementById('todayExpense').textContent = '৳' + exp.filter(e => e.date === today).reduce((s,e) => s + parseFloat(e.amount||0), 0).toFixed(2);
-  document.getElementById('monthExpense').textContent = '৳' + exp.filter(e => e.date && e.date.startsWith(tm)).reduce((s,e) => s + parseFloat(e.amount||0), 0).toFixed(2);
-  document.getElementById('totalExpenseQuick').textContent = '৳' + exp.reduce((s,e) => s + parseFloat(e.amount||0), 0).toFixed(2);
+  const te = document.getElementById('todayExpense'); if (te) te.textContent = '৳' + exp.filter(e => e.date === today).reduce((s,e) => s + parseFloat(e.amount||0), 0).toFixed(2);
+  const me = document.getElementById('monthExpense'); if (me) me.textContent = '৳' + exp.filter(e => e.date && e.date.startsWith(tm)).reduce((s,e) => s + parseFloat(e.amount||0), 0).toFixed(2);
+  const tq = document.getElementById('totalExpenseQuick'); if (tq) tq.textContent = '৳' + exp.reduce((s,e) => s + parseFloat(e.amount||0), 0).toFixed(2);
 };
 
 /* ================== SALES LIST ================== */
 window.renderSalesList = (sales) => {
   const t = document.getElementById('salesTableBody');
   if (!t) return;
+  const cnt = document.getElementById('salesListCount');
+  if (cnt) cnt.textContent = `মোট ${sales.length} টি`;
   t.innerHTML = '';
-  if (sales.length === 0) { t.innerHTML = `<tr><td colspan="9" class="text-center text-muted py-4">কোনো বিক্রয় নেই</td></tr>`; return; }
+  if (sales.length === 0) { t.innerHTML = `<tr><td colspan="8" class="text-center text-muted py-4">কোনো বিক্রয় নেই</td></tr>`; return; }
   sales.slice().reverse().forEach(s => {
     const d = s.date ? new Date(s.date) : new Date();
     const cls = parseFloat(s.due) > 0 ? 'text-danger' : 'text-success';
@@ -963,8 +1442,7 @@ window.renderSalesList = (sales) => {
       <td>${s.customerName||'সাধারণ'}</td><td>${s.name||''}</td>
       <td class="fw-bold">৳${s.totalAmount}</td><td class="text-success">৳${s.paid||0}</td>
       <td class="${cls} fw-bold">৳${s.due||0}</td>
-      <td>${getDateBn(d)}</td>
-      <td><small class="text-muted"><i class="fas fa-clock me-1"></i>${s.time||'—'}</small></td>
+      <td>${getDateBn(d)}<br><small class="text-muted"><i class="fas fa-clock me-1"></i>${s.time||'—'}</small></td>
       <td><button class="btn btn-sm btn-outline-primary" onclick="printInvoice('${s.id}')"><i class="fas fa-print"></i></button>
       <button class="btn btn-sm btn-outline-success" onclick="downloadInvoice('${s.id}')"><i class="fas fa-download"></i></button>
       <button class="btn btn-sm btn-outline-info" onclick="shareInvoice('${s.id}')"><i class="fas fa-share-alt"></i></button></td></tr>`;
@@ -985,10 +1463,7 @@ window.filterSalesList = () => {
   renderSalesList(sales);
 };
 window.resetSalesFilters = () => {
-  document.getElementById('salesSearchFilter').value = '';
-  document.getElementById('salesDateFrom').value = '';
-  document.getElementById('salesDateTo').value = '';
-  document.getElementById('salesStatusFilter').value = '';
+  ['salesSearchFilter','salesDateFrom','salesDateTo','salesStatusFilter'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
   renderSalesList(window.allSalesCache);
 };
 
@@ -1010,10 +1485,7 @@ window.downloadInvoice = (id) => {
   const s = window.allSalesCache.find(x => x.id === id);
   if (!s) return;
   const c = `HesabKhata Enterprise\nইনভয়েস: ${s.invoiceNo}\nতারিখ: ${s.date} ${s.time||''}\nকাস্টমার: ${s.customerName}\nপণ্য: ${s.name}\nমোট: ৳${s.totalAmount}\nপরিশোধিত: ৳${s.paid}\nবাকি: ৳${s.due}`;
-  const b = new Blob([c], {type:'text/plain'});
-  const u = URL.createObjectURL(b);
-  const a = document.createElement('a'); a.href=u; a.download=`Invoice-${s.invoiceNo}.txt`; a.click();
-  URL.revokeObjectURL(u);
+  downloadFile(c, `Invoice-${s.invoiceNo}.txt`, 'text/plain');
   showToast('success', 'ডাউনলোড হয়েছে', `Invoice-${s.invoiceNo}.txt`);
 };
 window.shareInvoice = (id) => {
@@ -1021,29 +1493,26 @@ window.shareInvoice = (id) => {
   if (!s) return;
   const t = `📄 HesabKhata Enterprise\nইনভয়েস: ${s.invoiceNo}\nতারিখ: ${s.date} ${s.time||''}\nকাস্টমার: ${s.customerName}\nমোট: ৳${s.totalAmount}\nবাকি: ৳${s.due}`;
   if (navigator.share) { navigator.share({title:'Invoice', text:t}).catch(()=>{}); }
-  else { navigator.clipboard.writeText(t).then(() => showToast('success', 'কপি হয়েছে!', 'যেকোনো অ্যাপে পেস্ট করুন')); }
+  else { navigator.clipboard.writeText(t).then(() => showToast('success', 'কপি হয়েছে!')); }
 };
 
 /* ================== EXPORTS ================== */
 window.exportSales = () => {
   let c = 'Invoice,Customer,Products,Total,Paid,Due,Date,Time\n';
   window.allSalesCache.forEach(s => { c += `${s.invoiceNo},${s.customerName},${s.name},${s.totalAmount},${s.paid},${s.due},${s.date},${s.time||''}\n`; });
-  const b = new Blob(['\uFEFF' + c], {type:'text/csv;charset=utf-8'});
-  const u = URL.createObjectURL(b); const a = document.createElement('a'); a.href=u; a.download='sales.csv'; a.click(); URL.revokeObjectURL(u);
+  downloadFile(c, 'sales.csv');
   showToast('success', 'এক্সপোর্ট হয়েছে', 'sales.csv');
 };
 window.exportInventory = () => {
   let c = 'Name,Qty,BuyPrice,SellPrice,Profit\n';
   window.inventory.forEach(i => { c += `${i.name},${i.qty},${i.buyPrice},${i.sellPrice},${(i.sellPrice-i.buyPrice).toFixed(2)}\n`; });
-  const b = new Blob(['\uFEFF' + c], {type:'text/csv;charset=utf-8'});
-  const u = URL.createObjectURL(b); const a = document.createElement('a'); a.href=u; a.download='inventory.csv'; a.click(); URL.revokeObjectURL(u);
+  downloadFile(c, 'inventory.csv');
   showToast('success', 'এক্সপোর্ট হয়েছে', 'inventory.csv');
 };
 window.exportExpenses = () => {
   let c = 'Description,Amount,Date,Time\n';
   window.allExpensesCache.forEach(e => { c += `${e.title},${e.amount},${e.date},${e.time||''}\n`; });
-  const b = new Blob(['\uFEFF' + c], {type:'text/csv;charset=utf-8'});
-  const u = URL.createObjectURL(b); const a = document.createElement('a'); a.href=u; a.download='expenses.csv'; a.click(); URL.revokeObjectURL(u);
+  downloadFile(c, 'expenses.csv');
   showToast('success', 'এক্সপোর্ট হয়েছে', 'expenses.csv');
 };
 window.exportMasterList = () => {
@@ -1053,9 +1522,71 @@ window.exportMasterList = () => {
   if (type==='all'||type==='inventory') { c += '\n=== INVENTORY ===\nName,Qty,Buy,Sell\n'; window.inventory.forEach(i => { c += `${i.name},${i.qty},${i.buyPrice},${i.sellPrice}\n`; }); }
   if (type==='all'||type==='customers') { c += '\n=== CUSTOMERS ===\nName,Phone,Due,CreatedDate,CreatedTime\n'; window.customers.forEach(x => { const cd = x.createdAt?new Date(x.createdAt):null; c += `${x.name},${x.phone},${x.due},${cd?getDateBn(cd):''},${cd?getTimeBn(cd):''}\n`; }); }
   if (type==='all'||type==='expenses') { c += '\n=== EXPENSES ===\nDesc,Amount,Date,Time\n'; window.allExpensesCache.forEach(e => { c += `${e.title},${e.amount},${e.date},${e.time||''}\n`; }); }
-  const b = new Blob(['\uFEFF' + c], {type:'text/csv;charset=utf-8'});
-  const u = URL.createObjectURL(b); const a = document.createElement('a'); a.href=u; a.download='master-list.csv'; a.click(); URL.revokeObjectURL(u);
+  downloadFile(c, 'master-list.csv');
   showToast('success', 'এক্সপোর্ট হয়েছে', 'master-list.csv');
+};
+
+/* ================== BACKUP / RESTORE ================== */
+window.exportAllData = () => {
+  const backup = {
+    exportedAt: new Date().toISOString(),
+    user: { email: window.currentUser.email, uid: window.currentUser.uid, fullName: window.currentUserFullName, shopName: window.currentUserShopName, address: window.currentUserAddress, role: window.currentUserRole },
+    inventory: window.inventory, customers: window.customers,
+    sales: window.allSalesCache, expenses: window.allExpensesCache,
+    activityLog: window.activityLog, loginHistory: window.loginHistory, settings: window.userSettings
+  };
+  downloadFile(JSON.stringify(backup, null, 2), `hesabkhata-backup-${new Date().toISOString().split('T')[0]}.json`, 'application/json');
+  showToast('success', 'ব্যাকআপ ডাউনলোড হয়েছে');
+};
+
+window.exportAllCSV = () => {
+  let c = `=== HESABKHATA BACKUP ===\nDate: ${new Date().toLocaleString('bn-BD')}\nUser: ${window.currentUser.email}\n\n`;
+  c += '=== INVENTORY ===\nName,Qty,Buy,Sell\n'; window.inventory.forEach(i => { c += `${i.name},${i.qty},${i.buyPrice},${i.sellPrice}\n`; });
+  c += '\n=== CUSTOMERS ===\nName,Phone,Due\n'; window.customers.forEach(x => { c += `${x.name},${x.phone},${x.due}\n`; });
+  c += '\n=== SALES ===\nInvoice,Customer,Products,Total,Paid,Due,Date,Time\n'; window.allSalesCache.forEach(s => { c += `${s.invoiceNo},${s.customerName},${s.name},${s.totalAmount},${s.paid},${s.due},${s.date},${s.time||''}\n`; });
+  c += '\n=== EXPENSES ===\nDesc,Amount,Date,Time\n'; window.allExpensesCache.forEach(e => { c += `${e.title},${e.amount},${e.date},${e.time||''}\n`; });
+  downloadFile(c, `hesabkhata-full-${new Date().toISOString().split('T')[0]}.csv`);
+  showToast('success', 'CSV ডাউনলোড হয়েছে');
+};
+
+window.importData = (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async (ev) => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      const ok = await showConfirm('ডেটা পুনরুদ্ধার করবেন?', 'বর্তমান ডেটা এই ব্যাকআপ দিয়ে রিপ্লেস হবে।', { type:'warning' });
+      if (!ok) return;
+      showLoader(true, 'ডেটা পুনরুদ্ধার হচ্ছে...');
+      const uid = window.impersonatingUser || window.currentUser.uid;
+      if (data.inventory) for (const item of data.inventory) await set(ref(db, 'users/'+uid+'/inventory/'+item.id), item);
+      if (data.customers) for (const item of data.customers) await set(ref(db, 'users/'+uid+'/customers/'+item.id), item);
+      if (data.sales) for (const item of data.sales) await set(ref(db, 'users/'+uid+'/sales/'+item.id), item);
+      if (data.expenses) for (const item of data.expenses) await set(ref(db, 'users/'+uid+'/expenses/'+item.id), item);
+      logActivity('ডেটা ইমপোর্ট', `ব্যাকআপ থেকে পুনরুদ্ধার`);
+      showToast('success', 'ডেটা পুনরুদ্ধার সফল');
+    } catch(err) { showToast('error', 'ব্যর্থ', 'ফাইল সঠিক নয়'); }
+    showLoader(false);
+    e.target.value = '';
+  };
+  reader.readAsText(file);
+};
+
+window.confirmDeleteAll = async () => {
+  const ok = await showConfirm('সব ডেটা মুছবেন?', 'সব পণ্য, কাস্টমার, বিক্রয়, খরচ মুছে যাবে!', { type:'danger', danger:true });
+  if (!ok) return;
+  showLoader(true, 'ডেটা মুছে ফেলা হচ্ছে...');
+  try {
+    const uid = window.impersonatingUser || window.currentUser.uid;
+    await remove(ref(db, 'users/'+uid+'/inventory'));
+    await remove(ref(db, 'users/'+uid+'/customers'));
+    await remove(ref(db, 'users/'+uid+'/sales'));
+    await remove(ref(db, 'users/'+uid+'/expenses'));
+    logActivity('ডেটা ডিলিট', `সব ডেটা মুছে ফেলা হয়েছে`);
+    showToast('success', 'সব ডেটা মুছে ফেলা হয়েছে');
+  } catch(e) { showToast('error', 'ব্যর্থ', e.message); }
+  showLoader(false);
 };
 
 /* ================== CRUD ================== */
@@ -1068,7 +1599,8 @@ window.addInventory = async () => {
   if (parseFloat(q) < 0 || parseFloat(b) < 0 || parseFloat(s) < 0) { showToast('error', 'ভুল মান', 'নেগেটিভ মান দেওয়া যাবে না'); return; }
   showLoader(true);
   try {
-    const r = push(ref(db, 'users/'+window.currentUser.uid+'/inventory'));
+    const uid = window.impersonatingUser || window.currentUser.uid;
+    const r = push(ref(db, 'users/'+uid+'/inventory'));
     await set(r, { id: r.key, name: n, qty: q, buyPrice: b, sellPrice: s, createdAt: new Date().toISOString() });
     logActivity('নতুন পণ্য', `${n} যোগ (স্টক: ${q})`);
     bootstrap.Modal.getInstance(document.getElementById('addProductModal')).hide();
@@ -1086,7 +1618,8 @@ window.addCustomer = async () => {
   if (!n||!p) { showToast('warning', 'সতর্কতা', 'সব ঘর পূরণ করুন'); return; }
   showLoader(true);
   try {
-    const r = push(ref(db, 'users/'+window.currentUser.uid+'/customers'));
+    const uid = window.impersonatingUser || window.currentUser.uid;
+    const r = push(ref(db, 'users/'+uid+'/customers'));
     await set(r, { id: r.key, name: n, phone: p, due: parseFloat(d), createdAt: new Date().toISOString() });
     logActivity('নতুন কাস্টমার', `${n} - ${p} (প্রাথমিক বাকি: ৳${d})`, parseFloat(d));
     bootstrap.Modal.getInstance(document.getElementById('addCustomerModal')).hide();
@@ -1103,7 +1636,8 @@ window.addExpense = async () => {
   if (parseFloat(a) <= 0) { showToast('error', 'ভুল পরিমাণ', 'সঠিক পরিমাণ দিন'); return; }
   showLoader(true);
   try {
-    const r = push(ref(db, 'users/'+window.currentUser.uid+'/expenses'));
+    const uid = window.impersonatingUser || window.currentUser.uid;
+    const r = push(ref(db, 'users/'+uid+'/expenses'));
     const now = new Date();
     await set(r, { id: r.key, title: t, amount: a, date: now.toISOString().split('T')[0], time: getTimeBn(now), createdAt: now.toISOString() });
     logActivity('নতুন খরচ', `${t}`, parseFloat(a));
@@ -1115,11 +1649,12 @@ window.addExpense = async () => {
 };
 
 window.deleteItem = async (col, id) => {
-  const confirm = await Swal.fire({ title:'নিশ্চিত?', text:'এই আইটেমটি মুছে ফেলা হবে', icon:'warning', showCancelButton:true, confirmButtonText:'হ্যাঁ, মুছুন', cancelButtonText:'বাতিল', confirmButtonColor:'#ef4444' });
-  if (!confirm.isConfirmed) return;
+  const ok = await showConfirm('নিশ্চিত?', 'এই আইটেমটি মুছে ফেলা হবে।', { type:'danger', danger:true });
+  if (!ok) return;
   showLoader(true);
   try {
-    await remove(ref(db, 'users/'+window.currentUser.uid+'/'+col+'/'+id));
+    const uid = window.impersonatingUser || window.currentUser.uid;
+    await remove(ref(db, 'users/'+uid+'/'+col+'/'+id));
     logActivity('ডিলিট', `${col} আইটেম মুছে ফেলা হয়েছে`);
     showToast('success', 'মুছে ফেলা হয়েছে');
   } catch(e) { showToast('error', 'ব্যর্থ', e.message); }
@@ -1129,12 +1664,12 @@ window.deleteItem = async (col, id) => {
 /* ================== DASHBOARD ================== */
 window.renderDashboard = (sales) => {
   const today = new Date().toISOString().split('T')[0];
-  document.getElementById('totalSales').textContent = sales.reduce((s,i) => s + parseFloat(i.totalAmount||0), 0).toFixed(2);
-  document.getElementById('todaySales').textContent = sales.filter(i => i.date === today).reduce((s,i) => s + parseFloat(i.totalAmount||0), 0).toFixed(2);
-  document.getElementById('totalDue').textContent = sales.reduce((s,i) => s + parseFloat(i.due||0), 0).toFixed(2);
-  document.getElementById('repDue').textContent = document.getElementById('totalDue').textContent;
+  const ts = document.getElementById('totalSales'); if (ts) ts.textContent = sales.reduce((s,i) => s + parseFloat(i.totalAmount||0), 0).toFixed(2);
+  const tds = document.getElementById('todaySales'); if (tds) tds.textContent = sales.filter(i => i.date === today).reduce((s,i) => s + parseFloat(i.totalAmount||0), 0).toFixed(2);
+  const td = document.getElementById('totalDue'); if (td) td.textContent = sales.reduce((s,i) => s + parseFloat(i.due||0), 0).toFixed(2);
+  const rd = document.getElementById('repDue'); if (rd) rd.textContent = document.getElementById('totalDue')?.textContent || '0';
   updateChartPeriod(7);
-  document.getElementById('repSales').textContent = document.getElementById('totalSales').textContent;
+  const rs = document.getElementById('repSales'); if (rs) rs.textContent = document.getElementById('totalSales')?.textContent || '0';
 };
 
 window.updateChartPeriod = (days, btn) => {
@@ -1189,11 +1724,13 @@ window.filterInvoices = () => {
 };
 
 window.updateTotalExpense = (exp) => {
-  document.getElementById('totalExpense').textContent = exp.reduce((s,i) => s + parseFloat(i.amount||0), 0).toFixed(2);
-  document.getElementById('repExpense').textContent = document.getElementById('totalExpense').textContent;
-  const net = parseFloat(document.getElementById('totalSales').textContent) - parseFloat(document.getElementById('totalExpense').textContent);
-  document.getElementById('repProfit').textContent = net.toFixed(2);
-  document.getElementById('netProfitQuick').textContent = '৳' + net.toFixed(2);
+  const te = document.getElementById('totalExpense'); if (te) te.textContent = exp.reduce((s,i) => s + parseFloat(i.amount||0), 0).toFixed(2);
+  const re = document.getElementById('repExpense'); if (re) re.textContent = document.getElementById('totalExpense')?.textContent || '0';
+  const ts = parseFloat(document.getElementById('totalSales')?.textContent || '0');
+  const tev = parseFloat(document.getElementById('totalExpense')?.textContent || '0');
+  const net = ts - tev;
+  const rp = document.getElementById('repProfit'); if (rp) rp.textContent = net.toFixed(2);
+  const nq = document.getElementById('netProfitQuick'); if (nq) nq.textContent = '৳' + net.toFixed(2);
 };
 
 window.renderCustomerSelect = () => {
@@ -1210,8 +1747,7 @@ window.updateCustomerDue = () => {
   const s = document.getElementById('customerSelect');
   if (s.selectedIndex > 0) {
     const due = parseFloat(s.options[s.selectedIndex].getAttribute('data-due')) || 0;
-    window.currentCustomerDue = due;
-    window.currentCustomerId = s.value;
+    window.currentCustomerDue = due; window.currentCustomerId = s.value;
     document.getElementById('customerDueBadge').innerHTML = `<i class="fas fa-exclamation-circle me-1"></i>বাকি: ৳${due}`;
   } else {
     window.currentCustomerDue = 0; window.currentCustomerId = null;
@@ -1246,13 +1782,13 @@ window.addToCartFromSearch = () => {
   document.getElementById('productSearch').value = '';
   document.getElementById('productSearchResults').innerHTML = '';
   document.getElementById('productQty').value = '1';
-  showToast('success', 'কার্টে যোগ হয়েছে', `${item.name} × ${qty}`);
+  showToast('success', 'কার্টে যোগ', `${item.name} × ${qty}`);
 };
 
 window.removeFromCart = (i) => { window.cart.splice(i, 1); renderCart(); };
 window.clearCart = async () => {
-  const r = await Swal.fire({ title:'কার্ট খালি করবেন?', icon:'warning', showCancelButton:true, confirmButtonText:'হ্যাঁ', cancelButtonText:'না', confirmButtonColor:'#ef4444' });
-  if (r.isConfirmed) { window.cart = []; renderCart(); showToast('info', 'কার্ট খালি', ''); }
+  const ok = await showConfirm('কার্ট খালি করবেন?', 'সব পণ্য কার্ট থেকে মুছে যাবে।', { type:'warning' });
+  if (ok) { window.cart = []; renderCart(); showToast('info', 'কার্ট খালি'); }
 };
 
 window.renderCart = () => {
@@ -1317,20 +1853,13 @@ window.completeSale = async () => {
   const total = Math.max(0, subtotal - discount);
   const due = Math.max(0, total - paid);
   if (due > 0 && !cId) { showToast('warning', 'সতর্কতা', 'বাকিতে বিক্রি করতে কাস্টমার নির্বাচন করুন'); return; }
-  const confirm = await Swal.fire({
-    title: 'বিক্রয় নিশ্চিত করুন',
-    html: `<div style="text-align:left;font-size:0.95rem;">
-      <div style="padding:4px 0;"><strong>মোট:</strong> ৳${total.toFixed(2)}</div>
-      <div style="padding:4px 0;"><strong>পরিশোধিত:</strong> ৳${paid.toFixed(2)}</div>
-      <div style="padding:4px 0;"><strong>বাকি:</strong> ৳${due.toFixed(2)}</div>
-      <div style="padding:4px 0;"><strong>পরিবর্তন:</strong> ৳${Math.max(0, paid-total).toFixed(2)}</div>
-    </div>`,
-    icon: 'question', showCancelButton: true, confirmButtonText: 'হ্যাঁ, সম্পন্ন করুন', cancelButtonText: 'বাতিল', confirmButtonColor: '#10b981'
-  });
-  if (!confirm.isConfirmed) return;
+
+  const ok = await showConfirm('বিক্রয় নিশ্চিত?', `মোট: ৳${total.toFixed(2)} | পরিশোধিত: ৳${paid.toFixed(2)} | বাকি: ৳${due.toFixed(2)}`, { type:'success', okText:'হ্যাঁ, সম্পন্ন' });
+  if (!ok) return;
   showLoader(true);
   try {
-    const r = push(ref(db, 'users/'+window.currentUser.uid+'/sales'));
+    const uid = window.impersonatingUser || window.currentUser.uid;
+    const r = push(ref(db, 'users/'+uid+'/sales'));
     const cName = s.options[s.selectedIndex]?.text || 'সাধারণ কাস্টমার';
     const now = new Date();
     const invoiceNo = 'INV-'+Date.now().toString().slice(-6);
@@ -1344,14 +1873,12 @@ window.completeSale = async () => {
       time: getTimeBn(now),
       createdAt: now.toISOString()
     });
-    if (due > 0 && cId) await update(ref(db, 'users/'+window.currentUser.uid+'/customers/'+cId), { due: cDue + due });
+    if (due > 0 && cId) await update(ref(db, 'users/'+uid+'/customers/'+cId), { due: cDue + due });
     for (const item of window.cart) {
       const inv = window.inventory.find(i => i.id === item.id);
-      if (inv) await update(ref(db, 'users/'+window.currentUser.uid+'/inventory/'+inv.id), { qty: parseInt(inv.qty) - item.qty });
+      if (inv) await update(ref(db, 'users/'+uid+'/inventory/'+inv.id), { qty: parseInt(inv.qty) - item.qty });
     }
-    logActivity('বিক্রয়', `${cName} - ${window.cart.map(i=>i.name).join(', ')}`, total, {
-      customerName: cName, invoiceNo
-    });
+    logActivity('বিক্রয়', `${cName} - ${window.cart.map(i=>i.name).join(', ')}`, total, { customerName: cName, invoiceNo });
     window.cart = [];
     renderCart();
     document.getElementById('paidAmount').value = '';
@@ -1363,9 +1890,11 @@ window.completeSale = async () => {
 
 /* ================== QUICK STATS ================== */
 function updateQuickStats() {
-  document.getElementById('totalProducts').textContent = window.inventory.length;
-  document.getElementById('totalCustomers').textContent = window.customers.length;
-  document.getElementById('lowStockCount').textContent = window.inventory.filter(i => parseInt(i.qty) <= 5).length;
+  const tp = document.getElementById('totalProducts'); if (tp) tp.textContent = window.inventory.length;
+  const tc = document.getElementById('totalCustomers'); if (tc) tc.textContent = window.customers.length;
+  const low = window.inventory.filter(i => parseInt(i.qty) <= 5).length;
+  const lsc = document.getElementById('lowStockCount'); if (lsc) lsc.textContent = low;
+  const lsb = document.getElementById('lowStockBadge'); if (lsb) lsb.textContent = low;
   updateNotifDot();
 }
 
@@ -1416,9 +1945,9 @@ function renderReports(sales) {
   const exp = window.allExpensesCache;
   const ts = sales.reduce((s,i) => s + parseFloat(i.totalAmount||0), 0);
   const te = exp.reduce((s,e) => s + parseFloat(e.amount||0), 0);
-  document.getElementById('repSales').textContent = ts.toFixed(2);
-  document.getElementById('repExpense').textContent = te.toFixed(2);
-  document.getElementById('repProfit').textContent = (ts-te).toFixed(2);
+  const rs = document.getElementById('repSales'); if (rs) rs.textContent = ts.toFixed(2);
+  const re = document.getElementById('repExpense'); if (re) re.textContent = te.toFixed(2);
+  const rp = document.getElementById('repProfit'); if (rp) rp.textContent = (ts-te).toFixed(2);
   const months = {};
   sales.forEach(s => { const m = s.date?.slice(0,7); if (m) months[m] = (months[m]||0) + parseFloat(s.totalAmount||0); });
   const ml = Object.keys(months).sort().slice(-6);
@@ -1447,6 +1976,8 @@ function renderReports(sales) {
 window.renderMasterList = () => {
   const type = document.getElementById('masterDataType')?.value || 'all';
   const q = (document.getElementById('masterSearchFilter')?.value || '').toLowerCase();
+  const from = document.getElementById('masterDateFrom')?.value || '';
+  const to = document.getElementById('masterDateTo')?.value || '';
   const th = document.getElementById('masterTableHead');
   const tb = document.getElementById('masterTableBody');
   if (!th || !tb) return;
@@ -1454,6 +1985,8 @@ window.renderMasterList = () => {
   if (type==='all'||type==='sales') {
     window.allSalesCache.forEach(s => {
       if (q && !(s.invoiceNo||'').toLowerCase().includes(q) && !(s.customerName||'').toLowerCase().includes(q)) return;
+      if (from && s.date < from) return;
+      if (to && s.date > to) return;
       rows.push(['<span class="tag tag-primary">বিক্রয়</span>', s.invoiceNo, s.customerName, '৳'+s.totalAmount, s.date, s.time||'—']);
     });
   }
@@ -1474,6 +2007,8 @@ window.renderMasterList = () => {
   if (type==='all'||type==='expenses') {
     window.allExpensesCache.forEach(e => {
       if (q && !e.title.toLowerCase().includes(q)) return;
+      if (from && e.date < from) return;
+      if (to && e.date > to) return;
       rows.push(['<span class="tag tag-danger">খরচ</span>', e.title, '৳'+e.amount, e.date, e.time||'—', '']);
     });
   }
@@ -1488,85 +2023,501 @@ window.renderMasterList = () => {
     : rows.map(r => `<tr>${r.map(c => `<td>${c}</td>`).join('')}</tr>`).join('');
 };
 
-/* ================== ADMIN ================== */
+/* ================== ADMIN PANEL ================== */
 function loadAllUsers() {
   const unsub = onValue(ref(db, 'users'), (snap) => {
     const users = snap.val() ? Object.values(snap.val()) : [];
     window.allUsersCache = users;
-    renderAdminAllUsers(users);
+    populateAdminUserDropdown(users);
+    renderAdminUsersList();
     renderAdminUserStats(users);
-    populateAdminUserSelect(users);
-    renderUsersList(users);
-  }, (err) => console.error('Users error:', err));
+  });
   window.unsubscribers.push(unsub);
 }
 
-function renderAdminAllUsers(users) {
-  const t = document.getElementById('adminAllUsersList');
-  if (!t) return;
-  t.innerHTML = '';
+function populateAdminUserDropdown(users) {
+  const sel = document.getElementById('adminUserSelect');
+  if (!sel) return;
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">— নির্বাচন করুন —</option>';
   users.forEach(u => {
-    const cur = u.uid === window.currentUser.uid;
-    const rb = u.role === 'Admin' ? 'tag-warning' : u.role === 'Manager' ? 'tag-primary' : 'tag-success';
-    const cdate = u.createdAt ? new Date(u.createdAt) : null;
-    t.innerHTML += `<tr><td>${u.fullName||'—'}</td><td>${u.email}</td>
-      <td><span class="tag ${rb}">${u.role||'Staff'}</span></td>
-      <td>${cdate?getDateBn(cdate):'—'}</td>
-      <td>${cdate?getTimeBn(cdate):'—'}</td>
-      <td>${cur ? '<span class="text-muted small">আপনি</span>' : `<button class="btn btn-sm btn-outline-danger" onclick="deleteUser('${u.uid}')"><i class="fas fa-trash"></i></button>`}</td></tr>`;
+    if (u.uid === window.currentUser.uid) return;
+    sel.innerHTML += `<option value="${u.uid}">${u.fullName || u.email} — ${u.role || 'Staff'}</option>`;
   });
+  if (cur) sel.value = cur;
 }
+
+window.renderAdminUsersList = () => {
+  const t = document.getElementById('adminUsersListTable');
+  if (!t) return;
+  const q = (document.getElementById('adminUserSearch')?.value || '').toLowerCase();
+  const rf = document.getElementById('adminRoleFilter')?.value || '';
+  const sf = document.getElementById('adminStatusFilter')?.value || '';
+  let users = [...window.allUsersCache];
+  if (q) users = users.filter(u => (u.fullName||'').toLowerCase().includes(q) || (u.email||'').toLowerCase().includes(q));
+  if (rf) users = users.filter(u => (u.role||'Staff') === rf);
+  if (sf) users = users.filter(u => (u.status||'Active') === sf);
+  t.innerHTML = '';
+  if (users.length === 0) { t.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-4">কোনো ইউজার নেই</td></tr>`; return; }
+  users.forEach(u => {
+    const rb = u.role === 'Admin' ? 'tag-warning' : u.role === 'Manager' ? 'tag-primary' : 'tag-success';
+    const sb = u.status === 'Blocked' ? 'tag-danger' : u.status === 'Suspended' ? 'tag-warning' : 'tag-success';
+    const cur = u.uid === window.currentUser.uid;
+    const cdate = u.createdAt ? new Date(u.createdAt) : null;
+    t.innerHTML += `<tr>
+      <td><strong>${u.fullName||'—'}</strong>${cur?' <span class="tag tag-info">আপনি</span>':''}</td>
+      <td>${u.email}</td>
+      <td><span class="tag ${rb}">${u.role||'Staff'}</span></td>
+      <td><span class="tag ${sb}">${u.status||'Active'}</span></td>
+      <td>${cdate?getDateBn(cdate):'—'}</td>
+      <td>
+        ${cur ? '<span class="text-muted small">—</span>' : `
+          <button class="btn btn-sm btn-outline-primary" onclick="selectAdminUser('${u.uid}')" title="নির্বাচন"><i class="fas fa-hand-pointer"></i></button>
+          <button class="btn btn-sm btn-outline-danger" onclick="adminDeleteUserById('${u.uid}','${u.email}')" title="ডিলিট"><i class="fas fa-trash"></i></button>
+        `}
+      </td>
+    </tr>`;
+  });
+};
 
 function renderAdminUserStats(users) {
   const c = document.getElementById('adminUserStats');
   if (!c) return;
   c.innerHTML = `
     <div class="col-6"><div class="stat-mini"><small>মোট ইউজার</small><h5>${users.length}</h5></div></div>
-    <div class="col-6"><div class="stat-mini"><small>অ্যাডমিন</small><h5>${users.filter(u => u.role==='Admin').length}</h5></div></div>
-    <div class="col-6"><div class="stat-mini"><small>ম্যানেজার</small><h5>${users.filter(u => u.role==='Manager').length}</h5></div></div>
-    <div class="col-6"><div class="stat-mini"><small>স্টাফ</small><h5>${users.filter(u => u.role==='Staff'||!u.role).length}</h5></div></div>`;
+    <div class="col-6"><div class="stat-mini"><small>সক্রিয়</small><h5 class="text-success">${users.filter(u => (u.status||'Active') === 'Active').length}</h5></div></div>
+    <div class="col-6"><div class="stat-mini"><small>ব্লকড</small><h5 class="text-danger">${users.filter(u => u.status === 'Blocked').length}</h5></div></div>
+    <div class="col-6"><div class="stat-mini"><small>সাসপেন্ডেড</small><h5 class="text-warning">${users.filter(u => u.status === 'Suspended').length}</h5></div></div>
+  `;
 }
 
-function populateAdminUserSelect(users) {
-  const s = document.getElementById('adminSelectUser');
-  if (!s) return;
-  s.innerHTML = '<option value="">— নির্বাচন করুন —</option>';
-  users.forEach(u => { if (u.uid !== window.currentUser.uid) s.innerHTML += `<option value="${u.uid}">${u.fullName||u.email} (${u.role||'Staff'})</option>`; });
-}
+/* ================== ADMIN USER SELECT ================== */
+window.selectAdminUser = (uid) => {
+  const sel = document.getElementById('adminUserSelect');
+  if (sel) { sel.value = uid; onAdminUserSelect(); }
+};
 
-function renderUsersList(users) {
-  const t = document.getElementById('usersList');
-  if (!t) return;
-  t.innerHTML = '';
-  users.forEach(u => {
-    const rb = u.role === 'Admin' ? 'tag-warning' : u.role === 'Manager' ? 'tag-primary' : 'tag-success';
-    const cdate = u.createdAt ? new Date(u.createdAt) : null;
-    t.innerHTML += `<tr><td><strong>${u.fullName||'—'}</strong></td><td>${u.email}</td>
-      <td><span class="tag ${rb}">${u.role||'Staff'}</span></td>
-      <td><span class="tag ${u.status==='Active'?'tag-success':'tag-danger'}">${u.status||'Active'}</span></td>
-      <td>${cdate?getDateBn(cdate):'—'}</td>
-      <td>${cdate?getTimeBn(cdate):'—'}</td>
-      <td>${u.uid === window.currentUser.uid ? '<span class="text-muted small">আপনি</span>' : `<button class="btn btn-sm btn-outline-danger" onclick="deleteUser('${u.uid}')"><i class="fas fa-trash"></i></button>`}</td></tr>`;
+window.onAdminUserSelect = () => {
+  const uid = document.getElementById('adminUserSelect')?.value;
+  if (!uid) { clearUserSelection(); return; }
+  const user = window.allUsersCache.find(u => u.uid === uid);
+  if (!user) { clearUserSelection(); return; }
+  window.selectedAdminUser = user;
+
+  const panel = document.getElementById('selectedUserPanel');
+  if (panel) panel.style.display = 'block';
+  const badge = document.getElementById('selectedUserBadge');
+  if (badge) { badge.style.display = 'inline-flex'; document.getElementById('selectedUserBadgeName').textContent = user.fullName || user.email; }
+
+  const initial = (user.email[0] || 'U').toUpperCase();
+  document.getElementById('selUserAvatar').textContent = initial;
+  document.getElementById('selUserName').textContent = user.fullName || 'User';
+  document.getElementById('selUserEmail').textContent = user.email;
+  document.getElementById('selUserRole').textContent = user.role || 'Staff';
+  document.getElementById('selUserStatus').textContent = user.status || 'Active';
+  const cdate = user.createdAt ? new Date(user.createdAt) : null;
+  document.getElementById('selUserCreated').textContent = cdate ? getDateBn(cdate) : '—';
+
+  // Overview
+  document.getElementById('adShopName').textContent = user.shopName || '—';
+  document.getElementById('adPhone').textContent = user.phone || '—';
+  document.getElementById('adAddress').textContent = user.address || '—';
+  document.getElementById('adIp').textContent = user.lastIp || user.registrationIp || '—';
+  document.getElementById('adDevice').textContent = user.lastDevice || user.registrationDevice || '—';
+  document.getElementById('adLastLogin').textContent = user.lastLogin ? `${user.lastLogin.date} ${user.lastLogin.time}` : '—';
+
+  // Profile form
+  document.getElementById('adEditName').value = user.fullName || '';
+  document.getElementById('adEditPhone').value = user.phone || '';
+  document.getElementById('adEditEmail').value = user.email;
+  document.getElementById('adEditShopName').value = user.shopName || '';
+  document.getElementById('adEditAddress').value = user.address || '';
+  document.getElementById('adEditRole').value = user.role || 'Staff';
+  document.getElementById('adEditStatus').value = user.status || 'Active';
+
+  // Load user stats
+  loadUserStats(uid);
+};
+
+function loadUserStats(uid) {
+  ['inventory','customers','sales','expenses'].forEach(type => {
+    onValue(ref(db, 'users/' + uid + '/' + type), (snap) => {
+      const count = snap.val() ? Object.keys(snap.val()).length : 0;
+      const el = document.getElementById('adStat' + type.charAt(0).toUpperCase() + type.slice(1));
+      if (el) el.textContent = count;
+    }, { onlyOnce: true });
   });
 }
 
-window.updateUserRole = async () => {
-  const id = document.getElementById('adminSelectUser').value;
-  const role = document.getElementById('adminSelectRole').value;
-  if (!id) { showToast('warning', 'সতর্কতা', 'ইউজার নির্বাচন করুন'); return; }
+window.clearUserSelection = () => {
+  window.selectedAdminUser = null;
+  const sel = document.getElementById('adminUserSelect');
+  if (sel) sel.value = '';
+  const panel = document.getElementById('selectedUserPanel');
+  if (panel) panel.style.display = 'none';
+  const badge = document.getElementById('selectedUserBadge');
+  if (badge) badge.style.display = 'none';
+};
+
+window.refreshUserList = () => {
+  showLoader(true, 'রিফ্রেশ হচ্ছে...');
+  setTimeout(() => { showLoader(false); showToast('success', 'রিফ্রেশ হয়েছে'); }, 500);
+};
+
+window.switchAdminTab = (tab, el) => {
+  document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.admin-tab-content').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  const content = document.getElementById('admin-tab-' + tab);
+  if (content) content.classList.add('active');
+};
+
+/* ================== ADMIN ACTIONS ================== */
+window.impersonateUser = async () => {
+  if (!window.selectedAdminUser) { showToast('warning', 'সতর্কতা', 'আগে ইউজার নির্বাচন করুন'); return; }
+  const ok = await showConfirm('ইউজার হিসেবে কাজ করবেন?', `${window.selectedAdminUser.fullName || window.selectedAdminUser.email} এর অ্যাকাউন্টে ঢুকবেন।`, { type:'warning', okText:'হ্যাঁ, ঢুকুন' });
+  if (!ok) return;
+  window.originalAdminUid = window.currentUser.uid;
+  window.impersonatingUser = window.selectedAdminUser.uid;
+  showToast('success', 'ইউজার মোড', `${window.selectedAdminUser.fullName || window.selectedAdminUser.email}`);
+  // Reload via auth state change
+  setTimeout(() => onAuthStateChanged_reload(), 100);
+};
+
+window.exitImpersonation = async () => {
+  if (!window.impersonatingUser) return;
+  window.impersonatingUser = null;
+  window.originalAdminUid = null;
+  showToast('info', 'প্রস্থান', 'অ্যাডমিন মোডে ফিরে আসছেন');
+  setTimeout(() => onAuthStateChanged_reload(), 100);
+};
+
+async function onAuthStateChanged_reload() {
+  // Trigger by re-running the auth logic
+  const user = auth.currentUser;
+  if (!user) return;
+  window.unsubscribers.forEach(unsub => { try { unsub(); } catch(e){} });
+  window.unsubscribers = [];
+  const effectiveUid = window.impersonatingUser || user.uid;
+  let data;
+  const snap = await get(ref(db, 'users/' + effectiveUid));
+  if (snap.exists()) data = snap.val();
+  else return;
+  window.currentUserData = data;
+  window.currentUserRole = data.role || 'Staff';
+  window.currentUserShopName = data.shopName || '';
+  window.currentUserAddress = data.address || '';
+  window.currentUserFullName = data.fullName || 'User';
+  loadUserSettings(data);
+
+  const el = (id) => document.getElementById(id);
+  const email = data.email || user.email;
+  const initial = (email[0] || 'U').toUpperCase();
+  if (el('userAvatar')) el('userAvatar').textContent = initial;
+  if (el('dropdownAvatar')) el('dropdownAvatar').textContent = initial;
+  if (el('userName')) el('userName').textContent = data.fullName || 'User';
+  if (el('welcomeName')) el('welcomeName').textContent = data.fullName || 'User';
+  if (el('userRoleLabel')) el('userRoleLabel').textContent = window.currentUserRole;
+  if (el('dropdownName')) el('dropdownName').textContent = data.fullName || 'User';
+  if (el('dropdownEmail')) el('dropdownEmail').textContent = email;
+  if (el('dropdownRole')) el('dropdownRole').textContent = window.currentUserRole;
+
+  const isAdmin = window.currentUserRole === 'Admin';
+  if (el('nav-admin')) el('nav-admin').style.display = isAdmin ? 'flex' : 'none';
+  if (el('adminDivider')) el('adminDivider').style.display = isAdmin ? 'block' : 'none';
+  if (el('adminLabel')) el('adminLabel').style.display = isAdmin ? 'block' : 'none';
+
+  if (window.impersonatingUser && window.impersonatingUser !== user.uid) {
+    document.body.classList.add('impersonating');
+    if (el('impersonationBanner')) el('impersonationBanner').style.display = 'flex';
+    if (el('impersonatedUser')) el('impersonatedUser').textContent = data.fullName || email;
+  } else {
+    document.body.classList.remove('impersonating');
+    if (el('impersonationBanner')) el('impersonationBanner').style.display = 'none';
+  }
+
+  initApp();
+  renderProfile();
+  showSection('dashboard');
+}
+
+window.adminViewUserData = () => {
+  if (!window.selectedAdminUser) { showToast('warning', 'সতর্কতা', 'আগে ইউজার নির্বাচন করুন'); return; }
+  const u = window.selectedAdminUser;
+  document.getElementById('viewDataUserName').textContent = u.fullName || u.email;
+  switchViewDataTab('sales', document.querySelector('.view-data-tab'));
+  new bootstrap.Modal(document.getElementById('adminViewDataModal')).show();
+};
+
+window.switchViewDataTab = async (type, el) => {
+  if (el) {
+    document.querySelectorAll('.view-data-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+  }
+  const c = document.getElementById('viewDataContent');
+  if (!c || !window.selectedAdminUser) return;
+  c.innerHTML = '<div class="text-center py-4"><i class="fas fa-spinner fa-spin fa-2x text-primary"></i></div>';
+  const snap = await get(ref(db, 'users/' + window.selectedAdminUser.uid + '/' + type));
+  const data = snap.val() ? Object.values(snap.val()) : [];
+  if (data.length === 0) {
+    c.innerHTML = `<div class="empty-state"><i class="fas fa-inbox"></i><h5>কোনো ডেটা নেই</h5></div>`;
+    return;
+  }
+  if (type === 'sales') {
+    c.innerHTML = `<div class="table-responsive"><table class="table modern-table"><thead><tr><th>ইনভয়েস</th><th>কাস্টমার</th><th>মোট</th><th>তারিখ</th><th>সময়</th></tr></thead><tbody>${data.map(s => `<tr><td>${s.invoiceNo}</td><td>${s.customerName}</td><td>৳${s.totalAmount}</td><td>${s.date}</td><td>${s.time||'—'}</td></tr>`).join('')}</tbody></table></div>`;
+  } else if (type === 'inventory') {
+    c.innerHTML = `<div class="table-responsive"><table class="table modern-table"><thead><tr><th>নাম</th><th>স্টক</th><th>ক্রয়</th><th>বিক্রয়</th></tr></thead><tbody>${data.map(p => `<tr><td>${p.name}</td><td>${p.qty}</td><td>৳${p.buyPrice}</td><td>৳${p.sellPrice}</td></tr>`).join('')}</tbody></table></div>`;
+  } else if (type === 'customers') {
+    c.innerHTML = `<div class="table-responsive"><table class="table modern-table"><thead><tr><th>নাম</th><th>ফোন</th><th>বাকি</th></tr></thead><tbody>${data.map(x => `<tr><td>${x.name}</td><td>${x.phone}</td><td>৳${x.due||0}</td></tr>`).join('')}</tbody></table></div>`;
+  } else if (type === 'expenses') {
+    c.innerHTML = `<div class="table-responsive"><table class="table modern-table"><thead><tr><th>বিবরণ</th><th>টাকা</th><th>তারিখ</th></tr></thead><tbody>${data.map(e => `<tr><td>${e.title}</td><td>৳${e.amount}</td><td>${e.date}</td></tr>`).join('')}</tbody></table></div>`;
+  }
+};
+
+window.adminLoginHistory = async () => {
+  if (!window.selectedAdminUser) { showToast('warning', 'সতর্কতা', 'আগে ইউজার নির্বাচন করুন'); return; }
+  const snap = await get(ref(db, 'users/' + window.selectedAdminUser.uid + '/loginHistory'));
+  const history = snap.val() ? Object.values(snap.val()) : [];
+  history.sort((a,b) => (b.timestamp||0) - (a.timestamp||0));
+  const html = history.length === 0
+    ? '<div class="empty-state"><i class="fas fa-history"></i><h5>কোনো লগইন নেই</h5></div>'
+    : history.map(h => `<div class="login-history-item"><div class="lh-icon"><i class="fas fa-sign-in-alt"></i></div><div class="lh-content"><div class="lh-title">${h.action || 'লগইন'}</div><div class="lh-meta"><span><i class="fas fa-calendar"></i> ${h.date} • ${h.time}</span><span><i class="fas fa-globe"></i> ${h.ip}</span><span><i class="fas fa-desktop"></i> ${h.device} • ${h.browser}</span></div></div></div>`).join('');
+  Swal.fire({ title:`${window.selectedAdminUser.fullName || window.selectedAdminUser.email} — লগইন`, html:`<div style="max-height:400px;overflow-y:auto;text-align:left;">${html}</div>`, width:600, confirmButtonText:'ঠিক আছে' });
+};
+
+window.adminSaveProfile = async () => {
+  if (!window.selectedAdminUser) { showToast('warning', 'সতর্কতা', 'আগে ইউজার নির্বাচন করুন'); return; }
+  const data = {
+    fullName: document.getElementById('adEditName').value.trim(),
+    phone: document.getElementById('adEditPhone').value.trim(),
+    shopName: document.getElementById('adEditShopName').value.trim(),
+    address: document.getElementById('adEditAddress').value.trim(),
+    role: document.getElementById('adEditRole').value,
+    status: document.getElementById('adEditStatus').value
+  };
+  if (!data.fullName) { showToast('warning', 'সতর্কতা', 'নাম আবশ্যক'); return; }
   showLoader(true);
-  try { await update(ref(db, 'users/'+id), { role }); showToast('success', 'রোল আপডেট হয়েছে', `নতুন রোল: ${role}`); }
-  catch(e) { showToast('error', 'ব্যর্থ', e.message); }
+  try {
+    await update(ref(db, 'users/' + window.selectedAdminUser.uid), data);
+    logActivity('অ্যাডমিন: প্রোফাইল আপডেট', `${data.fullName}`);
+    showToast('success', 'প্রোফাইল আপডেট হয়েছে');
+  } catch(e) { showToast('error', 'ব্যর্থ', e.message); }
   showLoader(false);
 };
 
-window.deleteUser = async (uid) => {
-  const c = await Swal.fire({ title:'নিশ্চিত?', text:'ইউজার মুছে ফেলা হবে', icon:'warning', showCancelButton:true, confirmButtonText:'হ্যাঁ, মুছুন', cancelButtonText:'বাতিল', confirmButtonColor:'#ef4444' });
-  if (!c.isConfirmed) return;
+window.adminResetPassword = async () => {
+  if (!window.selectedAdminUser) { showToast('warning', 'সতর্কতা', 'আগে ইউজার নির্বাচন করুন'); return; }
+  const ok = await showConfirm('পাসওয়ার্ড রিসেট?', `${window.selectedAdminUser.email} এ রিসেট লিংক পাঠানো হবে।`, { type:'warning' });
+  if (!ok) return;
+  try {
+    await sendPasswordResetEmail(auth, window.selectedAdminUser.email);
+    logActivity('অ্যাডমিন: পাসওয়ার্ড রিসেট', `${window.selectedAdminUser.email}`);
+    showToast('success', 'রিসেট লিংক পাঠানো হয়েছে', window.selectedAdminUser.email);
+  } catch(e) { showToast('error', 'ব্যর্থ', e.message); }
+};
+
+window.adminForceLogout = async () => {
+  if (!window.selectedAdminUser) { showToast('warning', 'সতর্কতা', 'আগে ইউজার নির্বাচন করুন'); return; }
+  const ok = await showConfirm('সেশন টার্মিনেট?', 'ইউজার পরবর্তী রিকোয়েস্টে লগ আউট হবে।', { type:'warning' });
+  if (!ok) return;
+  try {
+    await update(ref(db, 'users/' + window.selectedAdminUser.uid), { forceLogout: Date.now() });
+    logActivity('অ্যাডমিন: সেশন টার্মিনেট', `${window.selectedAdminUser.email}`);
+    showToast('success', 'সেশন টার্মিনেট হয়েছে');
+  } catch(e) { showToast('error', 'ব্যর্থ', e.message); }
+};
+
+window.adminBlockUser = () => {
+  if (!window.selectedAdminUser) { showToast('warning', 'সতর্কতা', 'আগে ইউজার নির্বাচন করুন'); return; }
+  document.getElementById('blockUserName').value = window.selectedAdminUser.fullName || window.selectedAdminUser.email;
+  document.getElementById('blockDuration').value = '1';
+  document.getElementById('blockUnit').value = 'days';
+  document.getElementById('blockReason').value = '';
+  updateBlockPreview();
+  document.getElementById('blockDuration').oninput = updateBlockPreview;
+  document.getElementById('blockUnit').onchange = updateBlockPreview;
+  new bootstrap.Modal(document.getElementById('adminBlockModal')).show();
+};
+
+function updateBlockPreview() {
+  const dur = parseInt(document.getElementById('blockDuration').value) || 1;
+  const unit = document.getElementById('blockUnit').value;
+  const end = new Date();
+  if (unit === 'forever') { document.getElementById('blockPreviewEnd').textContent = 'চিরতরে'; return; }
+  if (unit === 'minutes') end.setMinutes(end.getMinutes() + dur);
+  else if (unit === 'hours') end.setHours(end.getHours() + dur);
+  else if (unit === 'days') end.setDate(end.getDate() + dur);
+  else if (unit === 'weeks') end.setDate(end.getDate() + dur * 7);
+  else if (unit === 'months') end.setMonth(end.getMonth() + dur);
+  else if (unit === 'years') end.setFullYear(end.getFullYear() + dur);
+  document.getElementById('blockPreviewEnd').textContent = getDateBn(end) + ' ' + getTimeBn(end);
+}
+
+window.confirmAdminBlock = async () => {
+  if (!window.selectedAdminUser) return;
+  const dur = parseInt(document.getElementById('blockDuration').value) || 1;
+  const unit = document.getElementById('blockUnit').value;
+  const reason = document.getElementById('blockReason').value.trim() || 'অ্যাডমিন কর্তৃক ব্লক';
+  let blockUntil = null;
+  if (unit !== 'forever') {
+    const end = new Date();
+    if (unit === 'minutes') end.setMinutes(end.getMinutes() + dur);
+    else if (unit === 'hours') end.setHours(end.getHours() + dur);
+    else if (unit === 'days') end.setDate(end.getDate() + dur);
+    else if (unit === 'weeks') end.setDate(end.getDate() + dur * 7);
+    else if (unit === 'months') end.setMonth(end.getMonth() + dur);
+    else if (unit === 'years') end.setFullYear(end.getFullYear() + dur);
+    blockUntil = end.toISOString();
+  }
   showLoader(true);
-  try { await remove(ref(db, 'users/'+uid)); showToast('success', 'ইউজার মুছে ফেলা হয়েছে'); }
-  catch(e) { showToast('error', 'ব্যর্থ', e.message); }
+  try {
+    await update(ref(db, 'users/' + window.selectedAdminUser.uid), { status:'Blocked', blockUntil, blockReason: reason });
+    logActivity('অ্যাডমিন: ইউজার ব্লক', `${window.selectedAdminUser.email} — ${unit === 'forever' ? 'চিরতরে' : dur + ' ' + unit}`, null, { reason });
+    showToast('success', 'ইউজার ব্লক করা হয়েছে');
+    bootstrap.Modal.getInstance(document.getElementById('adminBlockModal')).hide();
+    onAdminUserSelect();
+  } catch(e) { showToast('error', 'ব্যর্থ', e.message); }
   showLoader(false);
+};
+
+window.adminUnblockUser = async () => {
+  if (!window.selectedAdminUser) { showToast('warning', 'সতর্কতা', 'আগে ইউজার নির্বাচন করুন'); return; }
+  const ok = await showConfirm('আনব্লক করবেন?', `${window.selectedAdminUser.fullName || window.selectedAdminUser.email} আবার সক্রিয় হবেন।`, { type:'success' });
+  if (!ok) return;
+  showLoader(true);
+  try {
+    await update(ref(db, 'users/' + window.selectedAdminUser.uid), { status:'Active', blockUntil:null, blockReason:null });
+    logActivity('অ্যাডমিন: ইউজার আনব্লক', `${window.selectedAdminUser.email}`);
+    showToast('success', 'আনব্লক করা হয়েছে');
+    onAdminUserSelect();
+  } catch(e) { showToast('error', 'ব্যর্থ', e.message); }
+  showLoader(false);
+};
+
+window.adminResetUserData = async () => {
+  if (!window.selectedAdminUser) { showToast('warning', 'সতর্কতা', 'আগে ইউজার নির্বাচন করুন'); return; }
+  const ok = await showConfirm('ডেটা রিসেট করবেন?', `${window.selectedAdminUser.fullName || window.selectedAdminUser.email} এর সব ডেটা মুছে যাবে (ইউজার থাকবে)।`, { type:'danger', danger:true });
+  if (!ok) return;
+  showLoader(true);
+  try {
+    const uid = window.selectedAdminUser.uid;
+    await remove(ref(db, 'users/' + uid + '/inventory'));
+    await remove(ref(db, 'users/' + uid + '/customers'));
+    await remove(ref(db, 'users/' + uid + '/sales'));
+    await remove(ref(db, 'users/' + uid + '/expenses'));
+    logActivity('অ্যাডমিন: ডেটা রিসেট', `${window.selectedAdminUser.email}`);
+    showToast('success', 'ডেটা রিসেট হয়েছে');
+    onAdminUserSelect();
+  } catch(e) { showToast('error', 'ব্যর্থ', e.message); }
+  showLoader(false);
+};
+
+window.adminDeleteUser = async () => {
+  if (!window.selectedAdminUser) { showToast('warning', 'সতর্কতা', 'আগে ইউজার নির্বাচন করুন'); return; }
+  const ok = await showConfirm('সম্পূর্ণ ডিলিট?', `${window.selectedAdminUser.fullName || window.selectedAdminUser.email} ফায়ারবেস থেকে মুছে যাবে — ফেরানো যাবে না!`, { type:'danger', danger:true, okText:'হ্যাঁ, ডিলিট' });
+  if (!ok) return;
+  showLoader(true);
+  try {
+    await remove(ref(db, 'users/' + window.selectedAdminUser.uid));
+    logActivity('অ্যাডমিন: ইউজার ডিলিট', `${window.selectedAdminUser.email}`);
+    showToast('success', 'ইউজার ডিলিট হয়েছে');
+    clearUserSelection();
+  } catch(e) { showToast('error', 'ব্যর্থ', e.message); }
+  showLoader(false);
+};
+
+window.adminDeleteUserById = async (uid, email) => {
+  if (uid === window.currentUser.uid) { showToast('warning', 'সতর্কতা', 'নিজেকে ডিলিট করতে পারবেন না'); return; }
+  const ok = await showConfirm('সম্পূর্ণ ডিলিট?', `${email} ফায়ারবেস থেকে মুছে যাবে।`, { type:'danger', danger:true });
+  if (!ok) return;
+  showLoader(true);
+  try {
+    await remove(ref(db, 'users/' + uid));
+    logActivity('অ্যাডমিন: ইউজার ডিলিট', email);
+    showToast('success', 'ইউজার ডিলিট হয়েছে');
+  } catch(e) { showToast('error', 'ব্যর্থ', e.message); }
+  showLoader(false);
+};
+
+window.adminCreateUser = () => {
+  document.getElementById('newUserName').value = '';
+  document.getElementById('newUserEmail').value = '';
+  document.getElementById('newUserPhone').value = '';
+  document.getElementById('newUserRole').value = 'Staff';
+  document.getElementById('newUserShop').value = '';
+  document.getElementById('newUserAddress').value = '';
+  document.getElementById('newUserPassword').value = generateRandomPassword();
+  new bootstrap.Modal(document.getElementById('adminNewUserModal')).show();
+};
+
+function generateRandomPassword() {
+  const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789@#';
+  let pass = '';
+  for (let i = 0; i < 10; i++) pass += chars.charAt(Math.floor(Math.random() * chars.length));
+  return pass;
+}
+
+window.generatePassword = () => {
+  document.getElementById('newUserPassword').value = generateRandomPassword();
+};
+
+// New user creation requires admin SDK normally. As workaround, we create user profile only.
+// Firebase client SDK signs out current user when creating new one, so we use a workaround:
+// Create the user document with a note that admin must trigger password reset.
+window.adminCreateUser = async () => {
+  const name = document.getElementById('newUserName').value.trim();
+  const email = document.getElementById('newUserEmail').value.trim();
+  const phone = document.getElementById('newUserPhone').value.trim();
+  const role = document.getElementById('newUserRole').value;
+  const shopName = document.getElementById('newUserShop').value.trim();
+  const address = document.getElementById('newUserAddress').value.trim();
+  const password = document.getElementById('newUserPassword').value.trim();
+  if (!name || !email || !password) { showToast('warning', 'সতর্কতা', 'নাম, ইমেইল, পাসওয়ার্ড আবশ্যক'); return; }
+  if (password.length < 6) { showToast('error', 'দুর্বল পাসওয়ার্ড', 'কমপক্ষে ৬ অক্ষর'); return; }
+
+  const ok = await showConfirm('ইউজার তৈরি করবেন?', `${email} এ একটি অ্যাকাউন্ট তৈরি হবে।`, { type:'question' });
+  if (!ok) return;
+  showLoader(true, 'ইউজার তৈরি হচ্ছে...');
+
+  try {
+    // Save current admin user
+    const adminUser = auth.currentUser;
+    const adminEmail = adminUser.email;
+    // Note: creating user with createUserWithEmailAndPassword will sign in as new user.
+    // Save password temporarily, then sign out and note.
+    const uc = await createUserWithEmailAndPassword(auth, email, password);
+    const newUid = uc.user.uid;
+    const now = new Date();
+    await set(ref(db, 'users/' + newUid), {
+      uid: newUid,
+      fullName: name, email, phone, shopName, address,
+      role, status: 'Active',
+      createdAt: now.toISOString(),
+      createdAtDate: now.toISOString().split('T')[0],
+      createdAtTime: getTimeBn(now),
+      createdByAdmin: adminEmail,
+      settings: DEFAULT_SETTINGS
+    });
+    // Sign back in as admin? Actually admin will need to re-login. Show password to admin.
+    await signOut(auth);
+    await Swal.fire({
+      icon: 'success',
+      title: 'ইউজার তৈরি হয়েছে!',
+      html: `<div style="text-align:left;">
+        <p><strong>নাম:</strong> ${name}</p>
+        <p><strong>ইমেইল:</strong> ${email}</p>
+        <p><strong>পাসওয়ার্ড:</strong> <code style="background:#f1f5f9;padding:4px 8px;border-radius:6px;">${password}</code></p>
+        <p class="text-muted small mt-2">এই পাসওয়ার্ড ইউজারকে জানান। ইউজার প্রথম লগইনে পরিবর্তন করতে পারবে।</p>
+        <p class="text-warning small"><strong>নোট:</strong> আপনি এখন লগ আউট হয়েছেন। আবার লগইন করুন।</p>
+      </div>`,
+      confirmButtonText:'ঠিক আছে'
+    });
+    bootstrap.Modal.getInstance(document.getElementById('adminNewUserModal')).hide();
+    logActivity('অ্যাডমিন: নতুন ইউজার', `${name} - ${email} (${role})`);
+  } catch(e) {
+    showToast('error', 'ব্যর্থ', getFirebaseErrorMessage(e.code));
+    showLoader(false);
+  }
 };
 
 /* ================== NAV ================== */
@@ -1580,7 +2531,7 @@ window.closeSidebar = () => {
 };
 
 window.showSection = (sec) => {
-  document.querySelectorAll('.main-content > div').forEach(d => d.style.display = 'none');
+  document.querySelectorAll('.section').forEach(d => d.style.display = 'none');
   const s = document.getElementById(sec+'-section');
   if (s) { s.style.display = 'block'; s.classList.add('fade-in'); }
   document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
@@ -1591,26 +2542,43 @@ window.showSection = (sec) => {
     inventory:'পণ্য কার্ড', 'inventory-list':'পণ্য টেবিল', customers:'কাস্টমার',
     expenses:'খরচ ব্যবস্থাপনা', 'expenses-list':'খরচ তালিকা', invoices:'ইনভয়েস',
     'master-list':'অ্যাডভান্সড লিস্ট', 'activity-log':'অ্যাক্টিভিটি লগ',
-    reports:'রিপোর্টস', analytics:'অ্যানালিটিক্স',
-    admin:'অ্যাডমিন কন্ট্রোল', users:'টিম মেম্বার'
+    reports:'রিপোর্টস', analytics:'অ্যানালিটিক্স', profile:'প্রোফাইল',
+    settings:'সেটিংস ও কাস্টমাইজেশন', admin:'অ্যাডমিন প্যানেল'
   };
-  document.getElementById('pageTitle').textContent = titles[sec] || 'ড্যাশবোর্ড';
+  const subtitles = {
+    dashboard:'আপনার ব্যবসার সারসংক্ষেপ', sales:'নতুন বিক্রয় তৈরি করুন',
+    'sales-list':'সব বিক্রয় এক জায়গায়', inventory:'পণ্য কার্ড দেখুন',
+    'inventory-list':'পণ্য টেবিল আকারে', customers:'কাস্টমার ব্যবস্থাপনা',
+    expenses:'খরচ যোগ করুন', 'expenses-list':'সব খরচের তালিকা',
+    invoices:'ইনভয়েস তৈরি ও ডাউনলোড', 'master-list':'সব ডেটা একসাথে',
+    'activity-log':'সব কার্যক্রমের বিস্তারিত', reports:'বিস্তারিত রিপোর্ট',
+    analytics:'ডেটা বিশ্লেষণ', profile:'আপনার প্রোফাইল',
+    settings:'আপনার পছন্দমত সাজান', admin:'সম্পূর্ণ ইউজার ম্যানেজমেন্ট'
+  };
+  const titleEl = document.getElementById('pageTitle');
+  const subEl = document.getElementById('pageSubtitle');
+  if (titleEl) titleEl.textContent = titles[sec] || 'ড্যাশবোর্ড';
+  if (subEl) subEl.textContent = subtitles[sec] || '';
   if (sec==='sales'||sec==='sales-list') document.getElementById('salesSubmenu')?.classList.add('show');
   if (sec==='inventory'||sec==='inventory-list') document.getElementById('inventorySubmenu')?.classList.add('show');
   if (sec==='expenses'||sec==='expenses-list') document.getElementById('expensesSubmenu')?.classList.add('show');
   if (sec==='activity-log') { renderActivityLogAdvanced(); updateActivityStats(); }
+  if (sec==='profile') { renderProfile(); renderLoginHistory(); }
+  if (sec==='admin') { renderAdminUsersList(); }
   closeSidebar();
 };
 
-/* ================== SEARCH & NOTIF ================== */
+/* ================== NOTIFICATIONS ================== */
 window.globalSearch = () => {
-  const q = document.getElementById('globalSearchInput').value.toLowerCase();
+  const q = document.getElementById('globalSearchInput').value.toLowerCase().trim();
   if (!q || q.length < 2) return;
   const ps = window.inventory.filter(i => i.name.toLowerCase().includes(q));
   const cs = window.customers.filter(c => c.name.toLowerCase().includes(q));
+  const ss = window.allSalesCache.filter(s => (s.invoiceNo||'').toLowerCase().includes(q));
   let html = '';
   if (ps.length) html += `<div class="text-start mb-2"><strong>📦 পণ্য:</strong><br>${ps.slice(0,5).map(p => `${p.name} — স্টক: ${p.qty}, মূল্য: ৳${p.sellPrice}`).join('<br>')}</div>`;
-  if (cs.length) html += `<div class="text-start"><strong>👥 কাস্টমার:</strong><br>${cs.slice(0,5).map(c => `${c.name} — বাকি: ৳${c.due}`).join('<br>')}</div>`;
+  if (cs.length) html += `<div class="text-start mb-2"><strong>👥 কাস্টমার:</strong><br>${cs.slice(0,5).map(c => `${c.name} — বাকি: ৳${c.due}`).join('<br>')}</div>`;
+  if (ss.length) html += `<div class="text-start"><strong>🧾 বিক্রয়:</strong><br>${ss.slice(0,5).map(s => `${s.invoiceNo} — ৳${s.totalAmount}`).join('<br>')}</div>`;
   if (html) Swal.fire({ title:'সার্চ রেজাল্ট', html, icon:'info' });
   else Swal.fire({ title:'কিছু পাওয়া যায়নি', icon:'info' });
 };
@@ -1629,26 +2597,218 @@ window.showNotifications = () => {
   });
 };
 
-window.showUserMenu = () => {
-  Swal.fire({
-    title:'প্রোফাইল',
-    html: `<div class="text-center"><div style="font-size:3rem;margin-bottom:10px;">👤</div>
-      <h5>${window.currentUser?.email||'User'}</h5>
-      <p class="text-muted mb-1">রোল: <strong>${window.currentUserRole}</strong></p>
-      <p class="text-muted mb-1">দোকান: ${window.currentUserShopName||'—'}</p>
-      <p class="text-muted">ঠিকানা: ${window.currentUserAddress||'—'}</p></div>`,
-    showCancelButton:true, confirmButtonText:'লগ আউট', cancelButtonText:'বাতিল', confirmButtonColor:'#ef4444'
-  }).then(r => { if (r.isConfirmed) logout(); });
+/* ================== CALCULATOR ================== */
+let calcState = {
+  current: '0', previous: null, operator: null,
+  waitingForOperand: false, memory: 0, angleMode: 'DEG',
+  history: [], expression: ''
 };
 
-/* ================== ENTER KEY ================== */
+window.openCalculator = (e) => {
+  if (e) e.preventDefault();
+  const m = new bootstrap.Modal(document.getElementById('calculatorModal'));
+  m.show();
+  updateCalcDisplay();
+};
+
+window.switchCalcMode = (mode, el) => {
+  document.querySelectorAll('.calc-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('calcPadBasic').style.display = mode === 'basic' ? 'grid' : 'none';
+  document.getElementById('calcPadSci').style.display = mode === 'scientific' ? 'block' : 'none';
+};
+
+window.calcNum = (n) => {
+  if (calcState.waitingForOperand) {
+    calcState.current = n;
+    calcState.waitingForOperand = false;
+  } else {
+    calcState.current = calcState.current === '0' ? n : calcState.current + n;
+  }
+  updateCalcDisplay();
+};
+
+window.calcAction = (action) => {
+  const cur = parseFloat(calcState.current) || 0;
+  switch(action) {
+    case 'clear':
+      calcState.current = '0'; calcState.previous = null; calcState.operator = null;
+      calcState.waitingForOperand = false; calcState.expression = '';
+      break;
+    case 'backspace':
+      calcState.current = calcState.current.length > 1 ? calcState.current.slice(0, -1) : '0';
+      break;
+    case 'decimal':
+      if (calcState.waitingForOperand) { calcState.current = '0.'; calcState.waitingForOperand = false; }
+      else if (!calcState.current.includes('.')) calcState.current += '.';
+      break;
+    case 'negate':
+      calcState.current = calcState.current.startsWith('-') ? calcState.current.slice(1) : '-' + calcState.current;
+      break;
+    case 'percent':
+      calcState.current = String(cur / 100);
+      break;
+    case 'add': case 'subtract': case 'multiply': case 'divide':
+      if (calcState.operator && !calcState.waitingForOperand) {
+        performCalc();
+      }
+      calcState.previous = parseFloat(calcState.current);
+      calcState.operator = action;
+      calcState.waitingForOperand = true;
+      calcState.expression = `${calcState.previous} ${getOpSymbol(action)}`;
+      break;
+    case 'equals':
+      if (calcState.operator !== null) {
+        performCalc();
+        calcState.operator = null;
+        calcState.previous = null;
+        calcState.waitingForOperand = true;
+      }
+      break;
+    case 'openParen':
+      if (calcState.current === '0') calcState.current = '(';
+      else calcState.current += '(';
+      break;
+    case 'closeParen':
+      calcState.current += ')';
+      break;
+    case 'copy':
+      navigator.clipboard.writeText(calcState.current).then(() => showToast('success', 'কপি হয়েছে', calcState.current));
+      break;
+    case 'paste':
+      navigator.clipboard.readText().then(t => {
+        if (!isNaN(parseFloat(t))) { calcState.current = t; updateCalcDisplay(); }
+      }).catch(() => showToast('warning', 'পেস্ট ব্যর্থ'));
+      break;
+  }
+  updateCalcDisplay();
+};
+
+function performCalc() {
+  const prev = calcState.previous;
+  const cur = parseFloat(calcState.current);
+  let result = 0;
+  switch(calcState.operator) {
+    case 'add': result = prev + cur; break;
+    case 'subtract': result = prev - cur; break;
+    case 'multiply': result = prev * cur; break;
+    case 'divide': result = cur === 0 ? 0 : prev / cur; break;
+    default: result = cur;
+  }
+  calcState.current = String(result);
+  calcState.history.unshift(`${prev} ${getOpSymbol(calcState.operator)} ${cur} = ${result}`);
+  if (calcState.history.length > 20) calcState.history.pop();
+  renderCalcHistory();
+}
+
+function getOpSymbol(op) {
+  return { add:'+', subtract:'−', multiply:'×', divide:'÷' }[op] || '';
+}
+
+window.calcFunc = (fn) => {
+  let cur = parseFloat(calcState.current) || 0;
+  let result = cur;
+  try {
+    switch(fn) {
+      case 'sin':
+        result = Math.sin(calcState.angleMode === 'DEG' ? cur * Math.PI / 180 : cur);
+        break;
+      case 'cos':
+        result = Math.cos(calcState.angleMode === 'DEG' ? cur * Math.PI / 180 : cur);
+        break;
+      case 'tan':
+        result = Math.tan(calcState.angleMode === 'DEG' ? cur * Math.PI / 180 : cur);
+        break;
+      case 'asin': result = Math.asin(cur); if (calcState.angleMode === 'DEG') result = result * 180 / Math.PI; break;
+      case 'acos': result = Math.acos(cur); if (calcState.angleMode === 'DEG') result = result * 180 / Math.PI; break;
+      case 'atan': result = Math.atan(cur); if (calcState.angleMode === 'DEG') result = result * 180 / Math.PI; break;
+      case 'log': result = Math.log10(cur); break;
+      case 'ln': result = Math.log(cur); break;
+      case 'sqrt': result = Math.sqrt(cur); break;
+      case 'cbrt': result = Math.cbrt(cur); break;
+      case 'square': result = cur * cur; break;
+      case 'cube': result = cur * cur * cur; break;
+      case 'inverse': result = cur === 0 ? 0 : 1 / cur; break;
+      case 'pi': result = Math.PI; break;
+      case 'e': result = Math.E; break;
+      case 'fact':
+        if (cur < 0 || !Number.isInteger(cur)) { showToast('error', 'ভুল', 'ফ্যাক্টোরিয়াল শুধু ধনাত্মক পূর্ণসংখ্যার জন্য'); return; }
+        if (cur > 170) { showToast('error', 'অনেক বড়', 'সীমা ১৭০'); return; }
+        result = 1; for (let i = 2; i <= cur; i++) result *= i;
+        break;
+      case 'pow':
+        calcState.previous = cur; calcState.operator = 'pow'; calcState.waitingForOperand = true;
+        calcState.expression = `${cur} ^`;
+        updateCalcDisplay();
+        return;
+      case 'exp': result = Math.exp(cur); break;
+      case '10pow': result = Math.pow(10, cur); break;
+      case 'abs': result = Math.abs(cur); break;
+      case 'rand': result = Math.random(); break;
+      case 'deg': calcState.angleMode = 'DEG'; updateCalcDisplay(); return;
+      case 'rad': calcState.angleMode = 'RAD'; updateCalcDisplay(); return;
+    }
+    if (calcState.operator === 'pow') {
+      result = Math.pow(calcState.previous, cur);
+      calcState.operator = null;
+      calcState.previous = null;
+    }
+    calcState.current = String(result);
+    calcState.history.unshift(`${fn}(${cur}) = ${result}`);
+    if (calcState.history.length > 20) calcState.history.pop();
+    renderCalcHistory();
+  } catch(e) { showToast('error', 'ভুল', e.message); }
+  calcState.waitingForOperand = true;
+  updateCalcDisplay();
+};
+
+function updateCalcDisplay() {
+  const input = document.getElementById('calcInput');
+  const hist = document.getElementById('calcHistory');
+  if (input) input.value = calcState.current;
+  if (hist) hist.textContent = calcState.expression || (calcState.history[0] || '');
+}
+
+function renderCalcHistory() {
+  const hist = document.getElementById('calcHistory');
+  if (!hist) return;
+  hist.textContent = calcState.history[0] || '';
+}
+
+window.clearCalcHistory = () => {
+  calcState.history = [];
+  renderCalcHistory();
+  showToast('info', 'হিস্ট্রি মুছে ফেলা হয়েছে');
+};
+
+/* ================== KEYBOARD ================== */
 document.addEventListener('keydown', (e) => {
+  const calcModal = document.getElementById('calculatorModal');
+  const calcOpen = calcModal && calcModal.classList.contains('show');
+  if (calcOpen) {
+    if (e.key >= '0' && e.key <= '9') calcNum(e.key);
+    else if (e.key === '.') calcAction('decimal');
+    else if (e.key === '+') calcAction('add');
+    else if (e.key === '-') calcAction('subtract');
+    else if (e.key === '*') calcAction('multiply');
+    else if (e.key === '/') { e.preventDefault(); calcAction('divide'); }
+    else if (e.key === 'Enter' || e.key === '=') calcAction('equals');
+    else if (e.key === 'Backspace') calcAction('backspace');
+    else if (e.key === 'Escape') calcAction('clear');
+    return;
+  }
+  if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+    e.preventDefault();
+    const inp = document.getElementById('globalSearchInput');
+    if (inp) inp.focus();
+  }
   if (e.key === 'Enter') {
     const loginForm = document.getElementById('loginForm');
     const registerForm = document.getElementById('registerForm');
-    if (loginForm && loginForm.style.display !== 'none') login();
+    if (loginForm && loginForm.style.display !== 'none' && document.getElementById('authScreen').style.display !== 'none') login();
     else if (registerForm && registerForm.style.display !== 'none') register();
   }
+  if (e.key === 'Escape') closeUserDropdown();
 });
 
 /* ================== DOM READY ================== */
@@ -1657,4 +2817,26 @@ document.addEventListener('DOMContentLoaded', () => {
   const disc = document.getElementById('discountInput');
   if (paid) paid.addEventListener('input', calculateCartTotal);
   if (disc) disc.addEventListener('input', calculateCartTotal);
+
+  const mq = window.matchMedia('(prefers-color-scheme: dark)');
+  mq.addEventListener('change', () => {
+    if (window.userSettings.mode === 'auto') {
+      document.documentElement.setAttribute('data-mode', mq.matches ? 'dark' : 'light');
+    }
+  });
+});
+
+/* ================== AUTO LOGOUT ================== */
+let idleTimer;
+function resetIdleTimer() {
+  clearTimeout(idleTimer);
+  if (window.userSettings.autoLogout && window.currentUser) {
+    idleTimer = setTimeout(() => {
+      showToast('warning', 'স্বয়ংক্রিয় লগ আউট', '৩০ মিনিট নিষ্ক্রিয় ছিলেন');
+      setTimeout(logout, 1500);
+    }, 30 * 60 * 1000);
+  }
+}
+['mousemove','keypress','click','scroll','touchstart'].forEach(evt => {
+  document.addEventListener(evt, resetIdleTimer, { passive: true });
 });
