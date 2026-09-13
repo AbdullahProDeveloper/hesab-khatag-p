@@ -1,5 +1,5 @@
 /* =====================================================
-   HesabKhata Enterprise Pro - Main Script v4.0
+   HesabKhata Enterprise Pro - Main Script v4.0 (FIXED)
    ===================================================== */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -107,9 +107,11 @@ window.getFirebaseErrorMessage = (code) => {
     'auth/invalid-credential': 'ইমেইল বা পাসওয়ার্ড ভুল',
     'auth/too-many-requests': 'অনেকবার চেষ্টা, কিছুক্ষণ পর করুন',
     'auth/network-request-failed': 'ইন্টারনেট সংযোগ নেই',
-    'auth/missing-email': 'ইমেইল দিন'
+    'auth/missing-email': 'ইমেইল দিন',
+    'auth/user-disabled': 'এই অ্যাকাউন্ট নিষ্ক্রিয় করা হয়েছে',
+    'auth/operation-not-allowed': 'Firebase Console-এ Email/Password লগইন চালু করুন'
   };
-  return messages[code] || 'একটি সমস্যা হয়েছে';
+  return messages[code] || `সমস্যা: ${code || 'unknown'}`;
 };
 
 /* ================== UTILS ================== */
@@ -525,44 +527,52 @@ window.login = async () => {
   showLoader(true, 'যাচাই করা হচ্ছে...');
   try {
     // Check if user is blocked before login
-    const usersSnap = await get(ref(db, 'users'));
-    if (usersSnap.exists()) {
-      const users = usersSnap.val();
-      const found = Object.values(users).find(u => u.email === email);
-      if (found) {
-        const status = found.status || 'Active';
-        if (status === 'Blocked') {
-          const blockUntil = found.blockUntil ? new Date(found.blockUntil) : null;
-          if (!blockUntil || blockUntil > new Date()) {
-            const untilText = blockUntil ? getDateBn(blockUntil) + ' ' + getTimeBn(blockUntil) : 'চিরতরে';
-            showLoader(false);
-            btn.disabled = false; btn.innerHTML = '<i class="fas fa-sign-in-alt me-2"></i>নিরাপদ লগইন';
-            await Swal.fire({
-              icon: 'error',
-              title: 'অ্যাকাউন্ট ব্লক করা হয়েছে',
-              html: `<div style="text-align:left;font-size:0.9rem;">
-                <p><strong>কারণ:</strong> ${found.blockReason || 'অ্যাডমিন কর্তৃক ব্লক করা হয়েছে'}</p>
-                <p><strong>আনব্লক হবে:</strong> ${untilText}</p>
-                <p class="text-muted small">সাহায্যের জন্য অ্যাডমিনের সাথে যোগাযোগ করুন।</p>
-              </div>`,
-              confirmButtonText: 'ঠিক আছে'
-            });
-            return;
-          } else {
-            // Auto unblock if time passed
-            await update(ref(db, 'users/' + found.uid), { status: 'Active', blockUntil: null, blockReason: null });
-          }
-        }
-        if (status === 'Suspended') {
+    let found = null;
+    try {
+      const usersSnap = await get(ref(db, 'users'));
+      if (usersSnap.exists()) {
+        const users = usersSnap.val();
+        found = Object.values(users).find(u => u.email === email);
+      }
+    } catch(blockCheckErr) {
+      // Rules may block reading all users — ignore and continue to actual login
+      console.warn('Block check skipped (rules):', blockCheckErr.code);
+    }
+
+    if (found) {
+      const status = found.status || 'Active';
+      if (status === 'Blocked') {
+        const blockUntil = found.blockUntil ? new Date(found.blockUntil) : null;
+        if (!blockUntil || blockUntil > new Date()) {
+          const untilText = blockUntil ? getDateBn(blockUntil) + ' ' + getTimeBn(blockUntil) : 'চিরতরে';
           showLoader(false);
           btn.disabled = false; btn.innerHTML = '<i class="fas fa-sign-in-alt me-2"></i>নিরাপদ লগইন';
-          await Swal.fire({ icon:'error', title:'অ্যাকাউন্ট সাসপেন্ড', text:'আপনার অ্যাকাউন্ট সাসপেন্ড করা হয়েছে। অ্যাডমিনের সাথে যোগাযোগ করুন।', confirmButtonText:'ঠিক আছে' });
+          await Swal.fire({
+            icon: 'error',
+            title: 'অ্যাকাউন্ট ব্লক করা হয়েছে',
+            html: `<div style="text-align:left;font-size:0.9rem;">
+              <p><strong>কারণ:</strong> ${found.blockReason || 'অ্যাডমিন কর্তৃক ব্লক করা হয়েছে'}</p>
+              <p><strong>আনব্লক হবে:</strong> ${untilText}</p>
+              <p class="text-muted small">সাহায্যের জন্য অ্যাডমিনের সাথে যোগাযোগ করুন।</p>
+            </div>`,
+            confirmButtonText: 'ঠিক আছে'
+          });
           return;
+        } else {
+          try { await update(ref(db, 'users/' + found.uid), { status: 'Active', blockUntil: null, blockReason: null }); } catch(e) {}
         }
       }
+      if (status === 'Suspended') {
+        showLoader(false);
+        btn.disabled = false; btn.innerHTML = '<i class="fas fa-sign-in-alt me-2"></i>নিরাপদ লগইন';
+        await Swal.fire({ icon:'error', title:'অ্যাকাউন্ট সাসপেন্ড', text:'আপনার অ্যাকাউন্ট সাসপেন্ড করা হয়েছে। অ্যাডমিনের সাথে যোগাযোগ করুন।', confirmButtonText:'ঠিক আছে' });
+        return;
+      }
     }
+
     await signInWithEmailAndPassword(auth, email, pass);
     showToast('success', 'লগইন সফল!', 'আপনার ড্যাশবোর্ডে স্বাগতম');
+    // Note: btn will be reset when auth state changes
   } catch(e) {
     console.error('Login error:', e);
     showToast('error', 'লগইন ব্যর্থ', getFirebaseErrorMessage(e.code));
@@ -666,60 +676,97 @@ window.logout = async () => {
   catch(e) { showToast('error', 'ব্যর্থ', e.message); }
 };
 
-/* ================== AUTH STATE ================== */
+/* =====================================================
+   AUTH STATE — THE MAIN FIX
+   =====================================================
+   আগে পুরো block এক try-catch-এ ছিল, তাই অ্যাডমিনের
+   loadAllUsers() fail করলে পুরো ড্যাশবোর্ড fail হয়ে যেত।
+   এখন প্রতিটা ধাপ আলাদা try-catch-এ — যাতে একটা fail হলেও
+   অ্যাপ লোড হয়।
+*/
 onAuthStateChanged(auth, async (user) => {
   window.unsubscribers.forEach(unsub => { try { unsub(); } catch(e){} });
   window.unsubscribers = [];
   window.dataLoaded = { inventory:false, customers:false, sales:false, expenses:false };
 
-  if (user) {
-    window.currentUser = user;
-    showLoader(true, 'প্রোফাইল লোড হচ্ছে...');
+  if (!user) {
+    window.currentUser = null;
+    window.currentUserRole = 'Staff';
+    window.impersonatingUser = null;
+    document.body.classList.remove('impersonating');
+    document.getElementById('authScreen').style.display = 'flex';
+    document.getElementById('mainApp').style.display = 'none';
+    showLogin();
+    showLoader(false);
+    const btn = document.getElementById('loginBtn');
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-sign-in-alt me-2"></i>নিরাপদ লগইন'; }
+    const rbtn = document.getElementById('registerBtn');
+    if (rbtn) { rbtn.disabled = false; rbtn.innerHTML = '<i class="fas fa-rocket me-2"></i>রেজিস্টার করুন'; }
+    return;
+  }
+
+  window.currentUser = user;
+  showLoader(true, 'প্রোফাইল লোড হচ্ছে...');
+
+  // ---------- STEP 1: IP + Device ----------
+  let ipInfo = { ip: '—', location: '—' };
+  try { ipInfo = await fetchIPInfo(); } catch(e) { console.warn('IP fetch failed', e); }
+  const device = getDeviceInfo();
+
+  // ---------- STEP 2: Load user data ----------
+  let data = null;
+  try {
+    const snap = await get(ref(db, 'users/' + user.uid));
+    if (!snap.exists()) {
+      const now = new Date();
+      await set(ref(db, 'users/' + user.uid), {
+        uid: user.uid,
+        fullName: user.email.split('@')[0],
+        email: user.email, phone:'', shopName:'', address:'',
+        role: 'Staff', status: 'Active',
+        createdAt: now.toISOString(),
+        createdAtDate: now.toISOString().split('T')[0],
+        createdAtTime: getTimeBn(now),
+        registrationIp: ipInfo.ip || '—',
+        registrationLocation: ipInfo.location || '—',
+        settings: DEFAULT_SETTINGS
+      });
+      data = (await get(ref(db, 'users/' + user.uid))).val();
+    } else {
+      data = snap.val();
+    }
+  } catch(e) {
+    console.error('❌ Failed to load user data:', e);
+    showToast('error', 'প্রোফাইল লোড ব্যর্থ', e.message || 'Rules চেক করুন');
+    showLoader(false);
+    return;
+  }
+
+  // ---------- STEP 3: Handle impersonation ----------
+  let activeData = data;
+  let activeUser = user;
+  if (window.impersonatingUser && window.impersonatingUser !== user.uid) {
     try {
-      // If impersonating, use target UID
-      const effectiveUid = window.impersonatingUser || user.uid;
-      
-      const [ipInfo] = await Promise.all([fetchIPInfo()]);
-      const device = getDeviceInfo();
-
-      let data = null;
-      const snap = await get(ref(db, 'users/' + user.uid));
-      if (!snap.exists()) {
-        const now = new Date();
-        await set(ref(db, 'users/' + user.uid), {
-          uid: user.uid,
-          fullName: user.email.split('@')[0],
-          email: user.email, phone:'', shopName:'', address:'',
-          role: 'Staff', status: 'Active',
-          createdAt: now.toISOString(),
-          createdAtDate: now.toISOString().split('T')[0],
-          createdAtTime: getTimeBn(now),
-          registrationIp: ipInfo.ip || '—',
-          registrationLocation: ipInfo.location || '—',
-          settings: DEFAULT_SETTINGS
-        });
-        data = (await get(ref(db, 'users/' + user.uid))).val();
-      } else { data = snap.val(); }
-
-      // If impersonating, load target user data
-      let activeData = data;
-      let activeUser = user;
-      if (window.impersonatingUser && window.impersonatingUser !== user.uid) {
-        const targetSnap = await get(ref(db, 'users/' + window.impersonatingUser));
-        if (targetSnap.exists()) {
-          activeData = targetSnap.val();
-          activeUser = { uid: window.impersonatingUser, email: activeData.email };
-        }
+      const targetSnap = await get(ref(db, 'users/' + window.impersonatingUser));
+      if (targetSnap.exists()) {
+        activeData = targetSnap.val();
+        activeUser = { uid: window.impersonatingUser, email: activeData.email };
       }
+    } catch(e) { console.warn('Impersonation load failed:', e); }
+  }
 
-      window.currentUserData = activeData;
-      window.currentUserRole = activeData.role || 'Staff';
-      window.currentUserShopName = activeData.shopName || '';
-      window.currentUserAddress = activeData.address || '';
-      window.currentUserFullName = activeData.fullName || 'User';
+  window.currentUserData = activeData;
+  window.currentUserRole = activeData.role || 'Staff';
+  window.currentUserShopName = activeData.shopName || '';
+  window.currentUserAddress = activeData.address || '';
+  window.currentUserFullName = activeData.fullName || 'User';
 
-      // Track login (skip if impersonating)
-      if (!window.impersonatingUser) {
+  const isAdmin = window.currentUserRole === 'Admin';
+
+  // ---------- STEP 4: Track login (non-blocking) ----------
+  if (!window.impersonatingUser) {
+    (async () => {
+      try {
         const now = new Date();
         const newLoginEntry = {
           date: now.toISOString().split('T')[0],
@@ -742,74 +789,72 @@ onAuthStateChanged(auth, async (user) => {
         });
         const histRef = push(ref(db, 'users/' + user.uid + '/loginHistory'));
         await set(histRef, { id: histRef.key, ...newLoginEntry });
-      }
-
-      loadUserSettings(activeData);
-
-      // Update UI
-      const el = (id) => document.getElementById(id);
-      const initial = (activeUser.email[0] || 'U').toUpperCase();
-      if (el('userAvatar')) el('userAvatar').textContent = initial;
-      if (el('dropdownAvatar')) el('dropdownAvatar').textContent = initial;
-      if (el('userName')) el('userName').textContent = activeData.fullName || 'User';
-      if (el('welcomeName')) el('welcomeName').textContent = activeData.fullName || 'User';
-      if (el('userRoleLabel')) el('userRoleLabel').textContent = window.currentUserRole;
-      if (el('dropdownName')) el('dropdownName').textContent = activeData.fullName || 'User';
-      if (el('dropdownEmail')) el('dropdownEmail').textContent = activeUser.email;
-      if (el('dropdownRole')) el('dropdownRole').textContent = window.currentUserRole;
-
-      const isAdmin = window.currentUserRole === 'Admin';
-      if (el('nav-admin')) el('nav-admin').style.display = isAdmin ? 'flex' : 'none';
-      if (el('adminDivider')) el('adminDivider').style.display = isAdmin ? 'block' : 'none';
-      if (el('adminLabel')) el('adminLabel').style.display = isAdmin ? 'block' : 'none';
-
-      if (el('authScreen')) el('authScreen').style.display = 'none';
-      if (el('mainApp')) el('mainApp').style.display = 'block';
-
-      // Show impersonation banner
-      if (window.impersonatingUser && window.impersonatingUser !== user.uid) {
-        document.body.classList.add('impersonating');
-        if (el('impersonationBanner')) el('impersonationBanner').style.display = 'flex';
-        if (el('impersonatedUser')) el('impersonatedUser').textContent = activeData.fullName || activeData.email;
-      } else {
-        document.body.classList.remove('impersonating');
-        if (el('impersonationBanner')) el('impersonationBanner').style.display = 'none';
-      }
-
-      loadActivityLog();
-      initApp();
-      renderProfile();
-      loadLoginHistory();
-      if (isAdmin) loadAllUsers();
-      showSection('dashboard');
-      showLoader(false);
-
-      setTimeout(() => {
-        if (window.impersonatingUser && window.impersonatingUser !== user.uid) {
-          showToast('info', `ইউজার মোড`, `${activeData.fullName || activeData.email} হিসেবে কাজ করছেন`);
-        } else {
-          showToast('success', `স্বাগতম, ${activeData.fullName || 'User'}!`, `রোল: ${window.currentUserRole}`);
-        }
-      }, 300);
-    } catch(e) {
-      console.error('Auth state error:', e);
-      showToast('error', 'লোড ব্যর্থ', e.message);
-      showLoader(false);
-    }
-  } else {
-    window.currentUser = null;
-    window.currentUserRole = 'Staff';
-    window.impersonatingUser = null;
-    document.body.classList.remove('impersonating');
-    document.getElementById('authScreen').style.display = 'flex';
-    document.getElementById('mainApp').style.display = 'none';
-    showLogin();
-    showLoader(false);
-    const btn = document.getElementById('loginBtn');
-    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-sign-in-alt me-2"></i>নিরাপদ লগইন'; }
-    const rbtn = document.getElementById('registerBtn');
-    if (rbtn) { rbtn.disabled = false; rbtn.innerHTML = '<i class="fas fa-rocket me-2"></i>রেজিস্টার করুন'; }
+      } catch(e) { console.warn('Login history save failed (non-blocking):', e.code); }
+    })();
   }
+
+  // ---------- STEP 5: Apply settings ----------
+  try { loadUserSettings(activeData); } catch(e) { console.warn('Settings load failed:', e); }
+
+  // ---------- STEP 6: Update UI ----------
+  try {
+    const el = (id) => document.getElementById(id);
+    const initial = (activeUser.email[0] || 'U').toUpperCase();
+    if (el('userAvatar')) el('userAvatar').textContent = initial;
+    if (el('dropdownAvatar')) el('dropdownAvatar').textContent = initial;
+    if (el('userName')) el('userName').textContent = activeData.fullName || 'User';
+    if (el('welcomeName')) el('welcomeName').textContent = activeData.fullName || 'User';
+    if (el('userRoleLabel')) el('userRoleLabel').textContent = window.currentUserRole;
+    if (el('dropdownName')) el('dropdownName').textContent = activeData.fullName || 'User';
+    if (el('dropdownEmail')) el('dropdownEmail').textContent = activeUser.email;
+    if (el('dropdownRole')) el('dropdownRole').textContent = window.currentUserRole;
+
+    if (el('nav-admin')) el('nav-admin').style.display = isAdmin ? 'flex' : 'none';
+    if (el('adminDivider')) el('adminDivider').style.display = isAdmin ? 'block' : 'none';
+    if (el('adminLabel')) el('adminLabel').style.display = isAdmin ? 'block' : 'none';
+
+    if (el('authScreen')) el('authScreen').style.display = 'none';
+    if (el('mainApp')) el('mainApp').style.display = 'block';
+
+    if (window.impersonatingUser && window.impersonatingUser !== user.uid) {
+      document.body.classList.add('impersonating');
+      if (el('impersonationBanner')) el('impersonationBanner').style.display = 'flex';
+      if (el('impersonatedUser')) el('impersonatedUser').textContent = activeData.fullName || activeData.email;
+    } else {
+      document.body.classList.remove('impersonating');
+      if (el('impersonationBanner')) el('impersonationBanner').style.display = 'none';
+    }
+  } catch(e) { console.warn('UI update failed:', e); }
+
+  // ---------- STEP 7: Load app data (own) ----------
+  try { loadActivityLog(); } catch(e) { console.warn('Activity log load failed:', e); }
+  try { initApp(); } catch(e) { console.warn('initApp failed:', e); }
+  try { renderProfile(); } catch(e) { console.warn('renderProfile failed:', e); }
+  try { loadLoginHistory(); } catch(e) { console.warn('loadLoginHistory failed:', e); }
+
+  // ---------- STEP 8: Admin-specific (SEPARATE try-catch) ----------
+  if (isAdmin) {
+    try {
+      loadAllUsers();
+    } catch(e) {
+      console.error('❌ loadAllUsers failed (admin panel may not work):', e);
+      showToast('warning', 'অ্যাডমিন প্যানেল লোড হয়নি', 'Rules-এ users নোডে .read permission দিন');
+    }
+  }
+
+  // ---------- STEP 9: Show dashboard + hide loader ----------
+  try { showSection('dashboard'); } catch(e) { console.warn('showSection failed:', e); }
+  showLoader(false);
+
+  setTimeout(() => {
+    try {
+      if (window.impersonatingUser && window.impersonatingUser !== user.uid) {
+        showToast('info', `ইউজার মোড`, `${activeData.fullName || activeData.email} হিসেবে কাজ করছেন`);
+      } else {
+        showToast('success', `স্বাগতম, ${activeData.fullName || 'User'}!`, `রোল: ${window.currentUserRole}`);
+      }
+    } catch(e) {}
+  }, 300);
 });
 
 /* ================== INIT APP ================== */
@@ -825,7 +870,7 @@ function initApp() {
     renderCustomerSelect();
     renderLowStock();
     updateQuickStats();
-  });
+  }, (err) => { console.warn('inventory listener error:', err.code); });
   window.unsubscribers.push(unsub1);
 
   const unsub2 = onValue(ref(db, 'users/' + uid + '/customers'), (snap) => {
@@ -835,7 +880,7 @@ function initApp() {
     renderCustomerHistoryList();
     renderCustomerSelect();
     updateQuickStats();
-  });
+  }, (err) => { console.warn('customers listener error:', err.code); });
   window.unsubscribers.push(unsub2);
 
   const unsub3 = onValue(ref(db, 'users/' + uid + '/sales'), (snap) => {
@@ -849,7 +894,7 @@ function initApp() {
     renderAnalytics(sales);
     renderReports(sales);
     renderMasterList();
-  });
+  }, (err) => { console.warn('sales listener error:', err.code); });
   window.unsubscribers.push(unsub3);
 
   const unsub4 = onValue(ref(db, 'users/' + uid + '/expenses'), (snap) => {
@@ -860,7 +905,7 @@ function initApp() {
     updateTotalExpense(exp);
     renderExpenseChart(exp);
     renderMasterList();
-  });
+  }, (err) => { console.warn('expenses listener error:', err.code); });
   window.unsubscribers.push(unsub4);
 
   const ps = document.getElementById('productSearch');
@@ -993,7 +1038,7 @@ function loadLoginHistory() {
     data.sort((a,b) => (b.timestamp||0) - (a.timestamp||0));
     window.loginHistory = data;
     renderLoginHistory();
-  });
+  }, (err) => { console.warn('loginHistory listener error:', err.code); });
   window.unsubscribers.push(unsub);
 }
 
@@ -2025,12 +2070,16 @@ window.renderMasterList = () => {
 
 /* ================== ADMIN PANEL ================== */
 function loadAllUsers() {
+  if (!window.currentUser) return;
   const unsub = onValue(ref(db, 'users'), (snap) => {
     const users = snap.val() ? Object.values(snap.val()) : [];
     window.allUsersCache = users;
-    populateAdminUserDropdown(users);
-    renderAdminUsersList();
-    renderAdminUserStats(users);
+    try { populateAdminUserDropdown(users); } catch(e) { console.warn(e); }
+    try { renderAdminUsersList(); } catch(e) { console.warn(e); }
+    try { renderAdminUserStats(users); } catch(e) { console.warn(e); }
+  }, (err) => {
+    console.error('❌ loadAllUsers permission error:', err.code, err.message);
+    showToast('warning', 'অ্যাডমিন ডেটা লোড হয়নি', 'Firebase Rules-এ users নোডে .read permission দিন');
   });
   window.unsubscribers.push(unsub);
 }
@@ -2118,7 +2167,6 @@ window.onAdminUserSelect = () => {
   const cdate = user.createdAt ? new Date(user.createdAt) : null;
   document.getElementById('selUserCreated').textContent = cdate ? getDateBn(cdate) : '—';
 
-  // Overview
   document.getElementById('adShopName').textContent = user.shopName || '—';
   document.getElementById('adPhone').textContent = user.phone || '—';
   document.getElementById('adAddress').textContent = user.address || '—';
@@ -2126,7 +2174,6 @@ window.onAdminUserSelect = () => {
   document.getElementById('adDevice').textContent = user.lastDevice || user.registrationDevice || '—';
   document.getElementById('adLastLogin').textContent = user.lastLogin ? `${user.lastLogin.date} ${user.lastLogin.time}` : '—';
 
-  // Profile form
   document.getElementById('adEditName').value = user.fullName || '';
   document.getElementById('adEditPhone').value = user.phone || '';
   document.getElementById('adEditEmail').value = user.email;
@@ -2135,7 +2182,6 @@ window.onAdminUserSelect = () => {
   document.getElementById('adEditRole').value = user.role || 'Staff';
   document.getElementById('adEditStatus').value = user.status || 'Active';
 
-  // Load user stats
   loadUserStats(uid);
 };
 
@@ -2180,7 +2226,6 @@ window.impersonateUser = async () => {
   window.originalAdminUid = window.currentUser.uid;
   window.impersonatingUser = window.selectedAdminUser.uid;
   showToast('success', 'ইউজার মোড', `${window.selectedAdminUser.fullName || window.selectedAdminUser.email}`);
-  // Reload via auth state change
   setTimeout(() => onAuthStateChanged_reload(), 100);
 };
 
@@ -2193,7 +2238,6 @@ window.exitImpersonation = async () => {
 };
 
 async function onAuthStateChanged_reload() {
-  // Trigger by re-running the auth logic
   const user = auth.currentUser;
   if (!user) return;
   window.unsubscribers.forEach(unsub => { try { unsub(); } catch(e){} });
@@ -2439,7 +2483,7 @@ window.adminDeleteUserById = async (uid, email) => {
   showLoader(false);
 };
 
-/* ✅ FIXED: একটিমাত্র adminCreateUser ফাংশন */
+/* ✅ FIXED: একটিমাত্র adminCreateUser ফাংশন — মডাল ওপেন করে */
 window.adminCreateUser = () => {
   document.getElementById('newUserName').value = '';
   document.getElementById('newUserEmail').value = '';
@@ -2462,6 +2506,7 @@ window.generatePassword = () => {
   document.getElementById('newUserPassword').value = generateRandomPassword();
 };
 
+/* ✅ FIXED: আসল ইউজার তৈরি করার জন্য আলাদা নাম */
 window.confirmAdminCreateUser = async () => {
   const name = document.getElementById('newUserName').value.trim();
   const email = document.getElementById('newUserEmail').value.trim();
@@ -2834,3 +2879,4 @@ function resetIdleTimer() {
 ['mousemove','keypress','click','scroll','touchstart'].forEach(evt => {
   document.addEventListener(evt, resetIdleTimer, { passive: true });
 });
+   
