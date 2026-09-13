@@ -1,17 +1,22 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="bn" data-theme="light" data-mode="light">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<meta name="theme-color" content="#6366f1">
+<meta name="description" content="HesabKhata Enterprise Pro - প্রিমিয়াম POS ও ব্যবসা ব্যবস্থাপনা সিস্টেম">
 <title>HesabKhata Enterprise Pro | প্রিমিয়াম POS সিস্টেম</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- TOAST CONTAINER -->
+<!-- TOAST -->
 <div class="toast-container" id="toastContainer"></div>
 
 <!-- LOADER -->
@@ -19,27 +24,47 @@
   <div class="text-center">
     <div class="spinner-loader"></div>
     <div class="loader-text">লোড হচ্ছে...</div>
+    <div class="loader-subtext" id="loaderSubtext">ডেটা প্রস্তুত হচ্ছে</div>
   </div>
 </div>
 
-<!-- AUTH SCREEN -->
-<div id="authScreen" class="auth-bg" style="display:flex;">
+<!-- CONFIRM DIALOG -->
+<div class="modal fade" id="confirmModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content confirm-modal">
+      <div class="confirm-icon" id="confirmIcon"><i class="fas fa-question-circle"></i></div>
+      <h5 class="confirm-title" id="confirmTitle">নিশ্চিত করুন</h5>
+      <p class="confirm-text" id="confirmText">আপনি কি নিশ্চিত?</p>
+      <div class="confirm-actions">
+        <button class="btn-cancel" id="confirmCancel">বাতিল</button>
+        <button class="btn-confirm" id="confirmOk">হ্যাঁ, নিশ্চিত</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ AUTH SCREEN ============ -->
+<div id="authScreen" class="auth-bg">
+  <div class="auth-particles">
+    <span></span><span></span><span></span><span></span><span></span>
+  </div>
   <div class="auth-card">
+
     <!-- LOGIN -->
     <div id="loginForm">
       <div class="text-center mb-4">
-        <div style="font-size:3rem;margin-bottom:14px;">🏪</div>
-        <h2>HesabKhata <span style="color:var(--secondary);">Enterprise Pro</span></h2>
-        <p class="mt-2 text-center">আপনার ব্যবসার প্রিমিয়াম নিয়ন্ত্রণ</p>
+        <div class="auth-logo">🏪</div>
+        <h2 class="auth-title">HesabKhata <span style="color:var(--secondary);">Enterprise Pro</span></h2>
+        <p class="auth-subtitle">আপনার ব্যবসার প্রিমিয়াম নিয়ন্ত্রণ</p>
       </div>
       <div class="mb-3">
-        <label class="form-label fw-semibold"><i class="fas fa-envelope me-2"></i>ইমেইল <span class="req">*</span></label>
-        <input type="email" id="loginEmail" class="form-control" placeholder="admin@enterprise.com">
+        <label class="form-label"><i class="fas fa-envelope me-2"></i>ইমেইল <span class="req">*</span></label>
+        <input type="email" id="loginEmail" class="form-control" placeholder="admin@enterprise.com" autocomplete="email">
       </div>
       <div class="mb-3">
-        <label class="form-label fw-semibold"><i class="fas fa-lock me-2"></i>পাসওয়ার্ড <span class="req">*</span></label>
+        <label class="form-label"><i class="fas fa-lock me-2"></i>পাসওয়ার্ড <span class="req">*</span></label>
         <div class="input-group">
-          <input type="password" id="loginPassword" class="form-control" placeholder="********">
+          <input type="password" id="loginPassword" class="form-control" placeholder="********" autocomplete="current-password">
           <span class="input-group-text" onclick="togglePassword('loginPassword', this)"><i class="fas fa-eye"></i></span>
         </div>
       </div>
@@ -57,33 +82,33 @@
     <!-- REGISTER -->
     <div id="registerForm" style="display:none;">
       <div class="text-center mb-4">
-        <div style="font-size:3rem;margin-bottom:14px;">🚀</div>
-        <h2>নতুন অ্যাকাউন্ট</h2>
-        <p class="mt-2 text-center">আপনার নিজস্ব ড্যাশবোর্ড পান</p>
+        <div class="auth-logo">🚀</div>
+        <h2 class="auth-title">নতুন অ্যাকাউন্ট</h2>
+        <p class="auth-subtitle">আপনার নিজস্ব ড্যাশবোর্ড পান</p>
       </div>
       <div class="row g-3">
         <div class="col-md-6">
-          <label class="form-label fw-semibold">পূর্ণ নাম <span class="req">*</span></label>
+          <label class="form-label">পূর্ণ নাম <span class="req">*</span></label>
           <input type="text" id="regName" class="form-control" placeholder="আপনার নাম">
         </div>
         <div class="col-md-6">
-          <label class="form-label fw-semibold">মোবাইল <span class="req">*</span></label>
+          <label class="form-label">মোবাইল <span class="req">*</span></label>
           <input type="tel" id="regPhone" class="form-control" placeholder="01XXXXXXXXX">
         </div>
         <div class="col-12">
-          <label class="form-label fw-semibold">ইমেইল <span class="req">*</span></label>
+          <label class="form-label">ইমেইল <span class="req">*</span></label>
           <input type="email" id="regEmail" class="form-control" placeholder="example@mail.com">
         </div>
         <div class="col-md-6">
-          <label class="form-label fw-semibold">দোকানের নাম <span class="req">*</span></label>
+          <label class="form-label">দোকানের নাম <span class="req">*</span></label>
           <input type="text" id="regShopName" class="form-control" placeholder="আপনার দোকান">
         </div>
         <div class="col-md-6">
-          <label class="form-label fw-semibold">ঠিকানা <span class="req">*</span></label>
+          <label class="form-label">ঠিকানা <span class="req">*</span></label>
           <input type="text" id="regAddress" class="form-control" placeholder="দোকানের ঠিকানা">
         </div>
         <div class="col-12">
-          <label class="form-label fw-semibold">পাসওয়ার্ড <span class="req">*</span></label>
+          <label class="form-label">পাসওয়ার্ড <span class="req">*</span></label>
           <div class="input-group">
             <input type="password" id="regPassword" class="form-control" placeholder="মিনিমাম ৬ অক্ষর" oninput="checkPasswordStrength()">
             <span class="input-group-text" onclick="togglePassword('regPassword', this)"><i class="fas fa-eye"></i></span>
@@ -92,7 +117,7 @@
           <div class="password-strength-text" id="strengthText">পাসওয়ার্ড দিন</div>
         </div>
         <div class="col-12">
-          <label class="form-label fw-semibold">পুনরায় পাসওয়ার্ড <span class="req">*</span></label>
+          <label class="form-label">পুনরায় পাসওয়ার্ড <span class="req">*</span></label>
           <div class="input-group">
             <input type="password" id="regConfirmPassword" class="form-control" placeholder="আবার লিখুন">
             <span class="input-group-text" onclick="togglePassword('regConfirmPassword', this)"><i class="fas fa-eye"></i></span>
@@ -112,12 +137,12 @@
     <!-- FORGOT -->
     <div id="forgotForm" style="display:none;">
       <div class="text-center mb-4">
-        <div style="font-size:3rem;margin-bottom:14px;">🔑</div>
-        <h2>পাসওয়ার্ড রিসেট</h2>
-        <p class="mt-2 text-center">নিবন্ধিত ইমেইলে রিসেট লিংক পাঠানো হবে</p>
+        <div class="auth-logo">🔑</div>
+        <h2 class="auth-title">পাসওয়ার্ড রিসেট</h2>
+        <p class="auth-subtitle">নিবন্ধিত ইমেইলে রিসেট লিংক পাঠানো হবে</p>
       </div>
       <div class="mb-3">
-        <label class="form-label fw-semibold">ইমেইল <span class="req">*</span></label>
+        <label class="form-label">ইমেইল <span class="req">*</span></label>
         <input type="email" id="resetEmail" class="form-control" placeholder="আপনার নিবন্ধিত ইমেইল">
       </div>
       <button class="btn-auth mb-3" id="resetBtn" onclick="resetPassword()"><i class="fas fa-paper-plane me-2"></i>রিসেট লিংক পাঠান</button>
@@ -126,42 +151,96 @@
   </div>
 </div>
 
-<!-- MAIN APP -->
+<!-- ================== MAIN APP ================== -->
 <div id="mainApp" style="display:none;">
+
+  <!-- ADMIN IMPERSONATION BANNER -->
+  <div id="impersonationBanner" class="impersonation-banner" style="display:none;">
+    <div class="d-flex align-items-center gap-2 flex-wrap">
+      <i class="fas fa-user-shield"></i>
+      <span><strong>অ্যাডমিন মোড:</strong> আপনি এখন <strong id="impersonatedUser">—</strong> হিসেবে কাজ করছেন</span>
+    </div>
+    <button class="btn-exit-impersonate" onclick="exitImpersonation()"><i class="fas fa-sign-out-alt"></i> প্রস্থান করুন</button>
+  </div>
+
   <div id="overlay" class="overlay" onclick="closeSidebar()"></div>
 
-  <div class="header">
-    <div class="d-flex align-items-center gap-3">
-      <button class="btn menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-      <h5 class="fw-bold mb-0" id="pageTitle">ড্যাশবোর্ড</h5>
+  <!-- HEADER -->
+  <header class="header" id="mainHeader">
+    <div class="d-flex align-items-center gap-2">
+      <button class="btn menu-btn" onclick="toggleSidebar()" aria-label="Menu"><i class="fas fa-bars"></i></button>
+      <div class="header-brand d-lg-none">
+        <i class="fas fa-store-alt"></i>
+      </div>
+      <div>
+        <h6 class="fw-bold mb-0 page-title" id="pageTitle">ড্যাশবোর্ড</h6>
+        <small class="page-subtitle d-none d-md-block" id="pageSubtitle">আপনার ব্যবসার সারসংক্ষেপ</small>
+      </div>
     </div>
-    <div class="d-flex align-items-center gap-3">
+    <div class="d-flex align-items-center gap-2">
       <div class="search-bar d-none d-lg-flex">
         <i class="fas fa-search text-muted"></i>
-        <input type="text" placeholder="দ্রুত খুঁজুন..." id="globalSearchInput" oninput="globalSearch()">
+        <input type="text" placeholder="দ্রুত খুঁজুন... (Ctrl+K)" id="globalSearchInput" oninput="globalSearch()">
+        <span class="kbd-hint">Ctrl+K</span>
       </div>
-      <span class="badge bg-light text-dark p-2 d-none d-md-block"><i class="fas fa-calendar me-1"></i><span id="currentDate"></span></span>
-      <div class="notification-badge" onclick="showNotifications()">
+      <button class="icon-btn d-none d-lg-flex" onclick="openCalculator()" title="ক্যালকুলেটর">
+        <i class="fas fa-calculator"></i>
+      </button>
+      <button class="icon-btn d-none d-lg-flex" onclick="openSettings()" title="সেটিংস">
+        <i class="fas fa-cog"></i>
+      </button>
+      <span class="badge date-badge d-none d-xl-flex">
+        <i class="fas fa-calendar me-1"></i><span id="currentDate"></span>
+      </span>
+      <button class="notification-badge" onclick="showNotifications()" aria-label="Notifications">
         <i class="fas fa-bell"></i>
         <span class="dot" id="notifDot" style="display:none;"></span>
-      </div>
-      <div class="d-flex align-items-center gap-2 user-info">
-        <div class="user-badge" onclick="showUserMenu()"><span id="userInitial">A</span></div>
-        <div class="d-none d-md-block text-end">
-          <strong id="userName" class="d-block small">User</strong>
-          <small class="text-muted" id="userRoleLabel" style="font-size:0.72rem;">—</small>
+      </button>
+      <div class="user-menu-wrap">
+        <button class="user-menu-btn" onclick="toggleUserDropdown(event)">
+          <div class="user-avatar" id="userAvatar">A</div>
+          <div class="d-none d-md-block text-start">
+            <strong id="userName" class="d-block small">User</strong>
+            <small class="text-muted" id="userRoleLabel" style="font-size:0.7rem;">—</small>
+          </div>
+          <i class="fas fa-chevron-down d-none d-md-block" style="font-size:0.7rem;"></i>
+        </button>
+        <div class="user-dropdown" id="userDropdown">
+          <div class="dropdown-header">
+            <div class="user-avatar-lg" id="dropdownAvatar">A</div>
+            <div>
+              <strong id="dropdownName">User</strong>
+              <small class="d-block text-muted" id="dropdownEmail">user@mail.com</small>
+              <span class="tag tag-primary mt-1" id="dropdownRole">Staff</span>
+            </div>
+          </div>
+          <div class="dropdown-divider"></div>
+          <a href="#" class="dropdown-item" onclick="openProfile(event)"><i class="fas fa-user-circle"></i> প্রোফাইল দেখুন</a>
+          <a href="#" class="dropdown-item" onclick="openProfileEdit(event)"><i class="fas fa-user-edit"></i> প্রোফাইল সম্পাদনা</a>
+          <a href="#" class="dropdown-item" onclick="openSettings(event)"><i class="fas fa-palette"></i> থিম ও সেটিংস</a>
+          <a href="#" class="dropdown-item" onclick="openLoginHistory(event)"><i class="fas fa-history"></i> লগইন হিস্ট্রি</a>
+          <div class="dropdown-divider"></div>
+          <a href="#" class="dropdown-item danger" onclick="logout()"><i class="fas fa-sign-out-alt"></i> লগ আউট</a>
         </div>
       </div>
     </div>
-  </div>
+  </header>
 
-  <div class="sidebar" id="sidebar">
-    <div class="brand-head"><i class="fas fa-store-alt"></i> <span>HesabKhata</span></div>
-    <div class="nav-menu">
-      <a href="#" class="active" id="nav-dashboard" onclick="showSection('dashboard')"><i class="fas fa-th-large"></i>ড্যাশবোর্ড</a>
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand-head">
+      <i class="fas fa-store-alt"></i>
+      <div>
+        <span>HesabKhata</span>
+        <small>Enterprise Pro</small>
+      </div>
+    </div>
+    <nav class="nav-menu">
+      <div class="section-label">প্রধান</div>
+      <a href="#" class="active" id="nav-dashboard" onclick="showSection('dashboard')"><i class="fas fa-th-large"></i><span>ড্যাশবোর্ড</span></a>
 
       <a href="#" id="nav-sales-parent" data-bs-toggle="collapse" data-bs-target="#salesSubmenu" aria-expanded="true">
-        <i class="fas fa-cash-register"></i>বিক্রয়<i class="fas fa-chevron-right sub-arrow"></i>
+        <i class="fas fa-cash-register"></i><span>বিক্রয়</span><i class="fas fa-chevron-right sub-arrow"></i>
       </a>
       <div class="collapse show" id="salesSubmenu">
         <div class="submenu">
@@ -171,7 +250,7 @@
       </div>
 
       <a href="#" id="nav-inventory-parent" data-bs-toggle="collapse" data-bs-target="#inventorySubmenu" aria-expanded="false">
-        <i class="fas fa-boxes-stacked"></i>পণ্য<i class="fas fa-chevron-right sub-arrow"></i>
+        <i class="fas fa-boxes-stacked"></i><span>পণ্য</span><i class="fas fa-chevron-right sub-arrow"></i>
       </a>
       <div class="collapse" id="inventorySubmenu">
         <div class="submenu">
@@ -180,10 +259,10 @@
         </div>
       </div>
 
-      <a href="#" id="nav-customers" onclick="showSection('customers')"><i class="fas fa-users"></i>কাস্টমার</a>
+      <a href="#" id="nav-customers" onclick="showSection('customers')"><i class="fas fa-users"></i><span>কাস্টমার</span></a>
 
       <a href="#" id="nav-expenses-parent" data-bs-toggle="collapse" data-bs-target="#expensesSubmenu" aria-expanded="false">
-        <i class="fas fa-hand-holding-usd"></i>খরচ<i class="fas fa-chevron-right sub-arrow"></i>
+        <i class="fas fa-hand-holding-usd"></i><span>খরচ</span><i class="fas fa-chevron-right sub-arrow"></i>
       </a>
       <div class="collapse" id="expensesSubmenu">
         <div class="submenu">
@@ -192,74 +271,93 @@
         </div>
       </div>
 
-      <a href="#" id="nav-invoices" onclick="showSection('invoices')"><i class="fas fa-file-invoice-dollar"></i>ইনভয়েস</a>
-      <a href="#" id="nav-master-list" onclick="showSection('master-list')"><i class="fas fa-database"></i>অ্যাডভান্সড লিস্ট</a>
-      <a href="#" id="nav-activity-log" onclick="showSection('activity-log')"><i class="fas fa-history"></i>অ্যাক্টিভিটি লগ</a>
-      <a href="#" id="nav-reports" onclick="showSection('reports')"><i class="fas fa-chart-pie"></i>রিপোর্টস</a>
-      <a href="#" id="nav-analytics" onclick="showSection('analytics')"><i class="fas fa-chart-bar"></i>অ্যানালিটিক্স</a>
+      <div class="section-label">টুলস</div>
+      <a href="#" id="nav-calculator" onclick="openCalculator()"><i class="fas fa-calculator"></i><span>ক্যালকুলেটর</span></a>
+
+      <div class="section-label">বিশ্লেষণ</div>
+      <a href="#" id="nav-invoices" onclick="showSection('invoices')"><i class="fas fa-file-invoice-dollar"></i><span>ইনভয়েস</span></a>
+      <a href="#" id="nav-master-list" onclick="showSection('master-list')"><i class="fas fa-database"></i><span>অ্যাডভান্সড লিস্ট</span></a>
+      <a href="#" id="nav-activity-log" onclick="showSection('activity-log')"><i class="fas fa-history"></i><span>অ্যাক্টিভিটি লগ</span></a>
+      <a href="#" id="nav-reports" onclick="showSection('reports')"><i class="fas fa-chart-pie"></i><span>রিপোর্টস</span></a>
+      <a href="#" id="nav-analytics" onclick="showSection('analytics')"><i class="fas fa-chart-bar"></i><span>অ্যানালিটিক্স</span></a>
+
+      <div class="section-label">অ্যাকাউন্ট</div>
+      <a href="#" id="nav-profile" onclick="showSection('profile')"><i class="fas fa-user-circle"></i><span>প্রোফাইল</span></a>
+      <a href="#" id="nav-settings" onclick="showSection('settings')"><i class="fas fa-cog"></i><span>সেটিংস</span></a>
 
       <div class="divider" id="adminDivider" style="display:none;"></div>
       <div class="section-label" id="adminLabel" style="display:none;">অ্যাডমিন</div>
 
       <a href="#" id="nav-admin" onclick="showSection('admin')" style="color:#f59e0b;display:none;">
-        <i class="fas fa-shield-halved"></i>অ্যাডমিন কন্ট্রোল<span class="admin-badge">ADMIN</span>
+        <i class="fas fa-shield-halved"></i><span>অ্যাডমিন প্যানেল</span><span class="admin-badge">PRO</span>
       </a>
-      <a href="#" id="nav-users" onclick="showSection('users')" style="display:none;"><i class="fas fa-user-shield"></i>টিম মেম্বার</a>
-    </div>
-    <div class="divider"></div>
-    <a href="#" class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i>লগ আউট</a>
-  </div>
+    </nav>
+    <a href="#" class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i><span>লগ আউট</span></a>
+  </aside>
 
-  <div class="main-content">
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
 
-    <!-- DASHBOARD -->
-    <div id="dashboard-section" class="fade-in">
-      <div class="info-banner">
-        <i class="fas fa-hand-sparkles"></i>
-        <div><strong>স্বাগতম, <span id="welcomeName">User</span>!</strong> — আপনার ব্যবসার সারাংশ দেখুন।</div>
+    <!-- ========== DASHBOARD ========== -->
+    <section id="dashboard-section" class="section fade-in">
+      <div class="welcome-banner">
+        <div class="welcome-content">
+          <div class="welcome-icon"><i class="fas fa-hand-sparkles"></i></div>
+          <div>
+            <h4>স্বাগতম, <span id="welcomeName">User</span>!</h4>
+            <p>আজকের ব্যবসার সারসংক্ষেপ এক নজরে দেখুন।</p>
+          </div>
+        </div>
+        <div class="welcome-actions">
+          <button class="btn-quick" onclick="showSection('sales')"><i class="fas fa-cart-plus"></i> নতুন বিক্রয়</button>
+          <button class="btn-quick outline" onclick="openCalculator()"><i class="fas fa-calculator"></i> ক্যালকুলেটর</button>
+        </div>
       </div>
-      <div class="row g-4 mb-4">
-        <div class="col-xl-3 col-md-6">
+
+      <div class="row g-3 g-lg-4 mb-4">
+        <div class="col-6 col-lg-3">
           <div class="stat-card bg-purple-grad" onclick="showSection('sales-list')">
-            <h6><i class="fas fa-calendar-day"></i>আজকের বিক্রি</h6>
+            <div class="stat-head"><i class="fas fa-calendar-day"></i><span>আজকের বিক্রি</span></div>
             <h3>৳ <span id="todaySales">0.00</span></h3>
-            <div class="trend"><i class="fas fa-arrow-up"></i> আজকের</div>
+            <div class="stat-foot"><i class="fas fa-arrow-up"></i> আজকের আয়</div>
             <i class="fas fa-chart-line icon-bg"></i>
           </div>
         </div>
-        <div class="col-xl-3 col-md-6">
+        <div class="col-6 col-lg-3">
           <div class="stat-card bg-green-grad" onclick="showSection('reports')">
-            <h6><i class="fas fa-coins"></i>মোট বিক্রি</h6>
+            <div class="stat-head"><i class="fas fa-coins"></i><span>মোট বিক্রি</span></div>
             <h3>৳ <span id="totalSales">0.00</span></h3>
-            <div class="trend"><i class="fas fa-arrow-up"></i> সব সময়ের</div>
+            <div class="stat-foot"><i class="fas fa-infinity"></i> সব সময়ের</div>
             <i class="fas fa-money-bill-wave icon-bg"></i>
           </div>
         </div>
-        <div class="col-xl-3 col-md-6">
+        <div class="col-6 col-lg-3">
           <div class="stat-card bg-red-grad" onclick="showSection('customers')">
-            <h6><i class="fas fa-hand-holding-usd"></i>মোট বাকি</h6>
+            <div class="stat-head"><i class="fas fa-hand-holding-usd"></i><span>মোট বাকি</span></div>
             <h3>৳ <span id="totalDue">0.00</span></h3>
-            <div class="trend"><i class="fas fa-exclamation-circle"></i> আদায় করতে হবে</div>
+            <div class="stat-foot"><i class="fas fa-exclamation-circle"></i> আদায় করতে হবে</div>
             <i class="fas fa-credit-card icon-bg"></i>
           </div>
         </div>
-        <div class="col-xl-3 col-md-6">
+        <div class="col-6 col-lg-3">
           <div class="stat-card bg-blue-grad" onclick="showSection('expenses-list')">
-            <h6><i class="fas fa-wallet"></i>মোট খরচ</h6>
+            <div class="stat-head"><i class="fas fa-wallet"></i><span>মোট খরচ</span></div>
             <h3>৳ <span id="totalExpense">0.00</span></h3>
-            <div class="trend"><i class="fas fa-receipt"></i> সব খরচ</div>
+            <div class="stat-foot"><i class="fas fa-receipt"></i> সব খরচ</div>
             <i class="fas fa-receipt icon-bg"></i>
           </div>
         </div>
       </div>
+
       <div class="row g-4 mb-4">
         <div class="col-lg-8">
           <div class="card-premium p-4">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-              <h5 class="fw-bold mb-0">📊 সেলস ট্রেন্ড</h5>
-              <div class="btn-group">
-                <button class="btn btn-sm btn-outline-secondary active" onclick="updateChartPeriod(7, this)">সাপ্তাহিক</button>
-                <button class="btn btn-sm btn-outline-secondary" onclick="updateChartPeriod(30, this)">মাসিক</button>
+            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+              <h5 class="fw-bold mb-0"><i class="fas fa-chart-area text-primary me-2"></i>সেলস ট্রেন্ড</h5>
+              <div class="btn-group-pro">
+                <button class="active" onclick="updateChartPeriod(7, this)">৭ দিন</button>
+                <button onclick="updateChartPeriod(30, this)">৩০ দিন</button>
+                <button onclick="updateChartPeriod(90, this)">৯০ দিন</button>
               </div>
             </div>
             <div class="chart-container"><canvas id="salesChart"></canvas></div>
@@ -267,53 +365,64 @@
         </div>
         <div class="col-lg-4">
           <div class="card-premium p-4 h-100">
-            <h6 class="fw-bold mb-3">📈 দ্রুত সারাংশ</h6>
-            <div class="mb-3">
-              <div class="d-flex justify-content-between mb-1"><span class="small">মোট পণ্য</span><strong id="totalProducts">0</strong></div>
+            <h6 class="fw-bold mb-3"><i class="fas fa-bolt text-warning me-2"></i>দ্রুত সারাংশ</h6>
+            <div class="quick-stat">
+              <div class="d-flex justify-content-between mb-1"><span class="small"><i class="fas fa-box text-primary me-1"></i>মোট পণ্য</span><strong id="totalProducts">0</strong></div>
               <div class="progress-custom"><div class="progress-bar" style="width:70%"></div></div>
             </div>
-            <div class="mb-3">
-              <div class="d-flex justify-content-between mb-1"><span class="small">মোট কাস্টমার</span><strong id="totalCustomers">0</strong></div>
-              <div class="progress-custom"><div class="progress-bar" style="width:55%"></div></div>
+            <div class="quick-stat">
+              <div class="d-flex justify-content-between mb-1"><span class="small"><i class="fas fa-users text-info me-1"></i>মোট কাস্টমার</span><strong id="totalCustomers">0</strong></div>
+              <div class="progress-custom"><div class="progress-bar bg-info" style="width:55%"></div></div>
             </div>
-            <div class="mb-3">
-              <div class="d-flex justify-content-between mb-1"><span class="small">স্টক সতর্কতা</span><strong id="lowStockCount" class="text-danger">0</strong></div>
+            <div class="quick-stat">
+              <div class="d-flex justify-content-between mb-1"><span class="small"><i class="fas fa-exclamation-triangle text-danger me-1"></i>স্টক সতর্কতা</span><strong id="lowStockCount" class="text-danger">0</strong></div>
               <div class="progress-custom"><div class="progress-bar bg-danger" style="width:30%"></div></div>
             </div>
-            <div class="mb-3">
-              <div class="d-flex justify-content-between mb-1"><span class="small">নিট লাভ</span><strong class="text-success" id="netProfitQuick">৳0</strong></div>
+            <div class="quick-stat">
+              <div class="d-flex justify-content-between mb-1"><span class="small"><i class="fas fa-chart-line text-success me-1"></i>নিট লাভ</span><strong class="text-success" id="netProfitQuick">৳0</strong></div>
               <div class="progress-custom"><div class="progress-bar bg-success" style="width:85%"></div></div>
             </div>
             <button class="btn btn-gradient w-100 mt-3" onclick="showSection('reports')"><i class="fas fa-chart-pie"></i>বিস্তারিত রিপোর্ট</button>
           </div>
         </div>
       </div>
+
       <div class="row g-4">
         <div class="col-md-6">
           <div class="card-premium p-4">
-            <h6 class="fw-bold mb-3"><i class="fas fa-exclamation-triangle me-2 text-warning"></i>স্টক সতর্কতা</h6>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h6 class="fw-bold mb-0"><i class="fas fa-exclamation-triangle text-warning me-2"></i>স্টক সতর্কতা</h6>
+              <span class="tag tag-warning" id="lowStockBadge">0</span>
+            </div>
             <ul id="lowStockList" class="list-group list-group-flush"></ul>
           </div>
         </div>
         <div class="col-md-6">
           <div class="card-premium p-4">
-            <h6 class="fw-bold mb-3"><i class="fas fa-clock me-2 text-primary"></i>সাম্প্রতিক লেনদেন</h6>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h6 class="fw-bold mb-0"><i class="fas fa-clock text-primary me-2"></i>সাম্প্রতিক লেনদেন</h6>
+              <button class="btn-soft-sm btn-outline-premium" onclick="showSection('sales-list')">সব দেখুন</button>
+            </div>
             <ul id="recentTransactions" class="list-group list-group-flush"></ul>
           </div>
         </div>
       </div>
+
       <div class="row g-4 mt-2">
         <div class="col-12">
           <div class="card-premium p-4">
-            <h6 class="fw-bold mb-3"><i class="fas fa-history me-2 text-info"></i>সাম্প্রতিক কার্যক্রম</h6>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h6 class="fw-bold mb-0"><i class="fas fa-history text-info me-2"></i>সাম্প্রতিক কার্যক্রম</h6>
+              <button class="btn-soft-sm btn-outline-premium" onclick="showSection('activity-log')"><i class="fas fa-external-link-alt"></i> সব দেখুন</button>
+            </div>
             <div id="activityLogList" style="max-height:400px;overflow-y:auto;"></div>
           </div>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- POS -->
-    <div id="sales-section" style="display:none;">
+    <!-- ========== POS / SALES ========== -->
+    <section id="sales-section" class="section" style="display:none;">
       <div class="stepper">
         <div class="step-item active" id="step1"><div class="step-num">1</div><div class="step-label">পণ্য নির্বাচন</div></div>
         <div class="step-item" id="step2"><div class="step-num">2</div><div class="step-label">কাস্টমার</div></div>
@@ -334,7 +443,7 @@
             <select id="customerSelect" class="form-select mb-2" onchange="updateCustomerDue()"></select>
             <div class="d-flex justify-content-between align-items-center">
               <span class="badge-due" id="customerDueBadge"><i class="fas fa-check-circle me-1"></i>নগদ বিক্রয়</span>
-              <button class="btn btn-soft-sm btn-outline-premium" onclick="openAddCustomerQuick()"><i class="fas fa-user-plus"></i> নতুন</button>
+              <button class="btn-soft-sm btn-outline-premium" onclick="openAddCustomerQuick()"><i class="fas fa-user-plus"></i> নতুন</button>
             </div>
             <div class="highlight-box mt-3">
               <i class="fas fa-lightbulb me-2"></i><strong>টিপস:</strong> বাকিতে বিক্রি করতে কাস্টমার নির্বাচন করুন।
@@ -344,8 +453,8 @@
         <div class="col-lg-7">
           <div class="card-premium p-4">
             <div class="d-flex justify-content-between align-items-center mb-3">
-              <h5 class="fw-bold mb-0">🧺 কার্ট <span class="tag tag-primary" id="cartCountBadge">0 আইটেম</span></h5>
-              <button class="btn btn-soft-sm btn-danger-soft" onclick="clearCart()"><i class="fas fa-trash"></i> ক্লিয়ার</button>
+              <h5 class="fw-bold mb-0"><i class="fas fa-shopping-basket me-2"></i>কার্ট <span class="tag tag-primary" id="cartCountBadge">0 আইটেম</span></h5>
+              <button class="btn-soft-sm btn-danger-soft" onclick="clearCart()"><i class="fas fa-trash"></i> ক্লিয়ার</button>
             </div>
             <div id="cartItemsList" style="max-height:300px;overflow-y:auto;"></div>
             <div class="live-card mt-3" id="cartLiveCard">
@@ -369,11 +478,11 @@
                 </div>
               </div>
             </div>
-            <div class="d-flex justify-content-between mt-3 p-3" style="background:rgba(16,185,129,0.08);border-radius:12px;">
+            <div class="d-flex justify-content-between mt-3 p-3 change-box">
               <span class="fw-bold"><i class="fas fa-undo text-success me-1"></i>পরিবর্তন:</span>
               <span class="fw-bold text-success" id="changeAmount">৳0.00</span>
             </div>
-            <div class="d-flex justify-content-between mt-2 p-3" style="background:rgba(239,68,68,0.08);border-radius:12px;">
+            <div class="d-flex justify-content-between mt-2 p-3 due-box">
               <span class="fw-bold"><i class="fas fa-exclamation-circle text-danger me-1"></i>বাকি থাকবে:</span>
               <span class="fw-bold text-danger" id="duePreview">৳0.00</span>
             </div>
@@ -383,14 +492,17 @@
           </div>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- SALES LIST -->
-    <div id="sales-list-section" style="display:none;">
+    <!-- ========== SALES LIST ========== -->
+    <section id="sales-list-section" class="section" style="display:none;">
       <div class="card-premium p-4">
         <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-          <h4 class="fw-bold mb-0"><i class="fas fa-list-alt me-2"></i>বিক্রয় তালিকা</h4>
-          <div class="d-flex gap-2">
+          <div>
+            <h4 class="fw-bold mb-0"><i class="fas fa-list-alt me-2"></i>বিক্রয় তালিকা</h4>
+            <small class="text-muted" id="salesListCount">মোট 0 টি</small>
+          </div>
+          <div class="d-flex gap-2 flex-wrap">
             <button class="btn btn-outline-premium" onclick="exportSales()"><i class="fas fa-download"></i> এক্সপোর্ট</button>
             <button class="btn btn-gradient" onclick="showSection('sales')"><i class="fas fa-plus"></i> নতুন বিক্রয়</button>
           </div>
@@ -404,23 +516,29 @@
             <option value="paid">পরিশোধিত</option>
             <option value="due">বাকি আছে</option>
           </select>
-          <button class="btn btn-soft-sm btn-outline-premium" onclick="resetSalesFilters()"><i class="fas fa-times"></i> রিসেট</button>
+          <button class="btn-soft-sm btn-outline-premium" onclick="resetSalesFilters()"><i class="fas fa-times"></i> রিসেট</button>
         </div>
         <div class="table-responsive">
-          <table class="table table-hover">
-            <thead><tr><th>ইনভয়েস</th><th>কাস্টমার</th><th>পণ্য</th><th>মোট</th><th>পেইড</th><th>বাকি</th><th>তারিখ ও সময়</th><th>অ্যাকশন</th></tr></thead>
+          <table class="table table-hover modern-table">
+            <thead><tr>
+              <th>ইনভয়েস</th><th>কাস্টমার</th><th>পণ্য</th><th>মোট</th>
+              <th>পেইড</th><th>বাকি</th><th>তারিখ ও সময়</th><th>অ্যাকশন</th>
+            </tr></thead>
             <tbody id="salesTableBody"></tbody>
           </table>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- INVENTORY CARDS -->
-    <div id="inventory-section" style="display:none;">
+    <!-- ========== INVENTORY CARDS ========== -->
+    <section id="inventory-section" class="section" style="display:none;">
       <div class="card-premium p-4">
         <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-          <h4 class="fw-bold mb-0"><i class="fas fa-boxes-stacked me-2"></i>পণ্য কার্ড</h4>
-          <div class="d-flex gap-2">
+          <div>
+            <h4 class="fw-bold mb-0"><i class="fas fa-boxes-stacked me-2"></i>পণ্য কার্ড</h4>
+            <small class="text-muted" id="inventoryCardCount">মোট 0 টি পণ্য</small>
+          </div>
+          <div class="d-flex gap-2 flex-wrap">
             <button class="btn btn-outline-premium" onclick="exportInventory()"><i class="fas fa-download"></i> এক্সপোর্ট</button>
             <button class="btn btn-gradient" data-bs-toggle="modal" data-bs-target="#addProductModal"><i class="fas fa-plus"></i> নতুন পণ্য</button>
           </div>
@@ -435,14 +553,17 @@
         </div>
         <div class="row g-3" id="productCardsContainer"></div>
       </div>
-    </div>
+    </section>
 
-    <!-- INVENTORY TABLE -->
-    <div id="inventory-list-section" style="display:none;">
+    <!-- ========== INVENTORY TABLE ========== -->
+    <section id="inventory-list-section" class="section" style="display:none;">
       <div class="card-premium p-4">
         <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-          <h4 class="fw-bold mb-0"><i class="fas fa-table me-2"></i>পণ্য টেবিল</h4>
-          <div class="d-flex gap-2">
+          <div>
+            <h4 class="fw-bold mb-0"><i class="fas fa-table me-2"></i>পণ্য টেবিল</h4>
+            <small class="text-muted" id="inventoryTableCount">মোট 0 টি</small>
+          </div>
+          <div class="d-flex gap-2 flex-wrap">
             <button class="btn btn-outline-premium" onclick="exportInventory()"><i class="fas fa-download"></i> এক্সপোর্ট</button>
             <button class="btn btn-gradient" data-bs-toggle="modal" data-bs-target="#addProductModal"><i class="fas fa-plus"></i> নতুন পণ্য</button>
           </div>
@@ -451,19 +572,25 @@
           <input type="text" class="form-control" id="inventoryListSearchFilter" placeholder="🔍 পণ্য খুঁজুন..." oninput="filterInventoryList()">
         </div>
         <div class="table-responsive">
-          <table class="table table-hover">
-            <thead><tr><th>#</th><th>নাম</th><th>স্টক</th><th>ক্রয়</th><th>বিক্রয়</th><th>লাভ/ইউনিট</th><th>মোট লাভ</th><th>স্ট্যাটাস</th><th>অ্যাকশন</th></tr></thead>
+          <table class="table table-hover modern-table">
+            <thead><tr>
+              <th>#</th><th>পণ্যের নাম</th><th>স্টক</th><th>ক্রয় মূল্য</th>
+              <th>বিক্রয় মূল্য</th><th>লাভ/ইউনিট</th><th>মোট লাভ</th><th>স্ট্যাটাস</th><th>অ্যাকশন</th>
+            </tr></thead>
             <tbody id="inventoryTableBody"></tbody>
           </table>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- CUSTOMERS -->
-    <div id="customers-section" style="display:none;">
+    <!-- ========== CUSTOMERS ========== -->
+    <section id="customers-section" class="section" style="display:none;">
       <div class="card-premium p-4">
         <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-          <h4 class="fw-bold mb-0"><i class="fas fa-users me-2"></i>কাস্টমার</h4>
+          <div>
+            <h4 class="fw-bold mb-0"><i class="fas fa-users me-2"></i>কাস্টমার</h4>
+            <small class="text-muted" id="customerCount">মোট 0 জন</small>
+          </div>
           <button class="btn btn-gradient" data-bs-toggle="modal" data-bs-target="#addCustomerModal"><i class="fas fa-plus"></i> নতুন কাস্টমার</button>
         </div>
         <div class="filter-bar">
@@ -476,55 +603,46 @@
         </div>
         <div class="row g-3" id="customerCardsContainer"></div>
 
-        <!-- CUSTOMER HISTORY LIST -->
         <div class="mt-5">
           <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-            <h5 class="fw-bold mb-0"><i class="fas fa-list-alt me-2 text-info"></i>কাস্টমার যোগ করার ইতিহাস</h5>
+            <h5 class="fw-bold mb-0"><i class="fas fa-list-alt text-info me-2"></i>কাস্টমার যোগ করার ইতিহাস</h5>
             <div class="d-flex gap-2 flex-wrap">
-              <input type="text" class="form-control form-control-sm" id="custHistorySearch" placeholder="🔍 কাস্টমার খুঁজুন..." oninput="renderCustomerHistoryList()" style="max-width:220px;">
-              <input type="date" class="form-control form-control-sm" id="custHistoryDateFrom" onchange="renderCustomerHistoryList()" style="max-width:160px;">
-              <input type="date" class="form-control form-control-sm" id="custHistoryDateTo" onchange="renderCustomerHistoryList()" style="max-width:160px;">
-              <button class="btn btn-soft-sm btn-outline-premium" onclick="resetCustomerHistoryFilters()"><i class="fas fa-times"></i></button>
+              <input type="text" class="form-control form-control-sm" id="custHistorySearch" placeholder="🔍 কাস্টমার খুঁজুন..." oninput="renderCustomerHistoryList()" style="max-width:200px;">
+              <input type="date" class="form-control form-control-sm" id="custHistoryDateFrom" onchange="renderCustomerHistoryList()" style="max-width:150px;">
+              <input type="date" class="form-control form-control-sm" id="custHistoryDateTo" onchange="renderCustomerHistoryList()" style="max-width:150px;">
+              <button class="btn-soft-sm btn-outline-premium" onclick="resetCustomerHistoryFilters()"><i class="fas fa-times"></i></button>
             </div>
           </div>
-          <div class="table-responsive" style="max-height:500px;overflow-y:auto;">
-            <table class="table table-hover">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>নাম</th>
-                  <th>ফোন</th>
-                  <th>প্রাথমিক বাকি</th>
-                  <th>যোগ করার তারিখ</th>
-                  <th>সময়</th>
-                  <th>স্ট্যাটাস</th>
-                  <th>অ্যাকশন</th>
-                </tr>
-              </thead>
+          <div class="table-responsive">
+            <table class="table table-hover modern-table">
+              <thead><tr>
+                <th>#</th><th>নাম</th><th>ফোন</th><th>প্রাথমিক বাকি</th>
+                <th>যোগ করার তারিখ</th><th>সময়</th><th>স্ট্যাটাস</th><th>অ্যাকশন</th>
+              </tr></thead>
               <tbody id="customerHistoryTableBody"></tbody>
             </table>
           </div>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- EXPENSES -->
-    <div id="expenses-section" style="display:none;">
+    <!-- ========== EXPENSES ========== -->
+    <section id="expenses-section" class="section" style="display:none;">
       <div class="card-premium p-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
           <h4 class="fw-bold mb-0"><i class="fas fa-hand-holding-usd me-2"></i>খরচ ব্যবস্থাপনা</h4>
           <button class="btn btn-gradient" data-bs-toggle="modal" data-bs-target="#addExpenseModal"><i class="fas fa-plus"></i> নতুন খরচ</button>
         </div>
         <div class="row g-4">
           <div class="col-lg-8">
             <div class="card-premium p-4">
-              <h6 class="fw-bold mb-3"><i class="fas fa-chart-line me-2 text-danger"></i>৭ দিনের খরচ ট্রেন্ড</h6>
+              <h6 class="fw-bold mb-3"><i class="fas fa-chart-line text-danger me-2"></i>৭ দিনের খরচ ট্রেন্ড</h6>
               <div class="chart-container" style="height:250px;"><canvas id="expenseChart"></canvas></div>
             </div>
           </div>
           <div class="col-lg-4">
             <div class="card-premium p-4 h-100">
-              <h6 class="fw-bold mb-3">📊 খরচ সারাংশ</h6>
+              <h6 class="fw-bold mb-3"><i class="fas fa-chart-pie text-primary me-2"></i>খরচ সারাংশ</h6>
               <div class="stat-mini mb-2"><small>আজকের খরচ</small><h5 class="text-danger" id="todayExpense">৳0</h5></div>
               <div class="stat-mini mb-2"><small>এই মাসের খরচ</small><h5 class="text-warning" id="monthExpense">৳0</h5></div>
               <div class="stat-mini"><small>মোট খরচ</small><h5 class="text-primary" id="totalExpenseQuick">৳0</h5></div>
@@ -532,13 +650,16 @@
           </div>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- EXPENSES LIST -->
-    <div id="expenses-list-section" style="display:none;">
+    <!-- ========== EXPENSES LIST ========== -->
+    <section id="expenses-list-section" class="section" style="display:none;">
       <div class="card-premium p-4">
         <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-          <h4 class="fw-bold mb-0"><i class="fas fa-list me-2"></i>খরচ তালিকা</h4>
+          <div>
+            <h4 class="fw-bold mb-0"><i class="fas fa-list me-2"></i>খরচ তালিকা</h4>
+            <small class="text-muted" id="expenseCount">মোট 0 টি</small>
+          </div>
           <div class="d-flex gap-2">
             <button class="btn btn-outline-premium" onclick="exportExpenses()"><i class="fas fa-download"></i> এক্সপোর্ট</button>
             <button class="btn btn-gradient" data-bs-toggle="modal" data-bs-target="#addExpenseModal"><i class="fas fa-plus"></i> নতুন</button>
@@ -548,30 +669,30 @@
           <input type="text" class="form-control" id="expenseSearchFilter" placeholder="🔍 খরচ খুঁজুন..." oninput="filterExpenseList()">
           <input type="date" class="form-control" id="expenseDateFrom" onchange="filterExpenseList()">
           <input type="date" class="form-control" id="expenseDateTo" onchange="filterExpenseList()">
-          <button class="btn btn-soft-sm btn-outline-premium" onclick="resetExpenseFilters()"><i class="fas fa-times"></i> রিসেট</button>
+          <button class="btn-soft-sm btn-outline-premium" onclick="resetExpenseFilters()"><i class="fas fa-times"></i> রিসেট</button>
         </div>
         <div class="table-responsive">
-          <table class="table table-hover">
+          <table class="table table-hover modern-table">
             <thead><tr><th>বিবরণ</th><th>টাকা</th><th>তারিখ</th><th>সময়</th><th>অ্যাকশন</th></tr></thead>
             <tbody id="expenseTableBody"></tbody>
           </table>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- INVOICES -->
-    <div id="invoices-section" style="display:none;">
+    <!-- ========== INVOICES ========== -->
+    <section id="invoices-section" class="section" style="display:none;">
       <div class="card-premium p-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
           <h4 class="fw-bold mb-0"><i class="fas fa-file-invoice-dollar me-2"></i>ইনভয়েস</h4>
           <input type="text" class="form-control" style="max-width:250px;" id="invoiceSearchFilter" placeholder="🔍 খুঁজুন..." oninput="filterInvoices()">
         </div>
         <div class="row g-3" id="invoiceCardsContainer"></div>
       </div>
-    </div>
+    </section>
 
-    <!-- MASTER LIST -->
-    <div id="master-list-section" style="display:none;">
+    <!-- ========== MASTER LIST ========== -->
+    <section id="master-list-section" class="section" style="display:none;">
       <div class="card-premium p-4">
         <h4 class="fw-bold mb-4"><i class="fas fa-database me-2"></i>অ্যাডভান্সড মাস্টার লিস্ট</h4>
         <div class="filter-bar">
@@ -585,37 +706,53 @@
           <input type="text" class="form-control" id="masterSearchFilter" placeholder="🔍 খুঁজুন..." oninput="renderMasterList()">
           <input type="date" class="form-control" id="masterDateFrom" onchange="renderMasterList()">
           <input type="date" class="form-control" id="masterDateTo" onchange="renderMasterList()">
-          <button class="btn btn-soft-sm btn-outline-premium" onclick="exportMasterList()"><i class="fas fa-download"></i> এক্সপোর্ট</button>
+          <button class="btn-soft-sm btn-outline-premium" onclick="exportMasterList()"><i class="fas fa-download"></i> এক্সপোর্ট</button>
         </div>
         <div class="table-responsive" style="max-height:600px;overflow-y:auto;">
-          <table class="table table-hover"><thead id="masterTableHead"></thead><tbody id="masterTableBody"></tbody></table>
+          <table class="table table-hover modern-table"><thead id="masterTableHead"></thead><tbody id="masterTableBody"></tbody></table>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- ACTIVITY LOG -->
-    <div id="activity-log-section" style="display:none;">
+    <!-- ========== ACTIVITY LOG ========== -->
+    <section id="activity-log-section" class="section" style="display:none;">
       <div class="card-premium p-4">
         <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-          <h4 class="fw-bold mb-0"><i class="fas fa-history me-2"></i>অ্যাডভান্সড অ্যাক্টিভিটি লগ</h4>
-          <div class="d-flex gap-2">
+          <div>
+            <h4 class="fw-bold mb-0"><i class="fas fa-history me-2"></i>অ্যাডভান্সড অ্যাক্টিভিটি লগ</h4>
+            <small class="text-muted">আপনার সব কার্যক্রম বিস্তারিতভাবে দেখুন</small>
+          </div>
+          <div class="d-flex gap-2 flex-wrap">
             <button class="btn btn-outline-premium" onclick="exportActivityLog()"><i class="fas fa-download"></i> এক্সপোর্ট</button>
             <button class="btn btn-danger-soft" onclick="clearActivityLog()"><i class="fas fa-trash"></i> ক্লিয়ার</button>
           </div>
         </div>
 
-        <!-- Quick Stats -->
-        <div class="activity-stats" id="activityStats">
-          <div class="activity-stat-card"><small>মোট কার্যক্রম</small><h5 class="text-primary" id="actTotal">0</h5></div>
-          <div class="activity-stat-card"><small>মোট বিক্রয়</small><h5 class="text-success" id="actSales">৳0</h5></div>
-          <div class="activity-stat-card"><small>মোট ক্রয়</small><h5 class="text-warning" id="actPurchase">৳0</h5></div>
-          <div class="activity-stat-card"><small>মোট খরচ</small><h5 class="text-danger" id="actExpense">৳0</h5></div>
-          <div class="activity-stat-card"><small>বাকি পরিশোধ</small><h5 class="text-info" id="actPayment">৳0</h5></div>
+        <div class="activity-stats">
+          <div class="activity-stat-card">
+            <div class="activity-stat-icon bg-primary-soft"><i class="fas fa-list-check"></i></div>
+            <small>মোট কার্যক্রম</small><h5 id="actTotal">0</h5>
+          </div>
+          <div class="activity-stat-card">
+            <div class="activity-stat-icon bg-success-soft"><i class="fas fa-cart-plus"></i></div>
+            <small>মোট বিক্রয়</small><h5 class="text-success" id="actSales">৳0</h5>
+          </div>
+          <div class="activity-stat-card">
+            <div class="activity-stat-icon bg-warning-soft"><i class="fas fa-shopping-cart"></i></div>
+            <small>মোট ক্রয়</small><h5 class="text-warning" id="actPurchase">৳0</h5>
+          </div>
+          <div class="activity-stat-card">
+            <div class="activity-stat-icon bg-danger-soft"><i class="fas fa-receipt"></i></div>
+            <small>মোট খরচ</small><h5 class="text-danger" id="actExpense">৳0</h5>
+          </div>
+          <div class="activity-stat-card">
+            <div class="activity-stat-icon bg-info-soft"><i class="fas fa-hand-holding-usd"></i></div>
+            <small>বাকি পরিশোধ</small><h5 class="text-info" id="actPayment">৳0</h5>
+          </div>
         </div>
 
-        <!-- Advanced Search & Filters -->
         <div class="activity-filters">
-          <input type="text" class="form-control" id="activitySearchInput" placeholder="🔍 সার্চ করুন..." oninput="renderActivityLogAdvanced()" style="min-width:220px;">
+          <input type="text" class="form-control" id="activitySearchInput" placeholder="🔍 সার্চ করুন..." oninput="renderActivityLogAdvanced()">
           <input type="date" class="form-control" id="activityDateFrom" onchange="renderActivityLogAdvanced()">
           <input type="date" class="form-control" id="activityDateTo" onchange="renderActivityLogAdvanced()">
           <select class="form-select" id="activityTypeFilter" onchange="renderActivityLogAdvanced()">
@@ -628,11 +765,10 @@
             <option value="পণ্য">পণ্য</option>
             <option value="লগইন">লগইন</option>
           </select>
-          <button class="btn btn-soft-sm btn-outline-premium" onclick="resetActivityFilters()"><i class="fas fa-times"></i> রিসেট</button>
+          <button class="btn-soft-sm btn-outline-premium" onclick="resetActivityFilters()"><i class="fas fa-times"></i> রিসেট</button>
         </div>
 
-        <!-- Type Filter Chips -->
-        <div class="d-flex flex-wrap gap-2 mb-3">
+        <div class="chips-row">
           <div class="filter-chip active" data-type="" onclick="setActivityChip(this)"><i class="fas fa-th"></i> সব</div>
           <div class="filter-chip" data-type="বিক্রয়" onclick="setActivityChip(this)"><i class="fas fa-cart-plus"></i> বিক্রয়</div>
           <div class="filter-chip" data-type="ক্রয়" onclick="setActivityChip(this)"><i class="fas fa-shopping-cart"></i> ক্রয়</div>
@@ -642,92 +778,805 @@
           <div class="filter-chip" data-type="পণ্য" onclick="setActivityChip(this)"><i class="fas fa-box"></i> পণ্য</div>
         </div>
 
-        <!-- Timeline -->
-        <div id="activityTimelineList" style="max-height:600px;overflow-y:auto;padding-right:6px;"></div>
+        <div id="activityTimelineList" class="activity-timeline"></div>
       </div>
-    </div>
+    </section>
 
-    <!-- REPORTS -->
-    <div id="reports-section" style="display:none;">
+    <!-- ========== REPORTS ========== -->
+    <section id="reports-section" class="section" style="display:none;">
       <div class="card-premium p-4">
-        <h4 class="fw-bold mb-4">📋 রিপোর্ট ও সারাংশ</h4>
+        <h4 class="fw-bold mb-4"><i class="fas fa-chart-pie me-2"></i>রিপোর্ট ও সারাংশ</h4>
+        <div class="row g-3 g-lg-4 mb-4">
+          <div class="col-6 col-lg-3"><div class="report-card success"><small>মোট আয়</small><h3>৳ <span id="repSales">0.00</span></h3><i class="fas fa-arrow-trend-up"></i></div></div>
+          <div class="col-6 col-lg-3"><div class="report-card danger"><small>মোট খরচ</small><h3>৳ <span id="repExpense">0.00</span></h3><i class="fas fa-arrow-trend-down"></i></div></div>
+          <div class="col-6 col-lg-3"><div class="report-card primary"><small>নিট লাভ</small><h3>৳ <span id="repProfit">0.00</span></h3><i class="fas fa-chart-line"></i></div></div>
+          <div class="col-6 col-lg-3"><div class="report-card warning"><small>বাকি</small><h3>৳ <span id="repDue">0.00</span></h3><i class="fas fa-clock"></i></div></div>
+        </div>
         <div class="row g-4">
-          <div class="col-md-3"><div class="p-4 bg-success bg-opacity-10 rounded-4 text-center"><small class="text-muted">মোট আয়</small><h3 class="text-success fw-bold">৳ <span id="repSales">0.00</span></h3></div></div>
-          <div class="col-md-3"><div class="p-4 bg-danger bg-opacity-10 rounded-4 text-center"><small class="text-muted">মোট খরচ</small><h3 class="text-danger fw-bold">৳ <span id="repExpense">0.00</span></h3></div></div>
-          <div class="col-md-3"><div class="p-4 bg-primary bg-opacity-10 rounded-4 text-center"><small class="text-muted">নিট লাভ</small><h3 class="text-primary fw-bold">৳ <span id="repProfit">0.00</span></h3></div></div>
-          <div class="col-md-3"><div class="p-4 bg-warning bg-opacity-10 rounded-4 text-center"><small class="text-muted">বাকি</small><h3 class="text-warning fw-bold">৳ <span id="repDue">0.00</span></h3></div></div>
-        </div>
-        <div class="row g-4 mt-4">
-          <div class="col-lg-6"><h6 class="fw-bold mb-3">📊 মাসিক বিক্রয়</h6><div class="chart-container"><canvas id="monthlyReportChart"></canvas></div></div>
-          <div class="col-lg-6"><h6 class="fw-bold mb-3">📈 লাভ বিশ্লেষণ</h6><div class="chart-container"><canvas id="profitChart"></canvas></div></div>
+          <div class="col-lg-6"><h6 class="fw-bold mb-3"><i class="fas fa-chart-bar text-primary me-2"></i>মাসিক বিক্রয়</h6><div class="chart-container"><canvas id="monthlyReportChart"></canvas></div></div>
+          <div class="col-lg-6"><h6 class="fw-bold mb-3"><i class="fas fa-chart-line text-success me-2"></i>লাভ বিশ্লেষণ</h6><div class="chart-container"><canvas id="profitChart"></canvas></div></div>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- ANALYTICS -->
-    <div id="analytics-section" style="display:none;">
+    <!-- ========== ANALYTICS ========== -->
+    <section id="analytics-section" class="section" style="display:none;">
       <div class="card-premium p-4">
-        <h4 class="fw-bold mb-4">📈 অ্যানালিটিক্স</h4>
+        <h4 class="fw-bold mb-4"><i class="fas fa-chart-bar me-2"></i>অ্যানালিটিক্স</h4>
         <div class="row g-4">
-          <div class="col-lg-6"><h6 class="fw-bold mb-3">🏷️ শীর্ষ পণ্য</h6><div class="chart-container"><canvas id="categoryChart"></canvas></div></div>
-          <div class="col-lg-6"><h6 class="fw-bold mb-3">💳 পেমেন্ট স্ট্যাটাস</h6><div class="chart-container"><canvas id="paymentChart"></canvas></div></div>
+          <div class="col-lg-6"><h6 class="fw-bold mb-3"><i class="fas fa-trophy text-warning me-2"></i>শীর্ষ পণ্য</h6><div class="chart-container"><canvas id="categoryChart"></canvas></div></div>
+          <div class="col-lg-6"><h6 class="fw-bold mb-3"><i class="fas fa-credit-card text-primary me-2"></i>পেমেন্ট স্ট্যাটাস</h6><div class="chart-container"><canvas id="paymentChart"></canvas></div></div>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- USERS -->
-    <div id="users-section" style="display:none;">
-      <div class="card-premium p-4">
-        <h4 class="fw-bold mb-3"><i class="fas fa-user-shield me-2"></i>টিম মেম্বার ও রোল</h4>
-        <div class="table-responsive">
-          <table class="table table-hover"><thead><tr><th>নাম</th><th>ইমেইল</th><th>রোল</th><th>স্ট্যাটাস</th><th>যোগদানের তারিখ</th><th>সময়</th><th>অ্যাকশন</th></tr></thead><tbody id="usersList"></tbody></table>
+    <!-- ========== PROFILE ========== -->
+    <section id="profile-section" class="section" style="display:none;">
+      <div class="profile-hero card-premium">
+        <div class="profile-cover"></div>
+        <div class="profile-header">
+          <div class="profile-avatar-lg" id="profileAvatar">A</div>
+          <div class="profile-info">
+            <h3 id="profileFullName">User Name</h3>
+            <p><i class="fas fa-envelope me-1"></i><span id="profileEmail">email@mail.com</span></p>
+            <span class="tag tag-primary" id="profileRole">Staff</span>
+            <span class="tag tag-success" id="profileStatus"><i class="fas fa-circle"></i> সক্রিয়</span>
+          </div>
+          <button class="btn btn-gradient" onclick="openProfileEdit()"><i class="fas fa-user-edit"></i> প্রোফাইল সম্পাদনা</button>
         </div>
       </div>
-    </div>
 
-    <!-- ADMIN -->
-    <div id="admin-section" style="display:none;">
-      <div class="card-premium p-4 mb-4">
-        <h4 class="fw-bold mb-3"><i class="fas fa-shield-halved me-2 text-warning"></i>অ্যাডমিন কন্ট্রোল প্যানেল</h4>
-        <p class="text-muted">সকল ইউজারের ডেটা ও সিস্টেম নিয়ন্ত্রণ করুন।</p>
-      </div>
-      <div class="row g-4">
+      <div class="row g-4 mt-4">
         <div class="col-lg-6">
           <div class="card-premium p-4">
-            <h5 class="fw-bold mb-3"><i class="fas fa-users-cog me-2"></i>সকল ইউজার</h5>
-            <div class="table-responsive" style="max-height:400px;overflow-y:auto;">
-              <table class="table table-hover"><thead><tr><th>নাম</th><th>ইমেইল</th><th>রোল</th><th>তারিখ</th><th>সময়</th><th>অ্যাকশন</th></tr></thead><tbody id="adminAllUsersList"></tbody></table>
+            <h5 class="fw-bold mb-3"><i class="fas fa-id-card text-primary me-2"></i>ব্যক্তিগত তথ্য</h5>
+            <div class="info-row"><span><i class="fas fa-user"></i> পূর্ণ নাম</span><strong id="infoFullName">—</strong></div>
+            <div class="info-row"><span><i class="fas fa-envelope"></i> ইমেইল</span><strong id="infoEmail">—</strong><span class="locked" title="পরিবর্তন করা যাবে না"><i class="fas fa-lock"></i></span></div>
+            <div class="info-row"><span><i class="fas fa-phone"></i> মোবাইল</span><strong id="infoPhone">—</strong></div>
+            <div class="info-row"><span><i class="fas fa-store"></i> দোকানের নাম</span><strong id="infoShopName">—</strong></div>
+            <div class="info-row"><span><i class="fas fa-location-dot"></i> ঠিকানা</span><strong id="infoAddress">—</strong></div>
+            <div class="info-row"><span><i class="fas fa-user-shield"></i> রোল</span><strong id="infoRole">—</strong></div>
+            <div class="info-row"><span><i class="fas fa-calendar"></i> যোগদানের তারিখ</span><strong id="infoCreatedDate">—</strong></div>
+            <div class="info-row"><span><i class="fas fa-clock"></i> যোগদানের সময়</span><strong id="infoCreatedTime">—</strong></div>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="card-premium p-4">
+            <h5 class="fw-bold mb-3"><i class="fas fa-fingerprint text-info me-2"></i>সিস্টেম তথ্য</h5>
+            <div class="info-row"><span><i class="fas fa-id-badge"></i> ইউজার আইডি</span><strong class="text-break" id="infoUid">—</strong><span class="locked"><i class="fas fa-lock"></i></span></div>
+            <div class="info-row"><span><i class="fas fa-globe"></i> IP ঠিকানা</span><strong id="infoIp">—</strong><span class="locked"><i class="fas fa-lock"></i></span></div>
+            <div class="info-row"><span><i class="fas fa-desktop"></i> ডিভাইস</span><strong id="infoDevice">—</strong></div>
+            <div class="info-row"><span><i class="fas fa-browser"></i> ব্রাউজার</span><strong id="infoBrowser">—</strong></div>
+            <div class="info-row"><span><i class="fas fa-location-crosshairs"></i> লোকেশন</span><strong id="infoLocation">—</strong></div>
+            <div class="info-row"><span><i class="fas fa-clock-rotate-left"></i> সর্বশেষ লগইন</span><strong id="infoLastLogin">—</strong></div>
+            <div class="info-row"><span><i class="fas fa-layer-group"></i> একাউন্ট তৈরি</span><strong id="infoCreated">—</strong></div>
+            <div class="info-row"><span><i class="fas fa-signal"></i> একাউন্ট স্ট্যাটাস</span><strong class="text-success" id="infoAccountStatus">Active</strong></div>
+          </div>
+          <div class="card-premium p-4 mt-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h5 class="fw-bold mb-0"><i class="fas fa-history text-warning me-2"></i>লগইন হিস্ট্রি</h5>
+              <span class="tag tag-info" id="loginHistoryCount">0 বার</span>
+            </div>
+            <div id="loginHistoryList" class="login-history-list"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== SETTINGS ========== -->
+    <section id="settings-section" class="section" style="display:none;">
+      <div class="card-premium p-4">
+        <h4 class="fw-bold mb-4"><i class="fas fa-palette me-2"></i>সেটিংস ও কাস্টমাইজেশন</h4>
+
+        <div class="settings-tabs">
+          <button class="settings-tab active" onclick="switchSettingsTab('theme', this)"><i class="fas fa-palette"></i> থিম</button>
+          <button class="settings-tab" onclick="switchSettingsTab('appearance', this)"><i class="fas fa-desktop"></i> অ্যাপিয়ারেন্স</button>
+          <button class="settings-tab" onclick="switchSettingsTab('notifications', this)"><i class="fas fa-bell"></i> নোটিফিকেশন</button>
+          <button class="settings-tab" onclick="switchSettingsTab('data', this)"><i class="fas fa-database"></i> ডেটা</button>
+          <button class="settings-tab" onclick="switchSettingsTab('security', this)"><i class="fas fa-shield-halved"></i> সিকিউরিটি</button>
+        </div>
+
+        <div id="settings-theme" class="settings-content active">
+          <h5 class="fw-bold mb-3">রঙ নির্বাচন</h5>
+          <p class="text-muted small mb-3">আপনার পছন্দের প্রাইমারি কালার নির্বাচন করুন</p>
+          <div class="color-picker-grid">
+            <div class="color-item active" data-color="indigo" onclick="setThemeColor('indigo', this)"><div class="color-swatch" style="background:linear-gradient(135deg,#6366f1,#4f46e5)"></div><span>ইন্ডিগো</span></div>
+            <div class="color-item" data-color="blue" onclick="setThemeColor('blue', this)"><div class="color-swatch" style="background:linear-gradient(135deg,#3b82f6,#2563eb)"></div><span>নীল</span></div>
+            <div class="color-item" data-color="emerald" onclick="setThemeColor('emerald', this)"><div class="color-swatch" style="background:linear-gradient(135deg,#10b981,#059669)"></div><span>সবুজ</span></div>
+            <div class="color-item" data-color="rose" onclick="setThemeColor('rose', this)"><div class="color-swatch" style="background:linear-gradient(135deg,#f43f5e,#e11d48)"></div><span>গোলাপি</span></div>
+            <div class="color-item" data-color="amber" onclick="setThemeColor('amber', this)"><div class="color-swatch" style="background:linear-gradient(135deg,#f59e0b,#d97706)"></div><span>সোনালী</span></div>
+            <div class="color-item" data-color="purple" onclick="setThemeColor('purple', this)"><div class="color-swatch" style="background:linear-gradient(135deg,#a855f7,#9333ea)"></div><span>বেগুনি</span></div>
+            <div class="color-item" data-color="cyan" onclick="setThemeColor('cyan', this)"><div class="color-swatch" style="background:linear-gradient(135deg,#06b6d4,#0891b2)"></div><span>সায়ান</span></div>
+            <div class="color-item" data-color="slate" onclick="setThemeColor('slate', this)"><div class="color-swatch" style="background:linear-gradient(135deg,#475569,#334155)"></div><span>স্লেট</span></div>
+          </div>
+
+          <h5 class="fw-bold mb-3 mt-4">ডার্ক মোড</h5>
+          <div class="theme-mode-grid">
+            <div class="theme-mode-item active" data-mode="light" onclick="setThemeMode('light', this)"><i class="fas fa-sun"></i><span>লাইট</span></div>
+            <div class="theme-mode-item" data-mode="dark" onclick="setThemeMode('dark', this)"><i class="fas fa-moon"></i><span>ডার্ক</span></div>
+            <div class="theme-mode-item" data-mode="auto" onclick="setThemeMode('auto', this)"><i class="fas fa-circle-half-stroke"></i><span>অটো</span></div>
+          </div>
+
+          <h5 class="fw-bold mb-3 mt-4">অ্যাকসেন্ট</h5>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">বর্ডার রেডিয়াস</label>
+              <input type="range" class="form-range" id="radiusSlider" min="0" max="24" value="16" oninput="setRadius(this.value)">
+              <small class="text-muted">বর্তমান: <span id="radiusValue">16</span>px</small>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">ফন্ট সাইজ</label>
+              <input type="range" class="form-range" id="fontSlider" min="85" max="120" value="100" oninput="setFontSize(this.value)">
+              <small class="text-muted">বর্তমান: <span id="fontValue">100</span>%</small>
+            </div>
+          </div>
+
+          <button class="btn btn-danger-soft mt-4" onclick="resetTheme()"><i class="fas fa-undo"></i> ডিফল্টে ফিরুন</button>
+        </div>
+
+        <div id="settings-appearance" class="settings-content">
+          <h5 class="fw-bold mb-3">লেআউট</h5>
+          <div class="setting-row">
+            <div><strong>কমপ্যাক্ট মোড</strong><p class="text-muted small mb-0">আরো তথ্য একসাথে দেখান</p></div>
+            <label class="switch"><input type="checkbox" id="compactMode" onchange="toggleCompact(this.checked)"><span class="slider-switch"></span></label>
+          </div>
+          <div class="setting-row">
+            <div><strong>অ্যানিমেশন</strong><p class="text-muted small mb-0">স্মুথ ট্রানজিশন চালু রাখুন</p></div>
+            <label class="switch"><input type="checkbox" id="animationsToggle" checked onchange="toggleAnimations(this.checked)"><span class="slider-switch"></span></label>
+          </div>
+          <div class="setting-row">
+            <div><strong>সাইডবার স্থায়ীভাবে সংকুচিত</strong><p class="text-muted small mb-0">শুধু আইকন দেখাবে</p></div>
+            <label class="switch"><input type="checkbox" id="sidebarCollapse" onchange="toggleSidebarCollapse(this.checked)"><span class="slider-switch"></span></label>
+          </div>
+        </div>
+
+        <div id="settings-notifications" class="settings-content">
+          <h5 class="fw-bold mb-3">নোটিফিকেশন পছন্দ</h5>
+          <div class="setting-row">
+            <div><strong>স্টক সতর্কতা</strong><p class="text-muted small mb-0">স্টক কম হলে নোটিফাই করুন</p></div>
+            <label class="switch"><input type="checkbox" id="notifStock" checked onchange="saveSetting('notifStock', this.checked)"><span class="slider-switch"></span></label>
+          </div>
+          <div class="setting-row">
+            <div><strong>বাকি রিমাইন্ডার</strong><p class="text-muted small mb-0">কাস্টমারের বাকি থাকলে নোটিফাই করুন</p></div>
+            <label class="switch"><input type="checkbox" id="notifDue" checked onchange="saveSetting('notifDue', this.checked)"><span class="slider-switch"></span></label>
+          </div>
+          <div class="setting-row">
+            <div><strong>দৈনিক সারসংক্ষেপ</strong><p class="text-muted small mb-0">প্রতিদিনের রিপোর্ট দেখান</p></div>
+            <label class="switch"><input type="checkbox" id="notifDaily" checked onchange="saveSetting('notifDaily', this.checked)"><span class="slider-switch"></span></label>
+          </div>
+          <div class="setting-row">
+            <div><strong>সাউন্ড ইফেক্ট</strong><p class="text-muted small mb-0">কার্যক্রম সফল হলে শব্দ করুন</p></div>
+            <label class="switch"><input type="checkbox" id="soundEffect" onchange="saveSetting('soundEffect', this.checked)"><span class="slider-switch"></span></label>
+          </div>
+        </div>
+
+        <div id="settings-data" class="settings-content">
+          <h5 class="fw-bold mb-3">ডেটা ম্যানেজমেন্ট</h5>
+          <div class="data-actions">
+            <div class="data-action">
+              <div class="data-icon bg-success-soft"><i class="fas fa-download"></i></div>
+              <div><strong>সব ডেটা এক্সপোর্ট</strong><p class="text-muted small mb-0">সম্পূর্ণ ডেটা JSON ফাইলে সেভ করুন</p></div>
+              <button class="btn btn-outline-premium" onclick="exportAllData()">ডাউনলোড</button>
+            </div>
+            <div class="data-action">
+              <div class="data-icon bg-primary-soft"><i class="fas fa-file-csv"></i></div>
+              <div><strong>CSV এক্সপোর্ট</strong><p class="text-muted small mb-0">সব রেকর্ড CSV ফাইলে সেভ করুন</p></div>
+              <button class="btn btn-outline-premium" onclick="exportAllCSV()">ডাউনলোড</button>
+            </div>
+            <div class="data-action">
+              <div class="data-icon bg-info-soft"><i class="fas fa-upload"></i></div>
+              <div><strong>ডেটা ইমপোর্ট</strong><p class="text-muted small mb-0">JSON ফাইল থেকে ডেটা পুনরুদ্ধার করুন</p></div>
+              <input type="file" id="importFile" accept=".json" style="display:none;" onchange="importData(event)">
+              <button class="btn btn-outline-premium" onclick="document.getElementById('importFile').click()">আপলোড</button>
+            </div>
+            <div class="data-action danger">
+              <div class="data-icon bg-danger-soft"><i class="fas fa-trash"></i></div>
+              <div><strong>সব ডেটা মুছুন</strong><p class="text-muted small mb-0">এই অপারেশন পূর্বাবস্থায় ফেরানো যাবে না</p></div>
+              <button class="btn btn-danger-soft" onclick="confirmDeleteAll()">মুছুন</button>
             </div>
           </div>
         </div>
-        <div class="col-lg-6">
-          <div class="card-premium p-4 mb-3">
-            <h5 class="fw-bold mb-3"><i class="fas fa-database me-2"></i>ইউজার স্ট্যাটস</h5>
-            <div id="adminUserStats" class="row g-2"></div>
+
+        <div id="settings-security" class="settings-content">
+          <h5 class="fw-bold mb-3">সিকিউরিটি</h5>
+          <div class="setting-row">
+            <div><strong>লগইন হিস্ট্রি সংরক্ষণ</strong><p class="text-muted small mb-0">সর্বশেষ ৫০টি লগইন সংরক্ষণ করুন</p></div>
+            <label class="switch"><input type="checkbox" id="saveHistory" checked onchange="saveSetting('saveHistory', this.checked)"><span class="slider-switch"></span></label>
           </div>
-          <div class="card-premium p-4">
-            <h5 class="fw-bold mb-3"><i class="fas fa-key me-2"></i>রোল পরিবর্তন</h5>
-            <select id="adminSelectUser" class="form-select mb-2"></select>
-            <select id="adminSelectRole" class="form-select mb-2">
-              <option value="Admin">Admin</option>
-              <option value="Manager">Manager</option>
-              <option value="Staff">Staff</option>
+          <div class="setting-row">
+            <div><strong>স্বয়ংক্রিয় লগ আউট</strong><p class="text-muted small mb-0">৩০ মিনিট নিষ্ক্রিয় থাকলে লগ আউট</p></div>
+            <label class="switch"><input type="checkbox" id="autoLogout" onchange="saveSetting('autoLogout', this.checked)"><span class="slider-switch"></span></label>
+          </div>
+          <div class="setting-row">
+            <div><strong>সেশন ট্র্যাকিং</strong><p class="text-muted small mb-0">IP ও ডিভাইস ট্র্যাক করুন</p></div>
+            <label class="switch"><input type="checkbox" id="sessionTrack" checked onchange="saveSetting('sessionTrack', this.checked)"><span class="slider-switch"></span></label>
+          </div>
+          <button class="btn btn-warning-soft mt-4" onclick="openChangePassword()"><i class="fas fa-key"></i> পাসওয়ার্ড পরিবর্তন</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== ADMIN PANEL ========== -->
+    <section id="admin-section" class="section" style="display:none;">
+      <div class="admin-hero">
+        <div class="admin-hero-icon"><i class="fas fa-shield-halved"></i></div>
+        <div>
+          <h4>অ্যাডমিন কন্ট্রোল প্যানেল</h4>
+          <p>সম্পূর্ণ সিস্টেম নিয়ন্ত্রণ ও ইউজার ম্যানেজমেন্ট</p>
+        </div>
+      </div>
+
+      <div class="admin-note">
+        <i class="fas fa-info-circle"></i>
+        <div><strong>গুরুত্বপূর্ণ:</strong> যেকোনো কাজ করার আগে নিচে থেকে একটি ইউজার নির্বাচন করুন। ইউজার নির্বাচন না করলে কোনো কাজ করা যাবে না।</div>
+      </div>
+
+      <!-- USER SELECTOR -->
+      <div class="user-selector-card">
+        <div class="user-selector-header">
+          <div class="user-selector-icon"><i class="fas fa-user-check"></i></div>
+          <div>
+            <h5>ইউজার নির্বাচন করুন</h5>
+            <small>যে ইউজারকে ম্যানেজ করবেন সেটি নির্বাচন করুন</small>
+          </div>
+          <span class="tag tag-success ms-auto" id="selectedUserBadge" style="display:none;">
+            <i class="fas fa-check-circle"></i> <span id="selectedUserBadgeName">—</span>
+          </span>
+        </div>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">ইউজার</label>
+            <select id="adminUserSelect" class="form-select" onchange="onAdminUserSelect()">
+              <option value="">— নির্বাচন করুন —</option>
             </select>
-            <button class="btn btn-warning-soft" onclick="updateUserRole()"><i class="fas fa-save"></i>রোল আপডেট</button>
+          </div>
+          <div class="col-md-6 d-flex align-items-end">
+            <div class="d-flex gap-2 w-100">
+              <button class="btn btn-outline-premium flex-fill" onclick="refreshUserList()"><i class="fas fa-sync-alt"></i> রিফ্রেশ</button>
+              <button class="btn btn-danger-soft flex-fill" onclick="clearUserSelection()"><i class="fas fa-times"></i> ক্লিয়ার</button>
+            </div>
           </div>
         </div>
+      </div>
+
+      <!-- SELECTED USER INFO -->
+      <div id="selectedUserPanel" style="display:none;">
+        <div class="selected-user-info">
+          <div class="selected-user-avatar" id="selUserAvatar">?</div>
+          <div class="selected-user-details">
+            <h4 id="selUserName">—</h4>
+            <p><i class="fas fa-envelope"></i> <span id="selUserEmail">—</span></p>
+            <div class="d-flex gap-2 flex-wrap mt-2">
+              <span class="tag tag-primary" id="selUserRole">Staff</span>
+              <span class="tag tag-success" id="selUserStatus">Active</span>
+              <span class="tag tag-info" id="selUserCreated">—</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ACTION TABS -->
+        <div class="admin-tabs">
+          <button class="admin-tab active" onclick="switchAdminTab('overview', this)"><i class="fas fa-chart-simple"></i> ওভারভিউ</button>
+          <button class="admin-tab" onclick="switchAdminTab('impersonate', this)"><i class="fas fa-user-secret"></i> অ্যাকসেস</button>
+          <button class="admin-tab" onclick="switchAdminTab('profile', this)"><i class="fas fa-user-edit"></i> প্রোফাইল</button>
+          <button class="admin-tab" onclick="switchAdminTab('security', this)"><i class="fas fa-lock"></i> সিকিউরিটি</button>
+          <button class="admin-tab" onclick="switchAdminTab('danger', this)"><i class="fas fa-exclamation-triangle"></i> ডেঞ্জার</button>
+        </div>
+
+        <!-- TAB: OVERVIEW -->
+        <div id="admin-tab-overview" class="admin-tab-content active">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <div class="admin-info-card">
+                <div class="admin-info-icon bg-primary-soft"><i class="fas fa-store"></i></div>
+                <small>দোকানের নাম</small>
+                <strong id="adShopName">—</strong>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="admin-info-card">
+                <div class="admin-info-icon bg-info-soft"><i class="fas fa-phone"></i></div>
+                <small>মোবাইল</small>
+                <strong id="adPhone">—</strong>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="admin-info-card">
+                <div class="admin-info-icon bg-success-soft"><i class="fas fa-location-dot"></i></div>
+                <small>ঠিকানা</small>
+                <strong id="adAddress">—</strong>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="admin-info-card">
+                <div class="admin-info-icon bg-warning-soft"><i class="fas fa-globe"></i></div>
+                <small>IP ঠিকানা</small>
+                <strong id="adIp">—</strong>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="admin-info-card">
+                <div class="admin-info-icon bg-danger-soft"><i class="fas fa-desktop"></i></div>
+                <small>ডিভাইস</small>
+                <strong id="adDevice">—</strong>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="admin-info-card">
+                <div class="admin-info-icon bg-primary-soft"><i class="fas fa-clock"></i></div>
+                <small>সর্বশেষ লগইন</small>
+                <strong id="adLastLogin">—</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="row g-3 mt-2">
+            <div class="col-md-3 col-6">
+              <div class="admin-stat-mini"><small>পণ্য</small><h4 id="adStatProducts">0</h4><i class="fas fa-box"></i></div>
+            </div>
+            <div class="col-md-3 col-6">
+              <div class="admin-stat-mini"><small>কাস্টমার</small><h4 id="adStatCustomers">0</h4><i class="fas fa-users"></i></div>
+            </div>
+            <div class="col-md-3 col-6">
+              <div class="admin-stat-mini"><small>বিক্রয়</small><h4 id="adStatSales">0</h4><i class="fas fa-cart-plus"></i></div>
+            </div>
+            <div class="col-md-3 col-6">
+              <div class="admin-stat-mini"><small>খরচ</small><h4 id="adStatExpenses">0</h4><i class="fas fa-receipt"></i></div>
+            </div>
+          </div>
+
+          <div class="admin-action-grid mt-4">
+            <button class="admin-action-btn" onclick="adminViewUserData()">
+              <i class="fas fa-eye"></i>
+              <strong>সব ডেটা দেখুন</strong>
+              <small>বিক্রয়, পণ্য, কাস্টমার</small>
+            </button>
+            <button class="admin-action-btn" onclick="adminLoginHistory()">
+              <i class="fas fa-history"></i>
+              <strong>লগইন হিস্ট্রি</strong>
+              <small>IP, ডিভাইস, সময়</small>
+            </button>
+          </div>
+        </div>
+
+        <!-- TAB: IMPERSONATE -->
+        <div id="admin-tab-impersonate" class="admin-tab-content">
+          <div class="info-banner">
+            <i class="fas fa-user-secret"></i>
+            <div><strong>ইউজার অ্যাকসেস:</strong> এই ইউজারের অ্যাকাউন্টে ঢুকে তার সব কাজ করতে পারবেন। আপনার অ্যাডমিন অ্যাকাউন্ট অক্ষত থাকবে।</div>
+          </div>
+          <button class="btn-admin-primary w-100" onclick="impersonateUser()">
+            <i class="fas fa-user-secret"></i> এই ইউজার হিসেবে কাজ করুন
+          </button>
+        </div>
+
+        <!-- TAB: PROFILE EDIT -->
+        <div id="admin-tab-profile" class="admin-tab-content">
+          <h5 class="fw-bold mb-3">প্রোফাইল সম্পাদনা</h5>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">পূর্ণ নাম</label>
+              <input type="text" id="adEditName" class="form-control">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">মোবাইল</label>
+              <input type="tel" id="adEditPhone" class="form-control">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label"><i class="fas fa-lock text-muted"></i> ইমেইল</label>
+              <input type="email" id="adEditEmail" class="form-control" readonly style="background:#f1f5f9;cursor:not-allowed;">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">দোকানের নাম</label>
+              <input type="text" id="adEditShopName" class="form-control">
+            </div>
+            <div class="col-12">
+              <label class="form-label">ঠিকানা</label>
+              <input type="text" id="adEditAddress" class="form-control">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">রোল</label>
+              <select id="adEditRole" class="form-select">
+                <option value="Admin">Admin</option>
+                <option value="Manager">Manager</option>
+                <option value="Staff">Staff</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">স্ট্যাটাস</label>
+              <select id="adEditStatus" class="form-select">
+                <option value="Active">Active</option>
+                <option value="Blocked">Blocked</option>
+                <option value="Suspended">Suspended</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn-admin-primary w-100 mt-4" onclick="adminSaveProfile()">
+            <i class="fas fa-save"></i> প্রোফাইল সংরক্ষণ করুন
+          </button>
+        </div>
+
+        <!-- TAB: SECURITY -->
+        <div id="admin-tab-security" class="admin-tab-content">
+          <h5 class="fw-bold mb-3">সিকিউরিটি অ্যাকশন</h5>
+
+          <div class="admin-action-row">
+            <div class="admin-action-row-icon bg-warning-soft"><i class="fas fa-key"></i></div>
+            <div class="admin-action-row-content">
+              <strong>পাসওয়ার্ড রিসেট</strong>
+              <small>এই ইউজারের ইমেইলে পাসওয়ার্ড রিসেট লিংক পাঠান</small>
+            </div>
+            <button class="btn-warning-soft" onclick="adminResetPassword()"><i class="fas fa-paper-plane"></i> পাঠান</button>
+          </div>
+
+          <div class="admin-action-row">
+            <div class="admin-action-row-icon bg-info-soft"><i class="fas fa-user-lock"></i></div>
+            <div class="admin-action-row-content">
+              <strong>সেশন টার্মিনেট</strong>
+              <small>ইউজারকে জোরপূর্বক লগ আউট করুন</small>
+            </div>
+            <button class="btn-info-soft" onclick="adminForceLogout()"><i class="fas fa-power-off"></i> টার্মিনেট</button>
+          </div>
+
+          <div class="admin-action-row">
+            <div class="admin-action-row-icon bg-danger-soft"><i class="fas fa-user-slash"></i></div>
+            <div class="admin-action-row-content">
+              <strong>সাময়িক ব্লক</strong>
+              <small>নির্দিষ্ট সময়ের জন্য ইউজার ব্লক করুন</small>
+            </div>
+            <button class="btn-danger-soft" onclick="adminBlockUser()"><i class="fas fa-ban"></i> ব্লক</button>
+          </div>
+
+          <div class="admin-action-row">
+            <div class="admin-action-row-icon bg-success-soft"><i class="fas fa-user-check"></i></div>
+            <div class="admin-action-row-content">
+              <strong>আনব্লক করুন</strong>
+              <small>ব্লক করা ইউজারকে আবার সক্রিয় করুন</small>
+            </div>
+            <button class="btn-success-soft" onclick="adminUnblockUser()"><i class="fas fa-unlock"></i> আনব্লক</button>
+          </div>
+        </div>
+
+        <!-- TAB: DANGER -->
+        <div id="admin-tab-danger" class="admin-tab-content">
+          <div class="danger-zone">
+            <div class="danger-zone-header">
+              <i class="fas fa-exclamation-triangle"></i>
+              <div>
+                <h5>ডেঞ্জার জোন</h5>
+                <small>এই কাজগুলি ফেরানো যাবে না, সাবধানে করুন</small>
+              </div>
+            </div>
+
+            <div class="danger-action">
+              <div>
+                <strong>ইউজার ডেটা রিসেট</strong>
+                <small>সব পণ্য, কাস্টমার, বিক্রয়, খরচ মুছে ফেলুন (ইউজার থাকবে)</small>
+              </div>
+              <button class="btn-danger-soft" onclick="adminResetUserData()"><i class="fas fa-eraser"></i> রিসেট</button>
+            </div>
+
+            <div class="danger-action">
+              <div>
+                <strong>সম্পূর্ণ ইউজার ডিলিট</strong>
+                <small>ফায়ারবেস থেকে ইউজারের সব ডেটা মুছে ফেলা হবে — ফেরানো যাবে না</small>
+              </div>
+              <button class="btn-danger-solid" onclick="adminDeleteUser()"><i class="fas fa-trash"></i> ডিলিট</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ALL USERS LIST -->
+      <div class="card-premium p-4 mt-4">
+        <h5 class="fw-bold mb-3"><i class="fas fa-users-cog me-2"></i>সকল ইউজার</h5>
+        <div class="filter-bar">
+          <input type="text" class="form-control" id="adminUserSearch" placeholder="🔍 ইউজার খুঁজুন..." oninput="renderAdminUsersList()">
+          <select class="form-select" id="adminRoleFilter" onchange="renderAdminUsersList()">
+            <option value="">সব রোল</option>
+            <option value="Admin">Admin</option>
+            <option value="Manager">Manager</option>
+            <option value="Staff">Staff</option>
+          </select>
+          <select class="form-select" id="adminStatusFilter" onchange="renderAdminUsersList()">
+            <option value="">সব স্ট্যাটাস</option>
+            <option value="Active">Active</option>
+            <option value="Blocked">Blocked</option>
+            <option value="Suspended">Suspended</option>
+          </select>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-hover modern-table">
+            <thead>
+              <tr>
+                <th>নাম</th>
+                <th>ইমেইল</th>
+                <th>রোল</th>
+                <th>স্ট্যাটাস</th>
+                <th>যোগদান</th>
+                <th>অ্যাকশন</th>
+              </tr>
+            </thead>
+            <tbody id="adminUsersListTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- =================== MODALS =================== -->
+
+<!-- CALCULATOR MODAL -->
+<div class="modal fade" id="calculatorModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered calculator-dialog">
+    <div class="modal-content calculator-modal">
+      <div class="calc-header">
+        <div class="calc-tabs">
+          <button class="calc-tab active" onclick="switchCalcMode('basic', this)">সাধারণ</button>
+          <button class="calc-tab" onclick="switchCalcMode('scientific', this)"><i class="fas fa-square-root-variable"></i> সাইন্টিফিক</button>
+        </div>
+        <button class="btn-close-calc" data-bs-dismiss="modal"><i class="fas fa-times"></i></button>
+      </div>
+
+      <div class="calc-display">
+        <div class="calc-history" id="calcHistory"></div>
+        <input type="text" class="calc-input" id="calcInput" readonly value="0">
+      </div>
+
+      <!-- BASIC PAD -->
+      <div class="calc-pad" id="calcPadBasic">
+        <button class="calc-btn function" onclick="calcAction('clear')">AC</button>
+        <button class="calc-btn function" onclick="calcAction('backspace')"><i class="fas fa-delete-left"></i></button>
+        <button class="calc-btn function" onclick="calcAction('percent')">%</button>
+        <button class="calc-btn operator" onclick="calcAction('divide')">÷</button>
+
+        <button class="calc-btn" onclick="calcNum('7')">7</button>
+        <button class="calc-btn" onclick="calcNum('8')">8</button>
+        <button class="calc-btn" onclick="calcNum('9')">9</button>
+        <button class="calc-btn operator" onclick="calcAction('multiply')">×</button>
+
+        <button class="calc-btn" onclick="calcNum('4')">4</button>
+        <button class="calc-btn" onclick="calcNum('5')">5</button>
+        <button class="calc-btn" onclick="calcNum('6')">6</button>
+        <button class="calc-btn operator" onclick="calcAction('subtract')">−</button>
+
+        <button class="calc-btn" onclick="calcNum('1')">1</button>
+        <button class="calc-btn" onclick="calcNum('2')">2</button>
+        <button class="calc-btn" onclick="calcNum('3')">3</button>
+        <button class="calc-btn operator" onclick="calcAction('add')">+</button>
+
+        <button class="calc-btn" onclick="calcAction('negate')">±</button>
+        <button class="calc-btn" onclick="calcNum('0')">0</button>
+        <button class="calc-btn" onclick="calcAction('decimal')">.</button>
+        <button class="calc-btn equals" onclick="calcAction('equals')">=</button>
+      </div>
+
+      <!-- SCIENTIFIC PAD -->
+      <div class="calc-pad-sci" id="calcPadSci" style="display:none;">
+        <div class="sci-row">
+          <button class="calc-btn sci" onclick="calcFunc('sin')">sin</button>
+          <button class="calc-btn sci" onclick="calcFunc('cos')">cos</button>
+          <button class="calc-btn sci" onclick="calcFunc('tan')">tan</button>
+          <button class="calc-btn sci" onclick="calcFunc('log')">log</button>
+          <button class="calc-btn sci" onclick="calcFunc('ln')">ln</button>
+        </div>
+        <div class="sci-row">
+          <button class="calc-btn sci" onclick="calcFunc('sqrt')">√</button>
+          <button class="calc-btn sci" onclick="calcFunc('cbrt')">∛</button>
+          <button class="calc-btn sci" onclick="calcFunc('square')">x²</button>
+          <button class="calc-btn sci" onclick="calcFunc('cube')">x³</button>
+          <button class="calc-btn sci" onclick="calcFunc('inverse')">1/x</button>
+        </div>
+        <div class="sci-row">
+          <button class="calc-btn sci" onclick="calcFunc('pi')">π</button>
+          <button class="calc-btn sci" onclick="calcFunc('e')">e</button>
+          <button class="calc-btn sci" onclick="calcFunc('fact')">n!</button>
+          <button class="calc-btn sci" onclick="calcAction('openParen')">(</button>
+          <button class="calc-btn sci" onclick="calcAction('closeParen')">)</button>
+        </div>
+        <div class="sci-row">
+          <button class="calc-btn sci" onclick="calcFunc('pow')">xʸ</button>
+          <button class="calc-btn sci" onclick="calcFunc('exp')">eˣ</button>
+          <button class="calc-btn sci" onclick="calcFunc('10pow')">10ˣ</button>
+          <button class="calc-btn sci" onclick="calcFunc('abs')">|x|</button>
+          <button class="calc-btn sci" onclick="calcFunc('rand')">Rnd</button>
+        </div>
+        <div class="sci-row">
+          <button class="calc-btn sci" onclick="calcFunc('deg')">DEG</button>
+          <button class="calc-btn sci" onclick="calcFunc('rad')">RAD</button>
+          <button class="calc-btn sci" onclick="calcFunc('asin')">sin⁻¹</button>
+          <button class="calc-btn sci" onclick="calcFunc('acos')">cos⁻¹</button>
+          <button class="calc-btn sci" onclick="calcFunc('atan')">tan⁻¹</button>
+        </div>
+      </div>
+
+      <div class="calc-footer">
+        <button class="calc-footer-btn" onclick="clearCalcHistory()"><i class="fas fa-trash"></i> হিস্ট্রি মুছুন</button>
+        <button class="calc-footer-btn" onclick="calcAction('copy')"><i class="fas fa-copy"></i> কপি</button>
+        <button class="calc-footer-btn" onclick="calcAction('paste')"><i class="fas fa-paste"></i> পেস্ট</button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- MODALS -->
-<div class="modal fade" id="addProductModal" tabindex="-1">
-  <div class="modal-dialog modal-lg modal-dialog-centered">
+<!-- ADMIN BLOCK MODAL -->
+<div class="modal fade" id="adminBlockModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
-      <div class="modal-header"><h5 class="fw-bold mb-0"><i class="fas fa-box me-2 text-primary"></i>নতুন পণ্য যোগ করুন</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-header">
+        <h5 class="fw-bold mb-0"><i class="fas fa-user-slash text-danger me-2"></i>ইউজার সাময়িক ব্লক</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
       <div class="modal-body">
-        <div class="info-banner"><i class="fas fa-info-circle"></i><div>পণ্যের নাম, স্টক, ক্রয় ও বিক্রয় মূল্য সঠিকভাবে দিন। লাভ স্বয়ংক্রিয়ভাবে হিসাব হবে।</div></div>
+        <div class="info-banner" style="background:var(--danger-soft);border-color:var(--danger-soft);">
+          <i class="fas fa-exclamation-triangle" style="color:var(--danger);"></i>
+          <div>ব্লক করা অবস্থায় ইউজার লগইন করতে পারবে না। সময় শেষ হলে স্বয়ংক্রিয় আনব্লক হবে।</div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">ইউজার</label>
+          <input type="text" id="blockUserName" class="form-control" readonly style="background:var(--bg-body);">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">ব্লকের সময়কাল <span class="req">*</span></label>
+          <div class="row g-2">
+            <div class="col-6">
+              <input type="number" id="blockDuration" class="form-control" value="1" min="1" placeholder="পরিমাণ">
+            </div>
+            <div class="col-6">
+              <select id="blockUnit" class="form-select">
+                <option value="minutes">মিনিট</option>
+                <option value="hours">ঘণ্টা</option>
+                <option value="days" selected>দিন</option>
+                <option value="weeks">সপ্তাহ</option>
+                <option value="months">মাস</option>
+                <option value="years">বছর</option>
+                <option value="forever">চিরতরে</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">কারণ (ঐচ্ছিক)</label>
+          <textarea id="blockReason" class="form-control" rows="2" placeholder="ব্লক করার কারণ..."></textarea>
+        </div>
+        <div class="live-card">
+          <div class="row-line"><span>ব্লক হবে</span><strong id="blockPreviewStart">এখন</strong></div>
+          <div class="row-line"><span>আনব্লক হবে</span><strong class="text-warning" id="blockPreviewEnd">—</strong></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-secondary" data-bs-dismiss="modal">বাতিল</button>
+        <button class="btn btn-danger-soft" onclick="confirmAdminBlock()"><i class="fas fa-ban"></i> ব্লক করুন</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN NEW USER MODAL -->
+<div class="modal fade" id="adminNewUserModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="fw-bold mb-0"><i class="fas fa-user-plus text-success me-2"></i>নতুন ইউজার তৈরি করুন</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="info-banner">
+          <i class="fas fa-info-circle"></i>
+          <div>অ্যাডমিন হিসেবে যেকোনো ইউজার তৈরি করতে পারবেন। ফায়ারবেসে অ্যাকাউন্ট তৈরি হবে।</div>
+        </div>
+        <div class="row g-3">
+          <div class="col-md-6"><label class="form-label">পূর্ণ নাম <span class="req">*</span></label><input type="text" id="newUserName" class="form-control"></div>
+          <div class="col-md-6"><label class="form-label">ইমেইল <span class="req">*</span></label><input type="email" id="newUserEmail" class="form-control"></div>
+          <div class="col-md-6"><label class="form-label">মোবাইল</label><input type="tel" id="newUserPhone" class="form-control"></div>
+          <div class="col-md-6"><label class="form-label">রোল <span class="req">*</span></label>
+            <select id="newUserRole" class="form-select">
+              <option value="Staff" selected>Staff</option>
+              <option value="Manager">Manager</option>
+              <option value="Admin">Admin</option>
+            </select>
+          </div>
+          <div class="col-md-6"><label class="form-label">দোকানের নাম</label><input type="text" id="newUserShop" class="form-control"></div>
+          <div class="col-12"><label class="form-label">ঠিকানা</label><input type="text" id="newUserAddress" class="form-control"></div>
+          <div class="col-md-6"><label class="form-label">পাসওয়ার্ড <span class="req">*</span></label>
+            <div class="input-group">
+              <input type="text" id="newUserPassword" class="form-control" value="" placeholder="মিনিমাম ৬ অক্ষর">
+              <span class="input-group-text" onclick="generatePassword()" style="cursor:pointer;" title="জেনারেট"><i class="fas fa-dice"></i></span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-secondary" data-bs-dismiss="modal">বাতিল</button>
+        <button class="btn btn-gradient" onclick="adminCreateUser()"><i class="fas fa-save"></i> ইউজার তৈরি করুন</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN VIEW USER DATA MODAL -->
+<div class="modal fade" id="adminViewDataModal" tabindex="-1">
+  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="fw-bold mb-0"><i class="fas fa-eye text-primary me-2"></i>ইউজারের ডেটা — <span id="viewDataUserName">—</span></h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="view-data-tabs">
+          <button class="view-data-tab active" onclick="switchViewDataTab('sales', this)"><i class="fas fa-cart-plus"></i> বিক্রয়</button>
+          <button class="view-data-tab" onclick="switchViewDataTab('inventory', this)"><i class="fas fa-box"></i> পণ্য</button>
+          <button class="view-data-tab" onclick="switchViewDataTab('customers', this)"><i class="fas fa-users"></i> কাস্টমার</button>
+          <button class="view-data-tab" onclick="switchViewDataTab('expenses', this)"><i class="fas fa-receipt"></i> খরচ</button>
+        </div>
+        <div id="viewDataContent"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT PROFILE MODAL -->
+<div class="modal fade" id="editProfileModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="fw-bold mb-0"><i class="fas fa-user-edit text-primary me-2"></i>প্রোফাইল সম্পাদনা</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="info-banner">
+          <i class="fas fa-shield-halved"></i>
+          <div><strong>নোট:</strong> ইমেইল, ইউজার আইডি, IP ঠিকানা পরিবর্তন করা যাবে না।</div>
+        </div>
+        <div class="row g-3">
+          <div class="col-md-6"><label class="form-label">পূর্ণ নাম <span class="req">*</span></label><input type="text" id="editProfileName" class="form-control"></div>
+          <div class="col-md-6"><label class="form-label">মোবাইল</label><input type="tel" id="editProfilePhone" class="form-control"></div>
+          <div class="col-md-6"><label class="form-label"><i class="fas fa-lock text-muted"></i> ইমেইল</label><input type="email" id="editProfileEmail" class="form-control" readonly style="background:#f1f5f9;"></div>
+          <div class="col-md-6"><label class="form-label">দোকানের নাম</label><input type="text" id="editProfileShopName" class="form-control"></div>
+          <div class="col-12"><label class="form-label">ঠিকানা</label><input type="text" id="editProfileAddress" class="form-control"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-secondary" data-bs-dismiss="modal">বাতিল</button>
+        <button class="btn btn-gradient" onclick="saveProfile()"><i class="fas fa-save"></i> সংরক্ষণ</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CHANGE PASSWORD MODAL -->
+<div class="modal fade" id="changePasswordModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="fw-bold mb-0"><i class="fas fa-key text-warning me-2"></i>পাসওয়ার্ড পরিবর্তন</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <div class="mb-3"><label class="form-label">ইমেইল</label><input type="email" id="pwdEmail" class="form-control" readonly style="background:#f1f5f9;"></div>
+        <div class="alert alert-info small mb-3"><i class="fas fa-info-circle"></i> আপনার ইমেইলে পাসওয়ার্ড রিসেট লিংক পাঠানো হবে।</div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-outline-secondary" data-bs-dismiss="modal">বাতিল</button><button class="btn btn-warning-soft" onclick="sendPasswordReset()"><i class="fas fa-paper-plane"></i> রিসেট লিংক পাঠান</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- LOGIN HISTORY MODAL -->
+<div class="modal fade" id="loginHistoryModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="fw-bold mb-0"><i class="fas fa-history text-info me-2"></i>লগইন হিস্ট্রি</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body"><div id="loginHistoryModalContent"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ADD PRODUCT -->
+<div class="modal fade" id="addProductModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="fw-bold mb-0"><i class="fas fa-box text-primary me-2"></i>নতুন পণ্য যোগ করুন</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <div class="info-banner"><i class="fas fa-info-circle"></i><div>পণ্যের নাম, স্টক, ক্রয় ও বিক্রয় মূল্য সঠিকভাবে দিন।</div></div>
         <div class="row g-3">
           <div class="col-md-6"><label class="form-label">পণ্যের নাম <span class="req">*</span></label><input type="text" id="addProdName" class="form-control" placeholder="যেমন: চাল (৫ কেজি)"></div>
           <div class="col-md-6"><label class="form-label">স্টক পরিমাণ <span class="req">*</span></label><input type="number" id="addProdQty" class="form-control" placeholder="0" min="0"></div>
@@ -739,15 +1588,16 @@
           <div class="row-line"><span>মোট সম্ভাব্য লাভ</span><strong class="text-primary" id="addProdTotalProfit">৳0.00</strong></div>
         </div>
       </div>
-      <div class="modal-footer"><button class="btn btn-outline-secondary" data-bs-dismiss="modal">বাতিল</button><button class="btn btn-gradient" onclick="addInventory()"><i class="fas fa-save"></i>সংরক্ষণ</button></div>
+      <div class="modal-footer"><button class="btn btn-outline-secondary" data-bs-dismiss="modal">বাতিল</button><button class="btn btn-gradient" onclick="addInventory()"><i class="fas fa-save"></i> সংরক্ষণ</button></div>
     </div>
   </div>
 </div>
 
+<!-- EDIT PRODUCT -->
 <div class="modal fade" id="editProductModal" tabindex="-1">
-  <div class="modal-dialog modal-lg modal-dialog-centered">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content">
-      <div class="modal-header"><h5 class="fw-bold mb-0"><i class="fas fa-edit me-2 text-warning"></i>পণ্য সম্পাদনা</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-header"><h5 class="fw-bold mb-0"><i class="fas fa-edit text-warning me-2"></i>পণ্য সম্পাদনা</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
       <div class="modal-body">
         <div class="row g-3">
           <div class="col-md-6"><label class="form-label">পণ্যের নাম <span class="req">*</span></label><input type="text" id="editProdName" class="form-control"></div>
@@ -756,17 +1606,18 @@
           <div class="col-md-6"><label class="form-label">বিক্রয় মূল্য <span class="req">*</span></label><div class="input-group"><span class="input-group-text currency">৳</span><input type="number" id="editProdSellPrice" class="form-control" min="0"></div></div>
         </div>
       </div>
-      <div class="modal-footer"><button class="btn btn-outline-secondary" data-bs-dismiss="modal">বাতিল</button><button class="btn btn-gradient" onclick="updateInventory()"><i class="fas fa-save"></i>আপডেট</button></div>
+      <div class="modal-footer"><button class="btn btn-outline-secondary" data-bs-dismiss="modal">বাতিল</button><button class="btn btn-gradient" onclick="updateInventory()"><i class="fas fa-save"></i> আপডেট</button></div>
     </div>
   </div>
 </div>
 
+<!-- PURCHASE -->
 <div class="modal fade" id="purchaseProductModal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content">
-      <div class="modal-header"><h5 class="fw-bold mb-0"><i class="fas fa-shopping-cart me-2 text-success"></i>পণ্য ক্রয়</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-header"><h5 class="fw-bold mb-0"><i class="fas fa-shopping-cart text-success me-2"></i>পণ্য ক্রয়</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
       <div class="modal-body">
-        <div class="mb-3"><label class="form-label">পণ্য</label><input type="text" id="purchaseProdName" class="form-control" readonly style="background:#eef2ff;font-weight:700;color:#4f46e5;"></div>
+        <div class="mb-3"><label class="form-label">পণ্য</label><input type="text" id="purchaseProdName" class="form-control" readonly style="background:var(--primary-soft);font-weight:700;color:var(--primary);"></div>
         <div class="row g-3">
           <div class="col-md-6"><label class="form-label">ক্রয় পরিমাণ <span class="req">*</span></label><input type="number" id="purchaseQty" class="form-control" placeholder="0" min="1"></div>
           <div class="col-md-6"><label class="form-label">ক্রয় মূল্য <span class="req">*</span></label><div class="input-group"><span class="input-group-text currency">৳</span><input type="number" id="purchasePrice" class="form-control" min="0"></div></div>
@@ -777,15 +1628,16 @@
           <div class="row-total d-flex justify-content-between"><span>মোট ক্রয় খরচ</span><span>৳ <span id="purchaseTotalCost">0.00</span></span></div>
         </div>
       </div>
-      <div class="modal-footer"><button class="btn btn-outline-secondary" data-bs-dismiss="modal">বাতিল</button><button class="btn btn-success-soft" onclick="purchaseProduct()"><i class="fas fa-check"></i>ক্রয় সম্পন্ন</button></div>
+      <div class="modal-footer"><button class="btn btn-outline-secondary" data-bs-dismiss="modal">বাতিল</button><button class="btn btn-success-soft" onclick="purchaseProduct()"><i class="fas fa-check"></i> ক্রয় সম্পন্ন</button></div>
     </div>
   </div>
 </div>
 
+<!-- ADD CUSTOMER -->
 <div class="modal fade" id="addCustomerModal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content">
-      <div class="modal-header"><h5 class="fw-bold mb-0"><i class="fas fa-user-plus me-2 text-primary"></i>নতুন কাস্টমার</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-header"><h5 class="fw-bold mb-0"><i class="fas fa-user-plus text-primary me-2"></i>নতুন কাস্টমার</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
       <div class="modal-body">
         <div class="row g-3">
           <div class="col-md-6"><label class="form-label">নাম <span class="req">*</span></label><input type="text" id="addCustName" class="form-control" placeholder="কাস্টমারের নাম"></div>
@@ -793,80 +1645,85 @@
           <div class="col-12"><label class="form-label">প্রাথমিক বাকি (ঐচ্ছিক)</label><div class="input-group"><span class="input-group-text currency">৳</span><input type="number" id="addCustDue" class="form-control" value="0" min="0"></div></div>
         </div>
       </div>
-      <div class="modal-footer"><button class="btn btn-outline-secondary" data-bs-dismiss="modal">বাতিল</button><button class="btn btn-gradient" onclick="addCustomer()"><i class="fas fa-save"></i>সংরক্ষণ</button></div>
+      <div class="modal-footer"><button class="btn btn-outline-secondary" data-bs-dismiss="modal">বাতিল</button><button class="btn btn-gradient" onclick="addCustomer()"><i class="fas fa-save"></i> সংরক্ষণ</button></div>
     </div>
   </div>
 </div>
 
+<!-- EDIT CUSTOMER -->
 <div class="modal fade" id="editCustomerModal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content">
-      <div class="modal-header"><h5 class="fw-bold mb-0"><i class="fas fa-edit me-2 text-warning"></i>কাস্টমার সম্পাদনা</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-header"><h5 class="fw-bold mb-0"><i class="fas fa-edit text-warning me-2"></i>কাস্টমার সম্পাদনা</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
       <div class="modal-body">
         <div class="row g-3">
           <div class="col-md-6"><label class="form-label">নাম <span class="req">*</span></label><input type="text" id="editCustName" class="form-control"></div>
           <div class="col-md-6"><label class="form-label">ফোন <span class="req">*</span></label><input type="tel" id="editCustPhone" class="form-control"></div>
         </div>
       </div>
-      <div class="modal-footer"><button class="btn btn-outline-secondary" data-bs-dismiss="modal">বাতিল</button><button class="btn btn-gradient" onclick="updateCustomer()"><i class="fas fa-save"></i>আপডেট</button></div>
+      <div class="modal-footer"><button class="btn btn-outline-secondary" data-bs-dismiss="modal">বাতিল</button><button class="btn btn-gradient" onclick="updateCustomer()"><i class="fas fa-save"></i> আপডেট</button></div>
     </div>
   </div>
 </div>
 
+<!-- PAY DUE -->
 <div class="modal fade" id="payDueModal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content">
-      <div class="modal-header"><h5 class="fw-bold mb-0"><i class="fas fa-hand-holding-usd me-2 text-success"></i>বাকি পরিশোধ</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-header"><h5 class="fw-bold mb-0"><i class="fas fa-hand-holding-usd text-success me-2"></i>বাকি পরিশোধ</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
       <div class="modal-body">
-        <div class="mb-3"><label class="form-label">কাস্টমার</label><input type="text" id="payCustName" class="form-control" readonly style="background:#eef2ff;font-weight:700;color:#4f46e5;"></div>
-        <div class="mb-3"><label class="form-label">বর্তমান বাকি</label><input type="text" id="payCurrentDue" class="form-control" readonly style="background:#fee2e2;font-weight:700;color:#dc2626;"></div>
+        <div class="mb-3"><label class="form-label">কাস্টমার</label><input type="text" id="payCustName" class="form-control" readonly style="background:var(--primary-soft);font-weight:700;color:var(--primary);"></div>
+        <div class="mb-3"><label class="form-label">বর্তমান বাকি</label><input type="text" id="payCurrentDue" class="form-control" readonly style="background:var(--danger-soft);font-weight:700;color:var(--danger);"></div>
         <div class="mb-3"><label class="form-label">পরিশোধের পরিমাণ <span class="req">*</span></label><div class="input-group"><span class="input-group-text currency">৳</span><input type="number" id="payAmount" class="form-control" min="0" oninput="previewPayDue()"></div></div>
         <div class="live-card">
           <div class="row-line"><span>পরিশোধের পর বাকি</span><strong class="text-warning" id="payRemainingDue">৳0.00</strong></div>
           <div class="row-line"><span>স্ট্যাটাস</span><strong id="payStatus">-</strong></div>
         </div>
       </div>
-      <div class="modal-footer"><button class="btn btn-outline-secondary" data-bs-dismiss="modal">বাতিল</button><button class="btn btn-success-soft" onclick="makePayment()"><i class="fas fa-check"></i>পরিশোধ সম্পন্ন</button></div>
+      <div class="modal-footer"><button class="btn btn-outline-secondary" data-bs-dismiss="modal">বাতিল</button><button class="btn btn-success-soft" onclick="makePayment()"><i class="fas fa-check"></i> পরিশোধ সম্পন্ন</button></div>
     </div>
   </div>
 </div>
 
+<!-- ADD EXPENSE -->
 <div class="modal fade" id="addExpenseModal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content">
-      <div class="modal-header"><h5 class="fw-bold mb-0"><i class="fas fa-receipt me-2 text-danger"></i>নতুন খরচ</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-header"><h5 class="fw-bold mb-0"><i class="fas fa-receipt text-danger me-2"></i>নতুন খরচ</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
       <div class="modal-body">
         <div class="mb-3">
           <label class="form-label">দ্রুত নির্বাচন</label>
           <div class="d-flex flex-wrap gap-2">
-            <button type="button" class="btn btn-soft-sm btn-outline-premium" onclick="quickExpense('দোকান ভাড়া')">দোকান ভাড়া</button>
-            <button type="button" class="btn btn-soft-sm btn-outline-premium" onclick="quickExpense('বিদ্যুৎ বিল')">বিদ্যুৎ বিল</button>
-            <button type="button" class="btn btn-soft-sm btn-outline-premium" onclick="quickExpense('বেতন')">বেতন</button>
-            <button type="button" class="btn btn-soft-sm btn-outline-premium" onclick="quickExpense('যাতায়াত')">যাতায়াত</button>
-            <button type="button" class="btn btn-soft-sm btn-outline-premium" onclick="quickExpense('প্যাকেজিং')">প্যাকেজিং</button>
+            <button type="button" class="btn-soft-sm btn-outline-premium" onclick="quickExpense('দোকান ভাড়া')">দোকান ভাড়া</button>
+            <button type="button" class="btn-soft-sm btn-outline-premium" onclick="quickExpense('বিদ্যুৎ বিল')">বিদ্যুৎ বিল</button>
+            <button type="button" class="btn-soft-sm btn-outline-premium" onclick="quickExpense('বেতন')">বেতন</button>
+            <button type="button" class="btn-soft-sm btn-outline-premium" onclick="quickExpense('যাতায়াত')">যাতায়াত</button>
+            <button type="button" class="btn-soft-sm btn-outline-premium" onclick="quickExpense('প্যাকেজিং')">প্যাকেজিং</button>
           </div>
         </div>
         <div class="mb-3"><label class="form-label">বিবরণ <span class="req">*</span></label><input type="text" id="addExpDesc" class="form-control" placeholder="যেমন: নভেম্বর মাসের দোকান ভাড়া"></div>
         <div class="mb-3"><label class="form-label">পরিমাণ <span class="req">*</span></label><div class="input-group"><span class="input-group-text currency">৳</span><input type="number" id="addExpAmt" class="form-control" placeholder="0.00" min="0"></div></div>
       </div>
-      <div class="modal-footer"><button class="btn btn-outline-secondary" data-bs-dismiss="modal">বাতিল</button><button class="btn btn-gradient" onclick="addExpense()"><i class="fas fa-save"></i>সংরক্ষণ</button></div>
+      <div class="modal-footer"><button class="btn btn-outline-secondary" data-bs-dismiss="modal">বাতিল</button><button class="btn btn-gradient" onclick="addExpense()"><i class="fas fa-save"></i> সংরক্ষণ</button></div>
     </div>
   </div>
 </div>
 
+<!-- QUICK ADD CUSTOMER -->
 <div class="modal fade" id="quickAddCustomerModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
-      <div class="modal-header"><h5 class="fw-bold mb-0"><i class="fas fa-user-plus me-2 text-primary"></i>দ্রুত কাস্টমার যোগ</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-header"><h5 class="fw-bold mb-0"><i class="fas fa-user-plus text-primary me-2"></i>দ্রুত কাস্টমার যোগ</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
       <div class="modal-body">
         <div class="mb-3"><label class="form-label">নাম <span class="req">*</span></label><input type="text" id="quickCustName" class="form-control"></div>
         <div class="mb-3"><label class="form-label">ফোন <span class="req">*</span></label><input type="tel" id="quickCustPhone" class="form-control"></div>
       </div>
-      <div class="modal-footer"><button class="btn btn-outline-secondary" data-bs-dismiss="modal">বাতিল</button><button class="btn btn-gradient" onclick="quickAddCustomer()"><i class="fas fa-save"></i>যোগ করুন</button></div>
+      <div class="modal-footer"><button class="btn btn-outline-secondary" data-bs-dismiss="modal">বাতিল</button><button class="btn btn-gradient" onclick="quickAddCustomer()"><i class="fas fa-save"></i> যোগ করুন</button></div>
     </div>
   </div>
 </div>
 
+<!-- SCRIPTS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
