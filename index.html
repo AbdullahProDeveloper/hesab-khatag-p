@@ -21,36 +21,11 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
 <!-- ============ FONT AWESOME 6.7.2 (সব আইকনের জন্য) ============ -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+<link rel="stylesheet" href="icon.css">
 
 <!-- ============ STYLE.CSS ============ -->
 <link rel="stylesheet" href="style.css">
-
-<!-- ============ ICON DIAGNOSTIC (ঐচ্ছিক) ============ -->
-<script>
-  // Font Awesome লোড হয়েছে কিনা চেক করুন
-  window.addEventListener('load', () => {
-    const testIcon = document.createElement('i');
-    testIcon.className = 'fas fa-check';
-    testIcon.style.cssText = 'position:absolute;left:-9999px;font-family:"Font Awesome 6 Free";font-weight:900;';
-    document.body.appendChild(testIcon);
-    const faLoaded = window.getComputedStyle(testIcon, ':before').content !== 'none';
-    if (!faLoaded) {
-      console.warn('⚠️ Font Awesome লোড হয়নি! ইন্টারনেট বা CDN চেক করুন।');
-      // Fallback: দ্বিতীয় CDN থেকে লোড করার চেষ্টা
-      const fallback = document.createElement('link');
-      fallback.rel = 'stylesheet';
-      fallback.href = 'https://use.fontawesome.com/releases/v6.5.2/css/all.css';
-      document.head.appendChild(fallback);
-    } else {
-      console.log('✅ Font Awesome loaded successfully');
-    }
-    testIcon.remove();
-  });
-</script>
 </head>
-  
-
   
 <body>
 
