@@ -2439,6 +2439,7 @@ window.adminDeleteUserById = async (uid, email) => {
   showLoader(false);
 };
 
+/* ✅ FIXED: একটিমাত্র adminCreateUser ফাংশন */
 window.adminCreateUser = () => {
   document.getElementById('newUserName').value = '';
   document.getElementById('newUserEmail').value = '';
@@ -2461,10 +2462,7 @@ window.generatePassword = () => {
   document.getElementById('newUserPassword').value = generateRandomPassword();
 };
 
-// New user creation requires admin SDK normally. As workaround, we create user profile only.
-// Firebase client SDK signs out current user when creating new one, so we use a workaround:
-// Create the user document with a note that admin must trigger password reset.
-window.adminCreateUser = async () => {
+window.confirmAdminCreateUser = async () => {
   const name = document.getElementById('newUserName').value.trim();
   const email = document.getElementById('newUserEmail').value.trim();
   const phone = document.getElementById('newUserPhone').value.trim();
@@ -2480,11 +2478,8 @@ window.adminCreateUser = async () => {
   showLoader(true, 'ইউজার তৈরি হচ্ছে...');
 
   try {
-    // Save current admin user
     const adminUser = auth.currentUser;
     const adminEmail = adminUser.email;
-    // Note: creating user with createUserWithEmailAndPassword will sign in as new user.
-    // Save password temporarily, then sign out and note.
     const uc = await createUserWithEmailAndPassword(auth, email, password);
     const newUid = uc.user.uid;
     const now = new Date();
@@ -2498,7 +2493,6 @@ window.adminCreateUser = async () => {
       createdByAdmin: adminEmail,
       settings: DEFAULT_SETTINGS
     });
-    // Sign back in as admin? Actually admin will need to re-login. Show password to admin.
     await signOut(auth);
     await Swal.fire({
       icon: 'success',
