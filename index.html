@@ -3,9 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-  <meta name="description" content="HesabKhata Enterprise Pro - Business Management System">
   <meta name="theme-color" content="#6366f1">
-  <title>HesabKhata Enterprise Pro v10.0</title>
+  <title>HesabKhata Enterprise Pro v11.0</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -45,7 +44,7 @@
   <i class="fas fa-wifi"></i> <span data-i18n="offline_msg">আপনি অফলাইনে আছেন</span>
 </div>
 
-<!-- ══════════════ AUTH SCREEN ══════════════ -->
+<!-- ══════════════ AUTH ══════════════ -->
 <div id="authScreen" class="auth-bg">
   <div class="auth-particles"><span></span><span></span><span></span><span></span><span></span><span></span></div>
 
@@ -69,7 +68,6 @@
     </div>
 
     <div class="auth-card">
-      <!-- LOGIN -->
       <div id="loginForm">
         <div class="text-center mb-4">
           <div class="auth-logo-mobile">🏪</div>
@@ -95,7 +93,6 @@
         <div class="text-center small mt-3"><span data-i18n="no_account">নতুন ইউজার?</span> <a href="#" class="auth-link fw-bold" onclick="showRegister();return false;" data-i18n="register_now">রেজিস্টার করুন</a></div>
       </div>
 
-      <!-- REGISTER -->
       <div id="registerForm" style="display:none;">
         <div class="text-center mb-4">
           <div class="auth-logo-mobile">🚀</div>
@@ -127,15 +124,14 @@
           <div class="col-12"><div class="form-check"><input class="form-check-input" type="checkbox" id="termsCheck"><label class="form-check-label small" for="termsCheck" data-i18n="terms_agree">আমি শর্তাবলী মেনে নিচ্ছি</label></div></div>
         </div>
         <button class="btn-auth mt-3" id="registerBtn" onclick="register()"><i class="fas fa-rocket me-2"></i><span data-i18n="register_btn">রেজিস্টার করুন</span></button>
-        <div class="text-center small mt-3"><span data-i18n="have_account">ইতিমধ্যে অ্যাকাউন্ট আছে?</span> <a href="#" class="auth-link fw-bold" onclick="showLogin();return false;" data-i18n="login_now">লগইন</a></div>
+        <div class="text-center small mt-3"><span data-i18n="have_account">অ্যাকাউন্ট আছে?</span> <a href="#" class="auth-link fw-bold" onclick="showLogin();return false;" data-i18n="login_now">লগইন</a></div>
       </div>
 
-      <!-- FORGOT -->
       <div id="forgotForm" style="display:none;">
         <div class="text-center mb-4">
           <div class="auth-logo-mobile">🔑</div>
           <h2 class="auth-title" data-i18n="reset_password">পাসওয়ার্ড রিসেট</h2>
-          <p class="auth-subtitle" data-i18n="reset_subtitle">নিবন্ধিত ইমেইলে রিসেট লিংক পাঠানো হবে</p>
+          <p class="auth-subtitle" data-i18n="reset_subtitle">ইমেইলে রিসেট লিংক পাঠানো হবে</p>
         </div>
         <div class="mb-3"><label class="form-label" data-i18n="email">ইমেইল</label> <span class="req">*</span><input type="email" id="resetEmail" class="form-control form-control-lg"></div>
         <button class="btn-auth" id="resetBtn" onclick="resetPassword()"><i class="fas fa-paper-plane me-2"></i><span data-i18n="send_reset">রিসেট লিংক পাঠান</span></button>
@@ -143,7 +139,7 @@
       </div>
     </div>
   </div>
-  <div class="auth-footer">© 2025 HesabKhata Enterprise Pro v10.0</div>
+  <div class="auth-footer">© 2025 HesabKhata Enterprise Pro v11.0</div>
 </div>
 
 <!-- ══════════════ MAIN APP ══════════════ -->
@@ -170,9 +166,9 @@
       </div>
     </div>
     <div class="d-flex align-items-center gap-2">
-      <div class="search-bar d-none d-lg-flex" onclick="openCommandPalette?.()">
+      <div class="search-bar d-none d-lg-flex" onclick="openCommandPalette()">
         <i class="fas fa-magnifying-glass text-muted"></i>
-        <input type="text" placeholder="Quick search..." id="globalSearchInput" readonly style="cursor:pointer;">
+        <input type="text" placeholder="Search everything..." readonly style="cursor:pointer;" data-i18n-ph="search_everything">
         <span class="kbd-hint">Ctrl+K</span>
       </div>
       <button class="icon-btn d-none d-lg-flex" onclick="openCalculator()"><i class="fas fa-calculator"></i></button>
@@ -213,6 +209,7 @@
           <a href="#" class="dropdown-item" onclick="openProfileEdit(event);return false;"><i class="fas fa-user-pen"></i> <span data-i18n="edit_profile">সম্পাদনা</span></a>
           <a href="#" class="dropdown-item" onclick="openSettings(event);return false;"><i class="fas fa-palette"></i> <span data-i18n="theme_settings">সেটিংস</span></a>
           <a href="#" class="dropdown-item" onclick="openLoginHistory(event);return false;"><i class="fas fa-clock-rotate-left"></i> <span data-i18n="login_history">লগইন হিস্ট্রি</span></a>
+          <a href="#" class="dropdown-item" onclick="openCommandPalette();return false;"><i class="fas fa-terminal"></i> <span data-i18n="command_palette">কমান্ড প্যালেট</span> <span class="kbd-hint ms-auto">Ctrl+K</span></a>
           <div class="dropdown-divider"></div>
           <a href="#" class="dropdown-item danger" onclick="logout();return false;"><i class="fas fa-right-from-bracket"></i> <span data-i18n="logout">লগ আউট</span></a>
         </div>
@@ -224,7 +221,7 @@
   <aside class="sidebar" id="sidebar">
     <div class="brand-head">
       <i class="fas fa-store-alt"></i>
-      <div><span>HesabKhata</span><small>Enterprise v10.0</small></div>
+      <div><span>HesabKhata</span><small>Enterprise v11.0</small></div>
     </div>
     <nav class="nav-menu">
       <div class="section-label" data-i18n="nav_main">প্রধান</div>
@@ -350,9 +347,39 @@
         <div class="col-md-6"><div class="card-premium p-4"><div class="d-flex justify-content-between align-items-center mb-3"><h6 class="fw-bold mb-0"><i class="fas fa-triangle-exclamation text-warning me-2"></i><span data-i18n="stock_alerts">স্টক সতর্কতা</span></h6><span class="tag tag-warning" id="lowStockBadge">0</span></div><ul id="lowStockList" class="list-group list-group-flush"></ul></div></div>
         <div class="col-md-6"><div class="card-premium p-4"><div class="d-flex justify-content-between align-items-center mb-3"><h6 class="fw-bold mb-0"><i class="fas fa-clock text-primary me-2"></i><span data-i18n="recent_transactions">সাম্প্রতিক লেনদেন</span></h6><button class="btn-soft-sm btn-outline-premium" onclick="showSection('sales-list')"><span data-i18n="view_all">সব</span></button></div><ul id="recentTransactions" class="list-group list-group-flush"></ul></div></div>
       </div>
+
+      <!-- ⭐ SEARCH ENGINE PANEL -->
+      <div class="row g-4 mt-2">
+        <div class="col-12">
+          <div class="search-engine-panel">
+            <div class="search-engine-header">
+              <div class="search-engine-icon"><i class="fas fa-terminal"></i></div>
+              <div>
+                <h5 class="mb-0" data-i18n="quick_search">দ্রুত সার্চ ইঞ্জিন</h5>
+                <small data-i18n="quick_search_sub">সব কিছু এক জায়গায় খুঁজুন — <kbd>Ctrl+K</kbd> চাপুন বা নিচে লিখুন</small>
+              </div>
+              <span class="tag tag-primary ms-auto">Ctrl+K</span>
+            </div>
+            <div class="search-engine-input">
+              <i class="fas fa-magnifying-glass"></i>
+              <input type="text" id="quickSearchInput" placeholder="🔍 পণ্য, কাস্টমার, ইনভয়েস, সেটিংস... সব কিছু খুঁজুন" oninput="quickSearch(event)" onfocus="showQuickSearchResults()">
+              <span class="kbd-hint">ESC</span>
+            </div>
+            <div class="quick-search-results" id="quickSearchResults" style="display:none;"></div>
+            <div class="quick-suggestions">
+              <button class="quick-suggestion" onclick="quickSearchAction('sales')"><i class="fas fa-cart-plus"></i> নতুন বিক্রয়</button>
+              <button class="quick-suggestion" onclick="quickSearchAction('inventory')"><i class="fas fa-box"></i> পণ্য যোগ</button>
+              <button class="quick-suggestion" onclick="quickSearchAction('customers')"><i class="fas fa-user-plus"></i> কাস্টমার যোগ</button>
+              <button class="quick-suggestion" onclick="quickSearchAction('expenses')"><i class="fas fa-receipt"></i> খরচ যোগ</button>
+              <button class="quick-suggestion" onclick="quickSearchAction('reports')"><i class="fas fa-chart-pie"></i> রিপোর্ট</button>
+              <button class="quick-suggestion" onclick="quickSearchAction('activity-log')"><i class="fas fa-clock-rotate-left"></i> অ্যাক্টিভিটি</button>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
 
-    <!-- POS -->
+    <!-- POS — PROFESSIONAL REDESIGN -->
     <section id="sales-section" class="section" style="display:none;">
       <div class="stepper">
         <div class="step-item active" id="step1"><div class="step-num">1</div><div class="step-label" data-i18n="step_product">পণ্য নির্বাচন</div></div>
@@ -360,48 +387,113 @@
         <div class="step-item" id="step3"><div class="step-num">3</div><div class="step-label" data-i18n="step_payment">পেমেন্ট</div></div>
       </div>
       <div class="row g-4">
+        <!-- LEFT: Product selection -->
         <div class="col-lg-5">
-          <div class="card-premium p-4">
+          <div class="card-premium p-4 pos-left">
             <div class="form-section-title"><i class="fas fa-magnifying-glass"></i><span data-i18n="search_add_product">পণ্য খুঁজুন</span></div>
             <div class="d-flex gap-2 mb-2">
-              <input type="text" id="productSearch" class="form-control" placeholder="🔍...">
-              <button class="btn btn-outline-premium" onclick="openBarcodeScanner()"><i class="fas fa-barcode"></i></button>
+              <input type="text" id="productSearch" class="form-control" placeholder="🔍 পণ্যের নাম লিখুন..." onkeydown="if(event.key==='Enter'){event.preventDefault();selectFirstProductMatch();}">
+              <button class="btn btn-outline-premium" onclick="openBarcodeScanner()" title="Barcode Scan"><i class="fas fa-barcode"></i></button>
             </div>
             <div id="productSearchResults" class="list-group search-results mb-3"></div>
-            <label class="form-label" data-i18n="quantity">পরিমাণ</label>
-            <div class="input-group mb-3">
-              <button class="btn btn-outline-secondary" onclick="decreaseQty()"><i class="fas fa-minus"></i></button>
-              <input type="number" id="productQty" class="form-control text-center" value="1" min="1">
-              <button class="btn btn-outline-secondary" onclick="increaseQty()"><i class="fas fa-plus"></i></button>
-              <button class="btn btn-gradient" onclick="addToCartFromSearch()"><i class="fas fa-cart-plus"></i> <span data-i18n="add">যোগ</span></button>
+
+            <div class="pos-qty-section">
+              <label class="form-label"><i class="fas fa-sort-numeric-up me-1"></i> <span data-i18n="quantity">পরিমাণ</span></label>
+              <div class="pos-qty-input">
+                <button class="pos-qty-btn" onclick="decreaseQty()"><i class="fas fa-minus"></i></button>
+                <input type="number" id="productQty" class="pos-qty-field" value="1" min="1">
+                <button class="pos-qty-btn" onclick="increaseQty()"><i class="fas fa-plus"></i></button>
+              </div>
+              <button class="btn btn-gradient w-100 mt-2" onclick="addToCartFromSearch()"><i class="fas fa-cart-plus"></i> <span data-i18n="add_to_cart">কার্টে যোগ করুন</span></button>
             </div>
+
+            <!-- Selected product preview -->
+            <div class="pos-preview" id="posPreview" style="display:none;">
+              <div class="pos-preview-label"><i class="fas fa-check-circle"></i> <span data-i18n="selected_product">নির্বাচিত পণ্য</span></div>
+              <div class="pos-preview-content">
+                <strong id="posPreviewName">—</strong>
+                <div class="pos-preview-price">৳<span id="posPreviewPrice">0</span> × <span id="posPreviewQty">1</span> = <b>৳<span id="posPreviewTotal">0</span></b></div>
+                <small class="text-muted"><i class="fas fa-boxes-stacked me-1"></i><span data-i18n="available_stock">স্টক</span>: <span id="posPreviewStock">0</span></small>
+              </div>
+            </div>
+
             <div class="form-section-title mt-4"><i class="fas fa-user"></i><span data-i18n="customer_select">কাস্টমার</span></div>
             <select id="customerSelect" class="form-select mb-2" onchange="updateCustomerDue()"></select>
-            <div class="d-flex justify-content-between align-items-center">
-              <span class="badge-due" id="customerDueBadge"><i class="fas fa-circle-check me-1"></i><span data-i18n="cash_sale">নগদ বিক্রয়</span></span>
+            <div class="d-flex justify-content-between align-items-center gap-2">
+              <span class="badge-due flex-fill" id="customerDueBadge"><i class="fas fa-circle-check me-1"></i><span data-i18n="cash_sale">নগদ বিক্রয়</span></span>
               <button class="btn-soft-sm btn-outline-premium" onclick="openAddCustomerQuick()"><i class="fas fa-user-plus"></i> <span data-i18n="new">নতুন</span></button>
             </div>
           </div>
         </div>
+
+        <!-- RIGHT: Cart & Payment -->
         <div class="col-lg-7">
-          <div class="card-premium p-4">
+          <div class="card-premium p-4 pos-right">
             <div class="d-flex justify-content-between align-items-center mb-3">
               <h5 class="fw-bold mb-0"><i class="fas fa-shopping-basket me-2"></i><span data-i18n="cart">কার্ট</span> <span class="tag tag-primary" id="cartCountBadge">0</span></h5>
               <button class="btn-soft-sm btn-danger-soft" onclick="clearCart()"><i class="fas fa-trash"></i> <span data-i18n="clear">ক্লিয়ার</span></button>
             </div>
-            <div id="cartItemsList" style="max-height:300px;overflow-y:auto;"></div>
-            <div class="live-card mt-3" id="cartLiveCard">
-              <div class="row-line"><span data-i18n="subtotal">সাবটোটাল</span><strong>৳ <span id="cartSubtotal">0.00</span></strong></div>
-              <div class="row-line"><span data-i18n="discount">ডিসকাউন্ট</span><strong class="text-danger">- ৳ <span id="cartDiscount">0.00</span></strong></div>
-              <div class="row-total d-flex justify-content-between"><span data-i18n="grand_total">সর্বমোট</span><span>৳ <span id="cartTotal">0.00</span></span></div>
+
+            <div id="cartItemsList" class="pos-cart-list"></div>
+
+            <!-- Summary -->
+            <div class="pos-summary mt-3">
+              <div class="pos-summary-row">
+                <span><i class="fas fa-list me-2 text-muted"></i><span data-i18n="subtotal">সাবটোটাল</span></span>
+                <strong>৳ <span id="cartSubtotal">0.00</span></strong>
+              </div>
+              <div class="pos-summary-row discount-row">
+                <span><i class="fas fa-percent me-2 text-danger"></i><span data-i18n="discount">ডিসকাউন্ট</span></span>
+                <strong class="text-danger">- ৳ <span id="cartDiscount">0.00</span></strong>
+              </div>
+              <div class="pos-summary-total">
+                <span><i class="fas fa-money-bill-wave me-2"></i><span data-i18n="grand_total">সর্বমোট</span></span>
+                <span>৳ <span id="cartTotal">0.00</span></span>
+              </div>
             </div>
+
+            <!-- Payment input -->
             <div class="row g-3 mt-3">
-              <div class="col-md-6"><label class="form-label"><i class="fas fa-money-bill text-success"></i> <span data-i18n="paid_amount">প্রাপ্ত টাকা</span></label><div class="input-group"><span class="input-group-text currency">৳</span><input type="number" id="paidAmount" class="form-control" placeholder="0.00" oninput="calculateCartTotal()"></div></div>
-              <div class="col-md-6"><label class="form-label"><i class="fas fa-percent text-danger"></i> <span data-i18n="discount">ডিসকাউন্ট</span></label><div class="input-group"><span class="input-group-text currency">৳</span><input type="number" id="discountInput" class="form-control" value="0" oninput="calculateCartTotal()"></div></div>
+              <div class="col-md-6">
+                <label class="form-label"><i class="fas fa-hand-holding-dollar text-success me-1"></i><span data-i18n="paid_amount">প্রাপ্ত টাকা</span></label>
+                <div class="input-group">
+                  <span class="input-group-text currency">৳</span>
+                  <input type="number" id="paidAmount" class="form-control" placeholder="0.00" min="0" oninput="calculateCartTotal()">
+                </div>
+                <div class="pos-quick-pay">
+                  <button onclick="quickPay('cartTotal')" data-i18n="exact">সঠিক</button>
+                  <button onclick="quickPay(100)">100</button>
+                  <button onclick="quickPay(500)">500</button>
+                  <button onclick="quickPay(1000)">1000</button>
+                  <button onclick="quickPay(2000)">2000</button>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label"><i class="fas fa-percent text-danger me-1"></i><span data-i18n="discount">ডিসকাউন্ট</span></label>
+                <div class="input-group">
+                  <span class="input-group-text currency">৳</span>
+                  <input type="number" id="discountInput" class="form-control" value="0" min="0" oninput="calculateCartTotal()">
+                </div>
+              </div>
             </div>
-            <div class="d-flex justify-content-between mt-3 p-3 change-box"><span class="fw-bold"><i class="fas fa-rotate-left text-success me-1"></i><span data-i18n="change">পরিবর্তন:</span></span><span class="fw-bold text-success" id="changeAmount">৳0.00</span></div>
-            <div class="d-flex justify-content-between mt-2 p-3 due-box"><span class="fw-bold"><i class="fas fa-circle-exclamation text-danger me-1"></i><span data-i18n="will_due">বাকি:</span></span><span class="fw-bold text-danger" id="duePreview">৳0.00</span></div>
-            <button class="btn btn-success-soft w-100 mt-3 py-3" onclick="completeSale()" id="completeSaleBtn" disabled><i class="fas fa-check-circle me-2"></i><span data-i18n="complete_sale">বিক্রয় সম্পন্ন করুন</span></button>
+
+            <!-- Change & Due -->
+            <div class="pos-status-grid">
+              <div class="pos-status-box success">
+                <div class="psb-label"><i class="fas fa-rotate-left"></i> <span data-i18n="change">পরিবর্তন</span></div>
+                <div class="psb-value" id="changeAmount">৳0.00</div>
+              </div>
+              <div class="pos-status-box danger">
+                <div class="psb-label"><i class="fas fa-circle-exclamation"></i> <span data-i18n="will_due">বাকি থাকবে</span></div>
+                <div class="psb-value" id="duePreview">৳0.00</div>
+              </div>
+            </div>
+
+            <button class="btn-complete-sale" onclick="completeSale()" id="completeSaleBtn" disabled>
+              <i class="fas fa-check-circle"></i>
+              <span data-i18n="complete_sale">বিক্রয় সম্পন্ন করুন</span>
+              <span class="btn-complete-total">৳<span id="btnCompleteTotal">0.00</span></span>
+            </button>
           </div>
         </div>
       </div>
@@ -422,7 +514,6 @@
           <input type="date" class="form-control" id="salesDateFrom" onchange="filterSalesList()">
           <input type="date" class="form-control" id="salesDateTo" onchange="filterSalesList()">
           <select class="form-select" id="salesStatusFilter" onchange="filterSalesList()"><option value="" data-i18n="all_status">সব</option><option value="paid" data-i18n="paid_status">পরিশোধিত</option><option value="due" data-i18n="due_status">বাকি</option></select>
-          <select class="form-select" id="salesSortFilter" onchange="filterSalesList()"><option value="newest" data-i18n="sort_newest">নতুন আগে</option><option value="highest" data-i18n="sort_highest">বেশি টাকা</option><option value="lowest" data-i18n="sort_lowest">কম টাকা</option></select>
           <button class="btn-soft-sm btn-outline-premium" onclick="resetSalesFilters()"><i class="fas fa-times"></i></button>
         </div>
         <div class="table-responsive">
@@ -440,15 +531,11 @@
       <div class="card-premium p-4">
         <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
           <div><h4 class="fw-bold mb-0"><i class="fas fa-boxes-stacked me-2"></i><span data-i18n="product_cards">পণ্য কার্ড</span></h4><small class="text-muted" id="inventoryCardCount"></small></div>
-          <div class="d-flex gap-2 flex-wrap">
-            <button class="btn btn-outline-premium" onclick="exportInventory()"><i class="fas fa-download"></i> <span data-i18n="export">এক্সপোর্ট</span></button>
-            <button class="btn btn-gradient" data-bs-toggle="modal" data-bs-target="#addProductModal"><i class="fas fa-plus"></i> <span data-i18n="new_product">নতুন পণ্য</span></button>
-          </div>
+          <button class="btn btn-gradient" data-bs-toggle="modal" data-bs-target="#addProductModal"><i class="fas fa-plus"></i> <span data-i18n="new_product">নতুন পণ্য</span></button>
         </div>
         <div class="filter-bar">
           <input type="text" class="form-control" id="inventorySearchFilter" placeholder="🔍..." oninput="filterInventory()">
-          <select class="form-select" id="inventoryStockFilter" onchange="filterInventory()"><option value="" data-i18n="all_stock">সব</option><option value="low" data-i18n="low_stock">স্টক কম</option><option value="ok" data-i18n="stock_ok">স্টক ঠিক</option><option value="out" data-i18n="stock_out">স্টক নেই</option></select>
-          <select class="form-select" id="inventorySortFilter" onchange="filterInventory()"><option value="name" data-i18n="sort_name">নাম</option><option value="qty-asc" data-i18n="sort_qty_asc">স্টক কম</option><option value="qty-desc" data-i18n="sort_qty_desc">স্টক বেশি</option><option value="profit-high" data-i18n="sort_profit_high">লাভ বেশি</option></select>
+          <select class="form-select" id="inventoryStockFilter" onchange="filterInventory()"><option value="" data-i18n="all_stock">সব</option><option value="low" data-i18n="low_stock">স্টক কম</option><option value="ok" data-i18n="stock_ok">স্টক ঠিক</option></select>
         </div>
         <div class="row g-3" id="productCardsContainer"></div>
       </div>
@@ -461,7 +548,6 @@
           <div><h4 class="fw-bold mb-0"><i class="fas fa-table me-2"></i><span data-i18n="product_table">পণ্য টেবিল</span></h4><small class="text-muted" id="inventoryTableCount"></small></div>
           <button class="btn btn-gradient" data-bs-toggle="modal" data-bs-target="#addProductModal"><i class="fas fa-plus"></i> <span data-i18n="new_product">নতুন পণ্য</span></button>
         </div>
-        <div class="filter-bar"><input type="text" class="form-control" id="inventoryListSearchFilter" placeholder="🔍..." oninput="filterInventoryList()"></div>
         <div class="table-responsive">
           <table class="table table-hover modern-table">
             <thead><tr><th>#</th><th data-i18n="product_name">নাম</th><th data-i18n="stock">স্টক</th><th data-i18n="buy_price">ক্রয়</th><th data-i18n="sell_price">বিক্রয়</th><th data-i18n="profit_per_unit">লাভ</th><th data-i18n="total_profit">মোট লাভ</th><th data-i18n="status">স্ট্যাটাস</th><th data-i18n="action">অ্যাকশন</th></tr></thead>
@@ -496,7 +582,7 @@
         </div>
         <div class="row g-4">
           <div class="col-lg-8"><div class="card-premium p-4"><h6 class="fw-bold mb-3"><i class="fas fa-chart-line text-danger me-2"></i><span data-i18n="expense_trend">৭ দিনের ট্রেন্ড</span></h6><div class="chart-container" style="height:250px;"><canvas id="expenseChart"></canvas></div></div></div>
-          <div class="col-lg-4"><div class="card-premium p-4 h-100"><h6 class="fw-bold mb-3"><i class="fas fa-chart-pie text-primary me-2"></i><span data-i18n="expense_summary">সারাংশ</span></h6><div class="stat-mini mb-2"><small data-i18n="today_expense">আজকের খরচ</small><h5 class="text-danger" id="todayExpense">৳0</h5></div><div class="stat-mini mb-2"><small data-i18n="month_expense">এই মাসের</small><h5 class="text-warning" id="monthExpense">৳0</h5></div><div class="stat-mini"><small data-i18n="total_expense">মোট</small><h5 class="text-primary" id="totalExpenseQuick">৳0</h5></div></div></div>
+          <div class="col-lg-4"><div class="card-premium p-4 h-100"><h6 class="fw-bold mb-3"><i class="fas fa-chart-pie text-primary me-2"></i><span data-i18n="expense_summary">সারাংশ</span></h6><div class="stat-mini mb-2"><small data-i18n="today_expense">আজকের</small><h5 class="text-danger" id="todayExpense">৳0</h5></div><div class="stat-mini mb-2"><small data-i18n="month_expense">এই মাসের</small><h5 class="text-warning" id="monthExpense">৳0</h5></div><div class="stat-mini"><small data-i18n="total_expense">মোট</small><h5 class="text-primary" id="totalExpenseQuick">৳0</h5></div></div></div>
         </div>
       </div>
     </section>
@@ -507,12 +593,6 @@
         <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
           <div><h4 class="fw-bold mb-0"><i class="fas fa-list me-2"></i><span data-i18n="expenses_list">খরচ তালিকা</span></h4><small class="text-muted" id="expenseCount"></small></div>
           <button class="btn btn-gradient" data-bs-toggle="modal" data-bs-target="#addExpenseModal"><i class="fas fa-plus"></i> <span data-i18n="new">নতুন</span></button>
-        </div>
-        <div class="filter-bar">
-          <input type="text" class="form-control" id="expenseSearchFilter" placeholder="🔍..." oninput="filterExpenseList()">
-          <input type="date" class="form-control" id="expenseDateFrom" onchange="filterExpenseList()">
-          <input type="date" class="form-control" id="expenseDateTo" onchange="filterExpenseList()">
-          <button class="btn-soft-sm btn-outline-premium" onclick="resetExpenseFilters()"><i class="fas fa-times"></i></button>
         </div>
         <div class="table-responsive">
           <table class="table table-hover modern-table">
@@ -542,8 +622,6 @@
         <div class="filter-bar">
           <select class="form-select" id="masterDataType" onchange="renderMasterList()"><option value="all" data-i18n="all_data">সব</option><option value="sales" data-i18n="sales">বিক্রয়</option><option value="inventory" data-i18n="products">পণ্য</option><option value="customers" data-i18n="customers">কাস্টমার</option><option value="expenses" data-i18n="expenses">খরচ</option></select>
           <input type="text" class="form-control" id="masterSearchFilter" placeholder="🔍..." oninput="renderMasterList()">
-          <input type="date" class="form-control" id="masterDateFrom" onchange="renderMasterList()">
-          <input type="date" class="form-control" id="masterDateTo" onchange="renderMasterList()">
           <button class="btn-soft-sm btn-outline-premium" onclick="exportMasterList()"><i class="fas fa-download"></i></button>
         </div>
         <div class="table-responsive" style="max-height:600px;overflow-y:auto;">
@@ -556,8 +634,8 @@
     <section id="activity-log-section" class="section" style="display:none;">
       <div class="card-premium p-4">
         <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-          <div><h4 class="fw-bold mb-0"><i class="fas fa-clock-rotate-left me-2"></i><span data-i18n="activity_log">অ্যাক্টিভিটি লগ</span></h4><small class="text-muted" data-i18n="activity_sub">সব কার্যক্রম বিস্তারিতভাবে</small></div>
-          <div class="d-flex gap-2 flex-wrap">
+          <div><h4 class="fw-bold mb-0"><i class="fas fa-clock-rotate-left me-2"></i><span data-i18n="activity_log">অ্যাক্টিভিটি লগ</span></h4></div>
+          <div class="d-flex gap-2">
             <button class="btn btn-outline-premium" onclick="exportActivityLog()"><i class="fas fa-download"></i> <span data-i18n="export">এক্সপোর্ট</span></button>
             <button class="btn btn-danger-soft" onclick="clearActivityLog()"><i class="fas fa-trash"></i> <span data-i18n="clear">ক্লিয়ার</span></button>
           </div>
@@ -565,7 +643,7 @@
         <div class="activity-stats">
           <div class="activity-stat-card"><div class="activity-stat-icon bg-primary-soft"><i class="fas fa-list-check"></i></div><small data-i18n="total_activity">মোট কার্যক্রম</small><h5 id="actTotal">0</h5></div>
           <div class="activity-stat-card"><div class="activity-stat-icon bg-success-soft"><i class="fas fa-cart-plus"></i></div><small data-i18n="total_sales">মোট বিক্রয়</small><h5 class="text-success" id="actSales">৳0</h5></div>
-          <div class="activity-stat-card"><div class="activity-stat-icon bg-warning-soft"><i class="fas fa-shopping-cart"></i></div><small data-i18n="total_purchase">মোট ক্রয়</small><h5 class="text-warning" id="actPurchase">৳0</h5></div>
+          <div class="activity-stat-card"><div class="activity-stat-icon bg-warning-soft"><i class="fas fa-cart-shopping"></i></div><small data-i18n="total_purchase">মোট ক্রয়</small><h5 class="text-warning" id="actPurchase">৳0</h5></div>
           <div class="activity-stat-card"><div class="activity-stat-icon bg-danger-soft"><i class="fas fa-receipt"></i></div><small data-i18n="total_expense">মোট খরচ</small><h5 class="text-danger" id="actExpense">৳0</h5></div>
           <div class="activity-stat-card"><div class="activity-stat-icon bg-info-soft"><i class="fas fa-hand-holding-dollar"></i></div><small data-i18n="total_payment">বাকি পরিশোধ</small><h5 class="text-info" id="actPayment">৳0</h5></div>
         </div>
@@ -573,7 +651,6 @@
           <input type="text" class="form-control" id="activitySearchInput" placeholder="🔍..." oninput="renderActivityLogAdvanced()">
           <input type="date" class="form-control" id="activityDateFrom" onchange="renderActivityLogAdvanced()">
           <input type="date" class="form-control" id="activityDateTo" onchange="renderActivityLogAdvanced()">
-          <button class="btn-soft-sm btn-outline-premium" onclick="resetActivityFilters()"><i class="fas fa-times"></i></button>
         </div>
         <div id="activityTimelineList" class="activity-timeline"></div>
       </div>
@@ -623,7 +700,6 @@
             <h3 id="profileFullName">—</h3>
             <p><i class="fas fa-envelope me-1"></i><span id="profileEmail">—</span></p>
             <span class="tag tag-primary" id="profileRole">Staff</span>
-            <span class="tag tag-success" id="profileStatus"><i class="fas fa-circle"></i> <span data-i18n="active">সক্রিয়</span></span>
           </div>
           <button class="btn btn-gradient" onclick="openProfileEdit()"><i class="fas fa-user-pen"></i> <span data-i18n="edit_profile">সম্পাদনা</span></button>
         </div>
@@ -635,13 +711,11 @@
           <div class="info-row"><span><i class="fas fa-phone"></i> <span data-i18n="phone">ফোন</span></span><strong id="infoPhone">—</strong></div>
           <div class="info-row"><span><i class="fas fa-store"></i> <span data-i18n="shop_name">দোকান</span></span><strong id="infoShopName">—</strong></div>
           <div class="info-row"><span><i class="fas fa-location-dot"></i> <span data-i18n="address">ঠিকানা</span></span><strong id="infoAddress">—</strong></div>
-          <div class="info-row"><span><i class="fas fa-user-shield"></i> <span data-i18n="role">রোল</span></span><strong id="infoRole">—</strong></div>
         </div></div>
         <div class="col-lg-6"><div class="card-premium p-4"><h5 class="fw-bold mb-3"><i class="fas fa-fingerprint text-info me-2"></i><span data-i18n="system_info">সিস্টেম তথ্য</span></h5>
           <div class="info-row"><span><i class="fas fa-globe"></i> IP</span><strong id="infoIp">—</strong></div>
           <div class="info-row"><span><i class="fas fa-desktop"></i> <span data-i18n="device">ডিভাইস</span></span><strong id="infoDevice">—</strong></div>
           <div class="info-row"><span><i class="fas fa-clock-rotate-left"></i> <span data-i18n="last_login">লগইন</span></span><strong id="infoLastLogin">—</strong></div>
-          <div class="info-row"><span><i class="fas fa-signal"></i> <span data-i18n="account_status">স্ট্যাটাস</span></span><strong class="text-success" id="infoAccountStatus">Active</strong></div>
         </div></div>
       </div>
     </section>
@@ -652,7 +726,6 @@
         <h4 class="fw-bold mb-4"><i class="fas fa-palette me-2"></i><span data-i18n="settings">সেটিংস</span></h4>
         <div class="settings-tabs">
           <button class="settings-tab active" onclick="switchSettingsTab('theme', this)"><i class="fas fa-palette"></i> <span data-i18n="theme">থিম</span></button>
-          <button class="settings-tab" onclick="switchSettingsTab('appearance', this)"><i class="fas fa-desktop"></i> <span data-i18n="appearance">অ্যাপিয়ারেন্স</span></button>
           <button class="settings-tab" onclick="switchSettingsTab('data', this)"><i class="fas fa-database"></i> <span data-i18n="data">ডেটা</span></button>
           <button class="settings-tab" onclick="switchSettingsTab('security', this)"><i class="fas fa-shield-halved"></i> <span data-i18n="security">সিকিউরিটি</span></button>
         </div>
@@ -675,19 +748,12 @@
           </div>
         </div>
 
-        <div id="settings-appearance" class="settings-content">
-          <h5 class="fw-bold mb-3" data-i18n="layout">লেআউট</h5>
-          <div class="setting-row"><div><strong data-i18n="compact_mode">কমপ্যাক্ট</strong></div><label class="switch"><input type="checkbox" id="compactMode" onchange="toggleCompact(this.checked)"><span class="slider-switch"></span></label></div>
-          <div class="setting-row"><div><strong data-i18n="animations">অ্যানিমেশন</strong></div><label class="switch"><input type="checkbox" id="animationsToggle" checked onchange="toggleAnimations(this.checked)"><span class="slider-switch"></span></label></div>
-          <div class="setting-row"><div><strong data-i18n="sound_effect">সাউন্ড</strong></div><label class="switch"><input type="checkbox" id="soundEffect" onchange="saveSetting('soundEffect', this.checked)"><span class="slider-switch"></span></label></div>
-        </div>
-
         <div id="settings-data" class="settings-content">
           <h5 class="fw-bold mb-3" data-i18n="data_mgmt">ডেটা</h5>
           <div class="data-actions">
-            <div class="data-action"><div class="data-icon bg-success-soft"><i class="fas fa-download"></i></div><div><strong data-i18n="export_all">সব এক্সপোর্ট</strong><p class="text-muted small mb-0">JSON</p></div><button class="btn btn-outline-premium" onclick="exportAllData()"><span data-i18n="download">ডাউনলোড</span></button></div>
-            <div class="data-action"><div class="data-icon bg-primary-soft"><i class="fas fa-file-csv"></i></div><div><strong data-i18n="csv_export">CSV এক্সপোর্ট</strong><p class="text-muted small mb-0">CSV</p></div><button class="btn btn-outline-premium" onclick="exportAllCSV()"><span data-i18n="download">ডাউনলোড</span></button></div>
-            <div class="data-action"><div class="data-icon bg-info-soft"><i class="fas fa-upload"></i></div><div><strong data-i18n="import_data">ইমপোর্ট</strong><p class="text-muted small mb-0">JSON</p></div><input type="file" id="importFile" accept=".json" style="display:none;" onchange="importData(event)"><button class="btn btn-outline-premium" onclick="document.getElementById('importFile').click()"><span data-i18n="upload">আপলোড</span></button></div>
+            <div class="data-action"><div class="data-icon bg-success-soft"><i class="fas fa-download"></i></div><div><strong data-i18n="export_all">সব এক্সপোর্ট</strong></div><button class="btn btn-outline-premium" onclick="exportAllData()"><span data-i18n="download">ডাউনলোড</span></button></div>
+            <div class="data-action"><div class="data-icon bg-primary-soft"><i class="fas fa-file-csv"></i></div><div><strong data-i18n="csv_export">CSV এক্সপোর্ট</strong></div><button class="btn btn-outline-premium" onclick="exportAllCSV()"><span data-i18n="download">ডাউনলোড</span></button></div>
+            <div class="data-action"><div class="data-icon bg-info-soft"><i class="fas fa-upload"></i></div><div><strong data-i18n="import_data">ইমপোর্ট</strong></div><input type="file" id="importFile" accept=".json" style="display:none;" onchange="importData(event)"><button class="btn btn-outline-premium" onclick="document.getElementById('importFile').click()"><span data-i18n="upload">আপলোড</span></button></div>
           </div>
         </div>
 
@@ -700,7 +766,7 @@
       </div>
     </section>
 
-    <!-- ═══════════════ ADMIN PANEL (PROFESSIONAL REDESIGN) ═══════════════ -->
+    <!-- ADMIN PANEL -->
     <section id="admin-section" class="section" style="display:none;">
       <div class="admin-hero">
         <div class="admin-hero-icon"><i class="fas fa-shield-halved"></i></div>
@@ -710,7 +776,6 @@
         </div>
       </div>
 
-      <!-- Admin Global Stats -->
       <div class="row g-3 mb-4">
         <div class="col-md-3 col-6"><div class="admin-global-stat"><div class="admin-stat-icon bg-primary-soft"><i class="fas fa-users"></i></div><div><small data-i18n="total_users">মোট ইউজার</small><h4 id="adminTotalUsers">0</h4></div></div></div>
         <div class="col-md-3 col-6"><div class="admin-global-stat"><div class="admin-stat-icon bg-success-soft"><i class="fas fa-user-check"></i></div><div><small data-i18n="active_users">সক্রিয়</small><h4 class="text-success" id="adminActiveUsers">0</h4></div></div></div>
@@ -718,9 +783,7 @@
         <div class="col-md-3 col-6"><div class="admin-global-stat"><div class="admin-stat-icon bg-info-soft"><i class="fas fa-store"></i></div><div><small data-i18n="total_shops">মোট দোকান</small><h4 id="adminTotalShops">0</h4></div></div></div>
       </div>
 
-      <!-- ═══ PROFESSIONAL USER MANAGEMENT ═══ -->
       <div class="admin-panel-pro">
-        <!-- Left: User List -->
         <div class="admin-user-list">
           <div class="admin-panel-header">
             <h5 class="mb-0"><i class="fas fa-users-cog me-2"></i><span data-i18n="all_users">সকল ইউজার</span></h5>
@@ -728,29 +791,24 @@
           </div>
           <div class="admin-search-box">
             <i class="fas fa-search"></i>
-            <input type="text" id="adminUserSearch" placeholder="🔍 Search users..." oninput="renderAdminUsersList()">
+            <input type="text" id="adminUserSearch" placeholder="🔍..." oninput="renderAdminUsersListPro()">
           </div>
           <div class="admin-filter-tabs">
             <button class="admin-filter-chip active" data-filter="all" onclick="setAdminFilter('all', this)"><i class="fas fa-list"></i> <span data-i18n="all_users">সব</span> <span class="chip-count" id="chipAllCount">0</span></button>
             <button class="admin-filter-chip" data-filter="Active" onclick="setAdminFilter('Active', this)"><i class="fas fa-circle-check"></i> <span data-i18n="active_users">সক্রিয়</span> <span class="chip-count" id="chipActiveCount">0</span></button>
             <button class="admin-filter-chip" data-filter="Blocked" onclick="setAdminFilter('Blocked', this)"><i class="fas fa-ban"></i> <span data-i18n="blocked_users">ব্লকড</span> <span class="chip-count" id="chipBlockedCount">0</span></button>
-            <button class="admin-filter-chip" data-filter="Admin" onclick="setAdminFilter('Admin', this)"><i class="fas fa-crown"></i> Admin</button>
           </div>
           <div class="admin-users-scroll" id="adminUsersListPro"></div>
         </div>
 
-        <!-- Right: User Details Panel -->
-        <div class="admin-user-details" id="adminUserDetails">
-          <!-- Empty State -->
+        <div class="admin-user-details">
           <div class="admin-empty-state" id="adminEmptyState">
             <i class="fas fa-user-handshake"></i>
             <h4 data-i18n="select_user">ইউজার নির্বাচন করুন</h4>
-            <p data-i18n="select_user_sub">বাম দিক থেকে একটি ইউজার নির্বাচন করুন বিস্তারিত দেখতে</p>
+            <p data-i18n="select_user_sub">বাম দিক থেকে একটি ইউজার নির্বাচন করুন</p>
           </div>
 
-          <!-- Details Content -->
           <div id="adminDetailsContent" style="display:none;">
-            <!-- Header with avatar -->
             <div class="admin-user-header">
               <div class="admin-user-header-avatar" id="selUserAvatar">?</div>
               <div class="admin-user-header-info">
@@ -764,7 +822,6 @@
               <button class="btn-close-admin" onclick="clearUserSelection()"><i class="fas fa-times"></i></button>
             </div>
 
-            <!-- Tabs -->
             <div class="admin-tabs-pro">
               <button class="admin-tab-pro active" onclick="switchAdminTab('overview', this)"><i class="fas fa-chart-simple"></i> <span data-i18n="tab_overview">ওভারভিউ</span></button>
               <button class="admin-tab-pro" onclick="switchAdminTab('money', this)"><i class="fas fa-money-bill-wave"></i> <span data-i18n="financial_overview">আর্থিক</span></button>
@@ -773,9 +830,7 @@
               <button class="admin-tab-pro" onclick="switchAdminTab('danger', this)"><i class="fas fa-triangle-exclamation"></i> <span data-i18n="tab_danger">ডেঞ্জার</span></button>
             </div>
 
-            <!-- Tab Content -->
             <div class="admin-content-scroll">
-
               <!-- OVERVIEW -->
               <div id="admin-tab-overview" class="admin-tab-content-pro active">
                 <div class="row g-3">
@@ -795,9 +850,18 @@
                   <div class="col-6"><div class="admin-stat-mini bg-danger-soft"><small data-i18n="expenses">খরচ</small><h4 id="adStatExpenses">0</h4><i class="fas fa-receipt"></i></div></div>
                 </div>
 
-                <button class="admin-action-btn w-100 mt-4" onclick="adminViewUserData()"><i class="fas fa-eye"></i><strong data-i18n="view_all_data">সব ডেটা দেখুন</strong><small data-i18n="view_all_data_sub">বিক্রয়, পণ্য, কাস্টমার, খরচ</small></button>
+                <!-- ⭐ SUPER FEATURE: Impersonate -->
+                <div class="admin-impersonate-card">
+                  <div class="admin-impersonate-icon"><i class="fas fa-user-secret"></i></div>
+                  <div class="admin-impersonate-content">
+                    <strong data-i18n="impersonate_btn">এই ইউজারের আইডিতে প্রবেশ করুন</strong>
+                    <small data-i18n="impersonate_desc">তার সব কাজ করতে পারবেন — বিক্রয়, পণ্য, কাস্টমার, খরচ, রিপোর্ট সব</small>
+                  </div>
+                  <button class="btn-admin-primary" onclick="impersonateUser()"><i class="fas fa-sign-in-alt"></i> <span data-i18n="enter">প্রবেশ</span></button>
+                </div>
+
+                <button class="admin-action-btn w-100 mt-3" onclick="adminViewUserData()"><i class="fas fa-eye"></i><strong data-i18n="view_all_data">সব ডেটা দেখুন</strong><small data-i18n="view_all_data_sub">বিক্রয়, পণ্য, কাস্টমার, খরচ</small></button>
                 <button class="admin-action-btn w-100 mt-2" onclick="adminLoginHistory()"><i class="fas fa-clock-rotate-left"></i><strong data-i18n="login_history">লগইন হিস্ট্রি</strong><small data-i18n="login_history_sub">IP, ডিভাইস, সময়</small></button>
-                <button class="admin-action-btn w-100 mt-2" onclick="impersonateUser()"><i class="fas fa-user-secret"></i><strong data-i18n="impersonate_btn">এই ইউজার হিসেবে কাজ করুন</strong><small data-i18n="impersonate_desc">তার অ্যাকাউন্টে ঢুকুন</small></button>
               </div>
 
               <!-- MONEY -->
@@ -812,13 +876,11 @@
                   <div class="col-6"><div class="money-stat"><small data-i18n="stock_value">স্টক মূল্য</small><h5 class="text-info" id="adMoneyStockValue">৳0</h5></div></div>
                   <div class="col-6"><div class="money-stat"><small data-i18n="customer_due_total">কাস্টমার বাকি</small><h5 class="text-danger" id="adMoneyCustDue">৳0</h5></div></div>
                   <div class="col-6"><div class="money-stat"><small data-i18n="potential_profit">সম্ভাব্য লাভ</small><h5 class="text-success" id="adMoneyPotential">৳0</h5></div></div>
-                  <div class="col-12"><div class="money-stat" style="background:linear-gradient(135deg,var(--primary-soft),var(--purple-soft));"><small data-i18n="investment">মোট বিনিয়োগ</small><h5 class="text-primary" id="adMoneyInvestment">৳0</h5></div></div>
                 </div>
               </div>
 
               <!-- PROFILE -->
               <div id="admin-tab-profile" class="admin-tab-content-pro">
-                <h6 class="fw-bold mb-3" data-i18n="edit_profile">প্রোফাইল সম্পাদনা</h6>
                 <div class="row g-3">
                   <div class="col-md-6"><label class="form-label" data-i18n="full_name">পূর্ণ নাম</label><input type="text" id="adEditName" class="form-control"></div>
                   <div class="col-md-6"><label class="form-label" data-i18n="phone">মোবাইল</label><input type="tel" id="adEditPhone" class="form-control"></div>
@@ -837,7 +899,6 @@
 
               <!-- SECURITY -->
               <div id="admin-tab-security" class="admin-tab-content-pro">
-                <h6 class="fw-bold mb-3" data-i18n="security_actions">সিকিউরিটি</h6>
                 <div class="admin-action-row">
                   <div class="admin-action-row-icon bg-warning-soft"><i class="fas fa-key"></i></div>
                   <div class="admin-action-row-content"><strong data-i18n="reset_pwd">পাসওয়ার্ড রিসেট</strong><small data-i18n="reset_pwd_sub">ইমেইলে লিংক পাঠান</small></div>
@@ -865,15 +926,15 @@
                 <div class="danger-zone">
                   <div class="danger-zone-header">
                     <i class="fas fa-triangle-exclamation"></i>
-                    <div><h5 data-i18n="danger_zone">ডেঞ্জার জোন</h5><small data-i18n="danger_zone_sub">এই কাজগুলি ফেরানো যাবে না</small></div>
+                    <div><h5 data-i18n="danger_zone">ডেঞ্জার জোন</h5><small data-i18n="danger_zone_sub">ফেরানো যাবে না</small></div>
                   </div>
                   <div class="danger-action">
-                    <div><strong data-i18n="reset_data">ডেটা রিসেট</strong><small data-i18n="reset_data_sub">সব পণ্য, কাস্টমার, বিক্রয়, খরচ মুছুন</small></div>
-                    <button class="btn-danger-soft" onclick="adminResetUserData()"><i class="fas fa-eraser"></i> <span data-i18n="reset">রিসেট</span></button>
+                    <div><strong data-i18n="reset_data">ডেটা রিসেট</strong><small data-i18n="reset_data_sub">পণ্য, কাস্টমার, বিক্রয়, খরচ মুছুন</small></div>
+                    <button class="btn-danger-soft" onclick="adminResetUserData()"><i class="fas fa-eraser"></i></button>
                   </div>
                   <div class="danger-action full-danger">
-                    <div><strong data-i18n="delete_user">সম্পূর্ণ ইউজার ডিলিট</strong><small data-i18n="delete_user_sub">Firebase থেকে সব ডেটা মুছে ফেলা হবে — ফেরানো যাবে না!</small></div>
-                    <button class="btn-danger-solid" onclick="adminDeleteUserCompletely()"><i class="fas fa-trash"></i> <span data-i18n="delete">সম্পূর্ণ ডিলিট</span></button>
+                    <div><strong data-i18n="delete_user">সম্পূর্ণ ইউজার ডিলিট</strong><small data-i18n="delete_user_sub">Firebase থেকে সব মুছে যাবে</small></div>
+                    <button class="btn-danger-solid" onclick="adminDeleteUserCompletely()"><i class="fas fa-trash"></i> <span data-i18n="delete">ডিলিট</span></button>
                   </div>
                 </div>
               </div>
@@ -882,22 +943,19 @@
           </div>
         </div>
       </div>
-
     </section>
 
   </main>
 </div>
 
-<!-- ══════════════ MODALS ══════════════ -->
-
-<!-- Calculator -->
+<!-- MODALS -->
 <div class="modal fade" id="calculatorModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered calculator-dialog">
     <div class="modal-content calculator-modal">
       <div class="calc-header">
         <div class="calc-tabs">
           <button class="calc-tab active" onclick="switchCalcMode('basic', this)" data-i18n="basic">সাধারণ</button>
-          <button class="calc-tab" onclick="switchCalcMode('scientific', this)"><i class="fas fa-square-root-variable"></i> <span data-i18n="scientific">সাইন্টিফিক</span></button>
+          <button class="calc-tab" onclick="switchCalcMode('scientific', this)"><i class="fas fa-square-root-variable"></i></button>
         </div>
         <button class="btn-close-calc" data-bs-dismiss="modal"><i class="fas fa-times"></i></button>
       </div>
@@ -912,40 +970,27 @@
         <button class="calc-btn" onclick="calcNum('1')">1</button><button class="calc-btn" onclick="calcNum('2')">2</button><button class="calc-btn" onclick="calcNum('3')">3</button><button class="calc-btn operator" onclick="calcAction('add')">+</button>
         <button class="calc-btn" onclick="calcAction('negate')">±</button><button class="calc-btn" onclick="calcNum('0')">0</button><button class="calc-btn" onclick="calcAction('decimal')">.</button><button class="calc-btn equals" onclick="calcAction('equals')">=</button>
       </div>
-      <div class="calc-pad-sci" id="calcPadSci" style="display:none;">
-        <div class="sci-row"><button class="calc-btn sci" onclick="calcFunc('sin')">sin</button><button class="calc-btn sci" onclick="calcFunc('cos')">cos</button><button class="calc-btn sci" onclick="calcFunc('tan')">tan</button><button class="calc-btn sci" onclick="calcFunc('log')">log</button><button class="calc-btn sci" onclick="calcFunc('ln')">ln</button></div>
-        <div class="sci-row"><button class="calc-btn sci" onclick="calcFunc('sqrt')">√</button><button class="calc-btn sci" onclick="calcFunc('cbrt')">∛</button><button class="calc-btn sci" onclick="calcFunc('square')">x²</button><button class="calc-btn sci" onclick="calcFunc('cube')">x³</button><button class="calc-btn sci" onclick="calcFunc('inverse')">1/x</button></div>
-        <div class="sci-row"><button class="calc-btn sci" onclick="calcFunc('pi')">π</button><button class="calc-btn sci" onclick="calcFunc('e')">e</button><button class="calc-btn sci" onclick="calcFunc('fact')">n!</button><button class="calc-btn sci" onclick="calcAction('openParen')">(</button><button class="calc-btn sci" onclick="calcAction('closeParen')">)</button></div>
-      </div>
-      <div class="calc-footer">
-        <button class="calc-footer-btn" onclick="clearCalcHistory()"><i class="fas fa-trash"></i> <span data-i18n="history">হিস্ট্রি</span></button>
-        <button class="calc-footer-btn" onclick="calcAction('copy')"><i class="fas fa-copy"></i> <span data-i18n="copy">কপি</span></button>
-      </div>
     </div>
   </div>
 </div>
 
-<!-- Barcode -->
-<div class="modal fade" id="barcodeModal" tabindex="-1" data-bs-backdrop="static">
+<div class="modal fade" id="barcodeModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
-      <div class="modal-header"><h5 class="fw-bold mb-0"><i class="fas fa-barcode text-primary me-2"></i><span data-i18n="barcode_scanner">বারকোড স্ক্যানার</span></h5><button class="btn-close" data-bs-dismiss="modal" onclick="closeBarcodeScanner()"></button></div>
+      <div class="modal-header"><h5 class="fw-bold mb-0"><i class="fas fa-barcode text-primary me-2"></i><span data-i18n="barcode_scanner">বারকোড</span></h5><button class="btn-close" data-bs-dismiss="modal" onclick="closeBarcodeScanner()"></button></div>
       <div class="modal-body text-center">
         <div id="barcodeReader" style="width:100%;max-width:400px;margin:0 auto;"></div>
-        <p class="text-muted small mt-3"><i class="fas fa-circle-info"></i> <span data-i18n="barcode_hint">ক্যামেরার সামনে বারকোড ধরুন</span></p>
-        <div class="mt-3"><div class="input-group"><input type="text" id="manualBarcode" class="form-control" placeholder="Barcode..."><button class="btn btn-gradient" onclick="searchByBarcode()"><span data-i18n="search">খুঁজুন</span></button></div></div>
+        <div class="mt-3"><div class="input-group"><input type="text" id="manualBarcode" class="form-control"><button class="btn btn-gradient" onclick="searchByBarcode()"><span data-i18n="search">খুঁজুন</span></button></div></div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Admin Block Modal -->
 <div class="modal fade" id="adminBlockModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
-      <div class="modal-header"><h5 class="fw-bold mb-0"><i class="fas fa-user-slash text-danger me-2"></i><span data-i18n="block_user">ইউজার ব্লক</span></h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-header"><h5 class="fw-bold mb-0"><i class="fas fa-user-slash text-danger me-2"></i><span data-i18n="block_user">ব্লক</span></h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
       <div class="modal-body">
-        <div class="info-banner" style="background:var(--danger-soft);border-color:var(--danger);"><i class="fas fa-triangle-exclamation" style="color:var(--danger);"></i><div><strong data-i18n="block_warning">ব্লক করা অবস্থায় ইউজার লগইন করতে পারবে না।</strong></div></div>
         <div class="mb-3"><label class="form-label" data-i18n="user">ইউজার</label><input type="text" id="blockUserName" class="form-control" readonly style="background:var(--bg-body);"></div>
         <div class="mb-3"><label class="form-label" data-i18n="block_duration">সময়কাল</label>
           <div class="row g-2"><div class="col-6"><input type="number" id="blockDuration" class="form-control" value="1" min="1"></div><div class="col-6"><select id="blockUnit" class="form-select"><option value="minutes">Minutes</option><option value="hours">Hours</option><option value="days" selected>Days</option><option value="weeks">Weeks</option><option value="months">Months</option><option value="forever">Forever</option></select></div></div>
@@ -958,28 +1003,26 @@
   </div>
 </div>
 
-<!-- Admin New User Modal -->
 <div class="modal fade" id="adminNewUserModal" tabindex="-1">
   <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content">
-      <div class="modal-header"><h5 class="fw-bold mb-0"><i class="fas fa-user-plus text-success me-2"></i><span data-i18n="new_user">নতুন ইউজার তৈরি</span></h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-header"><h5 class="fw-bold mb-0"><i class="fas fa-user-plus text-success me-2"></i><span data-i18n="new_user">নতুন ইউজার</span></h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
       <div class="modal-body">
         <div class="row g-3">
           <div class="col-md-6"><label class="form-label" data-i18n="full_name">পূর্ণ নাম</label><input type="text" id="newUserName" class="form-control"></div>
           <div class="col-md-6"><label class="form-label" data-i18n="email">ইমেইল</label><input type="email" id="newUserEmail" class="form-control"></div>
-          <div class="col-md-6"><label class="form-label" data-i18n="phone">মোবাইল</label><input type="tel" id="newUserPhone" class="form-control"></div>
+          <div class="col-md-6"><label class="form-label" data-i18n="phone">ফোন</label><input type="tel" id="newUserPhone" class="form-control"></div>
           <div class="col-md-6"><label class="form-label" data-i18n="role">রোল</label><select id="newUserRole" class="form-select"><option value="Staff" selected>Staff</option><option value="Manager">Manager</option><option value="Admin">Admin</option></select></div>
           <div class="col-md-6"><label class="form-label" data-i18n="shop_name">দোকান</label><input type="text" id="newUserShop" class="form-control"></div>
           <div class="col-md-6"><label class="form-label" data-i18n="password">পাসওয়ার্ড</label><div class="input-group"><input type="text" id="newUserPassword" class="form-control"><span class="input-group-text" onclick="generatePassword()" style="cursor:pointer;"><i class="fas fa-dice"></i></span></div></div>
           <div class="col-12"><label class="form-label" data-i18n="address">ঠিকানা</label><input type="text" id="newUserAddress" class="form-control"></div>
         </div>
       </div>
-      <div class="modal-footer"><button class="btn btn-outline-secondary" data-bs-dismiss="modal" data-i18n="cancel">বাতিল</button><button class="btn btn-gradient" onclick="confirmAdminCreateUser()"><i class="fas fa-save"></i> <span data-i18n="create">তৈরি করুন</span></button></div>
+      <div class="modal-footer"><button class="btn btn-outline-secondary" data-bs-dismiss="modal" data-i18n="cancel">বাতিল</button><button class="btn btn-gradient" onclick="confirmAdminCreateUser()"><i class="fas fa-save"></i> <span data-i18n="create">তৈরি</span></button></div>
     </div>
   </div>
 </div>
 
-<!-- Admin View Data Modal -->
 <div class="modal fade" id="adminViewDataModal" tabindex="-1">
   <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content">
@@ -997,15 +1040,14 @@
   </div>
 </div>
 
-<!-- Edit Profile Modal -->
 <div class="modal fade" id="editProfileModal" tabindex="-1">
   <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content">
-      <div class="modal-header"><h5 class="fw-bold mb-0"><i class="fas fa-user-pen text-primary me-2"></i><span data-i18n="edit_profile">প্রোফাইল সম্পাদনা</span></h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-header"><h5 class="fw-bold mb-0"><i class="fas fa-user-pen text-primary me-2"></i><span data-i18n="edit_profile">সম্পাদনা</span></h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
       <div class="modal-body">
         <div class="row g-3">
-          <div class="col-md-6"><label class="form-label" data-i18n="full_name">পূর্ণ নাম</label><input type="text" id="editProfileName" class="form-control"></div>
-          <div class="col-md-6"><label class="form-label" data-i18n="phone">মোবাইল</label><input type="tel" id="editProfilePhone" class="form-control"></div>
+          <div class="col-md-6"><label class="form-label" data-i18n="full_name">নাম</label><input type="text" id="editProfileName" class="form-control"></div>
+          <div class="col-md-6"><label class="form-label" data-i18n="phone">ফোন</label><input type="tel" id="editProfilePhone" class="form-control"></div>
           <div class="col-md-6"><label class="form-label">Email</label><input type="email" id="editProfileEmail" class="form-control" readonly style="background:var(--bg-body);"></div>
           <div class="col-md-6"><label class="form-label" data-i18n="shop_name">দোকান</label><input type="text" id="editProfileShopName" class="form-control"></div>
           <div class="col-12"><label class="form-label" data-i18n="address">ঠিকানা</label><input type="text" id="editProfileAddress" class="form-control"></div>
@@ -1016,21 +1058,19 @@
   </div>
 </div>
 
-<!-- Change Password Modal -->
 <div class="modal fade" id="changePasswordModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header"><h5 class="fw-bold mb-0"><i class="fas fa-key text-warning me-2"></i><span data-i18n="change_password">পাসওয়ার্ড পরিবর্তন</span></h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
       <div class="modal-body">
         <div class="mb-3"><label class="form-label">Email</label><input type="email" id="pwdEmail" class="form-control" readonly style="background:var(--bg-body);"></div>
-        <div class="alert alert-info small mb-0"><i class="fas fa-circle-info"></i> <span data-i18n="reset_link_msg">আপনার ইমেইলে রিসেট লিংক পাঠানো হবে।</span></div>
+        <div class="alert alert-info small mb-0"><i class="fas fa-circle-info"></i> <span data-i18n="reset_link_msg">ইমেইলে রিসেট লিংক পাঠানো হবে।</span></div>
       </div>
       <div class="modal-footer"><button class="btn btn-outline-secondary" data-bs-dismiss="modal" data-i18n="cancel">বাতিল</button><button class="btn btn-warning-soft" onclick="sendPasswordReset()"><i class="fas fa-paper-plane"></i> <span data-i18n="send_reset">পাঠান</span></button></div>
     </div>
   </div>
 </div>
 
-<!-- Login History Modal -->
 <div class="modal fade" id="loginHistoryModal" tabindex="-1">
   <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content">
@@ -1067,7 +1107,7 @@
 <div class="modal fade" id="editProductModal" tabindex="-1">
   <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content">
-      <div class="modal-header"><h5 class="fw-bold mb-0"><i class="fas fa-pen text-warning me-2"></i><span data-i18n="edit_product">পণ্য সম্পাদনা</span></h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-header"><h5 class="fw-bold mb-0"><i class="fas fa-pen text-warning me-2"></i><span data-i18n="edit_product">সম্পাদনা</span></h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
       <div class="modal-body">
         <div class="row g-3">
           <div class="col-md-6"><label class="form-label" data-i18n="product_name">নাম</label><input type="text" id="editProdName" class="form-control"></div>
@@ -1124,7 +1164,7 @@
 <div class="modal fade" id="editCustomerModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
-      <div class="modal-header"><h5 class="fw-bold mb-0"><i class="fas fa-pen text-warning me-2"></i><span data-i18n="edit_customer">কাস্টমার সম্পাদনা</span></h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-header"><h5 class="fw-bold mb-0"><i class="fas fa-pen text-warning me-2"></i><span data-i18n="edit_customer">সম্পাদনা</span></h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
       <div class="modal-body"><div class="row g-3">
         <div class="col-md-6"><label class="form-label" data-i18n="name">নাম</label><input type="text" id="editCustName" class="form-control"></div>
         <div class="col-md-6"><label class="form-label" data-i18n="phone">ফোন</label><input type="tel" id="editCustPhone" class="form-control"></div>
@@ -1165,7 +1205,6 @@
             <button type="button" class="btn-soft-sm btn-outline-premium" onclick="quickExpense('Electricity')">⚡ Electric</button>
             <button type="button" class="btn-soft-sm btn-outline-premium" onclick="quickExpense('Salary')">💰 Salary</button>
             <button type="button" class="btn-soft-sm btn-outline-premium" onclick="quickExpense('Transport')">🚗 Transport</button>
-            <button type="button" class="btn-soft-sm btn-outline-premium" onclick="quickExpense('Packaging')">📦 Packaging</button>
           </div>
         </div>
         <div class="mb-3"><label class="form-label" data-i18n="description">বিবরণ</label> <span class="req">*</span><input type="text" id="addExpDesc" class="form-control"></div>
@@ -1176,7 +1215,6 @@
   </div>
 </div>
 
-<!-- Quick Add Customer Modal -->
 <div class="modal fade" id="quickAddCustomerModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
