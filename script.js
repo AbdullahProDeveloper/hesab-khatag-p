@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════
-   HesabKhata Enterprise Pro v10.0 — Ultimate Edition
+   HesabKhata Enterprise Pro v11.0
    ═══════════════════════════════════════════════════════════ */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -8,10 +8,10 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 import {
   getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
-  onAuthStateChanged, signOut, sendPasswordResetEmail, deleteUser as deleteAuthUser
+  onAuthStateChanged, signOut, sendPasswordResetEmail
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-/* ═══════════════════ FIREBASE INIT ═══════════════════ */
+/* ═══════════════════ FIREBASE ═══════════════════ */
 const firebaseConfig = {
   apiKey: "AIzaSyBiBGWukd3PNjxK6-gv_4qiCHmwAfO3GzQ",
   authDomain: "hesab-khata.firebaseapp.com",
@@ -35,7 +35,7 @@ const TRANSLATIONS = {
     login_btn: 'নিরাপদ লগইন', no_account: 'নতুন ইউজার?', register_now: 'রেজিস্টার করুন',
     create_account: 'নতুন অ্যাকাউন্ট', register_subtitle: 'আপনার নিজস্ব ড্যাশবোর্ড পান',
     full_name: 'পূর্ণ নাম', phone: 'মোবাইল', shop_name: 'দোকানের নাম', address: 'ঠিকানা',
-    confirm_password: 'পুনরায় পাসওয়ার্ড', terms_agree: 'আমি শর্তাবলী মেনে নিচ্ছি',
+    confirm_password: 'পুনরায় পাসওয়ার্ড', terms_agree: 'শর্তাবলী মেনে নিচ্ছি',
     register_btn: 'রেজিস্টার করুন', have_account: 'অ্যাকাউন্ট আছে?', login_now: 'লগইন',
     reset_password: 'পাসওয়ার্ড রিসেট', reset_subtitle: 'ইমেইলে রিসেট লিংক পাঠানো হবে',
     send_reset: 'রিসেট লিংক পাঠান', back_to_login: 'লগইনে ফিরে যান', password_hint: 'পাসওয়ার্ড দিন',
@@ -47,6 +47,7 @@ const TRANSLATIONS = {
     master_list: 'মাস্টার লিস্ট', activity_log: 'অ্যাক্টিভিটি লগ', reports: 'রিপোর্টস', analytics: 'অ্যানালিটিক্স',
     profile: 'প্রোফাইল', settings: 'সেটিংস', admin_panel: 'অ্যাডমিন প্যানেল', logout: 'লগ আউট',
     view_profile: 'প্রোফাইল', edit_profile: 'সম্পাদনা', theme_settings: 'সেটিংস', login_history: 'লগইন হিস্ট্রি',
+    command_palette: 'কমান্ড প্যালেট', search_everything: 'সব কিছু খুঁজুন...',
     welcome: 'স্বাগতম', welcome_sub: 'আজকের ব্যবসার সারসংক্ষেপ।',
     today_sales: 'আজকের বিক্রি', total_sales: 'মোট বিক্রি', total_due: 'মোট বাকি', total_expense: 'মোট খরচ',
     today_income: 'আজকের আয়', all_time: 'সব সময়ের', to_collect: 'আদায় করতে হবে', all_expenses: 'সব খরচ',
@@ -55,80 +56,72 @@ const TRANSLATIONS = {
     quick_summary: 'দ্রুত সারাংশ', stock_alert: 'স্টক সতর্কতা', detailed_reports: 'বিস্তারিত রিপোর্ট',
     stock_alerts: 'স্টক সতর্কতা', recent_transactions: 'সাম্প্রতিক লেনদেন', view_all: 'সব',
     step_product: 'পণ্য নির্বাচন', step_customer: 'কাস্টমার', step_payment: 'পেমেন্ট',
-    search_add_product: 'পণ্য খুঁজুন', quantity: 'পরিমাণ', add: 'যোগ',
+    search_add_product: 'পণ্য খুঁজুন', quantity: 'পরিমাণ', add: 'যোগ', add_to_cart: 'কার্টে যোগ করুন',
+    selected_product: 'নির্বাচিত পণ্য', available_stock: 'স্টক',
     customer_select: 'কাস্টমার', cash_sale: 'নগদ বিক্রয়', new: 'নতুন',
     cart: 'কার্ট', clear: 'ক্লিয়ার', subtotal: 'সাবটোটাল', discount: 'ডিসকাউন্ট', grand_total: 'সর্বমোট',
-    paid_amount: 'প্রাপ্ত টাকা', change: 'পরিবর্তন:', will_due: 'বাকি:', complete_sale: 'বিক্রয় সম্পন্ন করুন',
+    paid_amount: 'প্রাপ্ত টাকা', change: 'পরিবর্তন', will_due: 'বাকি থাকবে', complete_sale: 'বিক্রয় সম্পন্ন করুন',
+    exact: 'সঠিক',
     export: 'এক্সপোর্ট', reset: 'রিসেট', all_status: 'সব', paid_status: 'পরিশোধিত', due_status: 'বাকি',
-    sort_newest: 'নতুন আগে', sort_oldest: 'পুরাতন আগে', sort_highest: 'বেশি টাকা', sort_lowest: 'কম টাকা',
-    invoice: 'ইনভয়েস', customer: 'কাস্টমার', products_col: 'পণ্য', total: 'মোট', paid: 'পরিশোধিত', due: 'বাকি',
+    sort_newest: 'নতুন আগে', invoice: 'ইনভয়েস', customer: 'কাস্টমার', products_col: 'পণ্য', total: 'মোট', paid: 'পরিশোধিত', due: 'বাকি',
     date_time: 'তারিখ', action: 'অ্যাকশন', search: 'খুঁজুন',
-    all_stock: 'সব স্টক', low_stock: 'স্টক কম', stock_ok: 'স্টক ঠিক', stock_out: 'স্টক নেই',
-    sort_name: 'নাম', sort_qty_asc: 'স্টক কম', sort_qty_desc: 'স্টক বেশি', sort_profit_high: 'লাভ বেশি',
+    all_stock: 'সব', low_stock: 'স্টক কম', stock_ok: 'স্টক ঠিক',
     new_product: 'নতুন পণ্য', product_name: 'পণ্যের নাম', stock: 'স্টক', buy_price: 'ক্রয় মূল্য',
     sell_price: 'বিক্রয় মূল্য', profit_per_unit: 'লাভ/ইউনিট', total_profit: 'মোট লাভ', status: 'স্ট্যাটাস',
-    new_customer: 'নতুন কাস্টমার', all_customers: 'সব কাস্টমার', has_due: 'বাকি আছে', no_due: 'বাকি নেই',
+    new_customer: 'নতুন কাস্টমার', all_customers: 'সব', has_due: 'বাকি আছে', no_due: 'বাকি নেই',
     name: 'নাম', initial_due: 'প্রাথমিক বাকি', date: 'তারিখ', time: 'সময়',
-    expense_mgmt: 'খরচ ব্যবস্থাপনা', expense_trend: '৭ দিনের ট্রেন্ড', expense_summary: 'খরচ সারাংশ',
-    today_expense: 'আজকের খরচ', month_expense: 'এই মাসের', description: 'বিবরণ', amount: 'টাকা',
-    all_data: 'সব ডেটা', activity_sub: 'সব কার্যক্রম বিস্তারিতভাবে',
-    total_activity: 'মোট কার্যক্রম', total_purchase: 'মোট ক্রয়', total_payment: 'বাকি পরিশোধ',
-    total_income: 'মোট আয়', profit_margin: 'লাভের হার',
-    avg_sale: 'গড় বিক্রয়', total_items_sold: 'পণ্য বিক্রি', monthly_sales: 'মাসিক বিক্রয়',
-    profit_analysis: 'লাভ বিশ্লেষণ', top_products: 'শীর্ষ পণ্য', payment_status: 'পেমেন্ট স্ট্যাটাস',
-    personal_info: 'ব্যক্তিগত তথ্য', role: 'রোল', join_date: 'যোগদানের তারিখ', join_time: 'সময়',
-    system_info: 'সিস্টেম তথ্য', user_id: 'ইউজার আইডি', ip_address: 'IP ঠিকানা', device: 'ডিভাইস',
-    browser: 'ব্রাউজার', location: 'লোকেশন', last_login: 'সর্বশেষ লগইন', account_created: 'তৈরি',
-    account_status: 'স্ট্যাটাস', active: 'সক্রিয়',
-    theme: 'থিম', appearance: 'অ্যাপিয়ারেন্স', notifications: 'নোটিফিকেশন', data: 'ডেটা', security: 'সিকিউরিটি',
-    color_select: 'রঙ নির্বাচন', c_indigo: 'ইন্ডিগো', c_blue: 'নীল', c_emerald: 'সবুজ', c_rose: 'গোলাপি',
-    c_amber: 'সোনালী', c_purple: 'বেগুনি',
-    dark_mode: 'ডার্ক মোড', light: 'লাইট', dark: 'ডার্ক', auto: 'অটো', reset_default: 'ডিফল্টে',
-    layout: 'লেআউট', compact_mode: 'কমপ্যাক্ট', animations: 'অ্যানিমেশন',
-    sound_effect: 'সাউন্ড',
+    expense_mgmt: 'খরচ ব্যবস্থাপনা', expense_trend: '৭ দিনের ট্রেন্ড', expense_summary: 'সারাংশ',
+    today_expense: 'আজকের', month_expense: 'এই মাসের', description: 'বিবরণ', amount: 'টাকা',
+    all_data: 'সব', activity_sub: 'সব কার্যক্রম', total_activity: 'মোট কার্যক্রম',
+    total_purchase: 'মোট ক্রয়', total_payment: 'বাকি পরিশোধ',
+    total_income: 'মোট আয়', profit_margin: 'লাভের হার', avg_sale: 'গড় বিক্রয়',
+    total_items_sold: 'পণ্য বিক্রি', monthly_sales: 'মাসিক বিক্রয়',
+    profit_analysis: 'লাভ বিশ্লেষণ', top_products: 'শীর্ষ পণ্য', payment_status: 'পেমেন্ট',
+    personal_info: 'ব্যক্তিগত তথ্য', role: 'রোল', system_info: 'সিস্টেম',
+    device: 'ডিভাইস', last_login: 'লগইন', account_status: 'স্ট্যাটাস',
+    theme: 'থিম', appearance: 'অ্যাপিয়ারেন্স', data: 'ডেটা', security: 'সিকিউরিটি',
+    color_select: 'রঙ', c_indigo: 'ইন্ডিগো', c_blue: 'নীল', c_emerald: 'সবুজ', c_rose: 'গোলাপি', c_amber: 'সোনালী', c_purple: 'বেগুনি',
+    dark_mode: 'ডার্ক মোড', light: 'লাইট', dark: 'ডার্ক', auto: 'অটো',
     data_mgmt: 'ডেটা', export_all: 'সব এক্সপোর্ট', csv_export: 'CSV এক্সপোর্ট', import_data: 'ইমপোর্ট',
-    download: 'ডাউনলোড', upload: 'আপলোড', delete: 'মুছুন',
+    download: 'ডাউনলোড', upload: 'আপলোড',
     save_history: 'লগইন হিস্ট্রি', auto_logout: 'অটো লগ আউট',
-    change_password: 'পাসওয়ার্ড পরিবর্তন', reset_link_msg: 'আপনার ইমেইলে রিসেট লিংক পাঠানো হবে।',
-    admin_control: 'অ্যাডমিন কন্ট্রোল প্যানেল', admin_control_sub: 'সম্পূর্ণ সিস্টেম নিয়ন্ত্রণ ও ইউজার ম্যানেজমেন্ট',
+    change_password: 'পাসওয়ার্ড পরিবর্তন', reset_link_msg: 'ইমেইলে রিসেট লিংক পাঠানো হবে।',
+    admin_control: 'অ্যাডমিন কন্ট্রোল প্যানেল', admin_control_sub: 'সম্পূর্ণ সিস্টেম নিয়ন্ত্রণ',
     total_users: 'মোট ইউজার', active_users: 'সক্রিয়', blocked_users: 'ব্লকড', total_shops: 'মোট দোকান',
-    select_user: 'ইউজার নির্বাচন করুন', select_user_sub: 'বাম দিক থেকে একটি ইউজার নির্বাচন করুন',
-    select_placeholder: '— নির্বাচন —', user: 'ইউজার', refresh: 'রিফ্রেশ',
-    tab_overview: 'ওভারভিউ', tab_access: 'অ্যাকসেস', tab_profile: 'প্রোফাইল', tab_security: 'সিকিউরিটি', tab_danger: 'ডেঞ্জার',
-    user_statistics: 'পরিসংখ্যান', financial_overview: 'আর্থিক ওভারভিউ',
+    select_user: 'ইউজার নির্বাচন করুন', select_user_sub: 'বাম দিক থেকে নির্বাচন করুন',
+    user: 'ইউজার', tab_overview: 'ওভারভিউ', tab_profile: 'প্রোফাইল', tab_security: 'সিকিউরিটি', tab_danger: 'ডেঞ্জার',
+    user_statistics: 'পরিসংখ্যান', financial_overview: 'আর্থিক',
     total_paid: 'পরিশোধিত', stock_value: 'স্টক মূল্য', customer_due_total: 'কাস্টমার বাকি',
-    potential_profit: 'সম্ভাব্য লাভ', investment: 'মোট বিনিয়োগ',
+    potential_profit: 'সম্ভাব্য লাভ',
     view_all_data: 'সব ডেটা দেখুন', view_all_data_sub: 'বিক্রয়, পণ্য, কাস্টমার, খরচ',
     login_history_sub: 'IP, ডিভাইস, সময়',
-    impersonate_btn: 'এই ইউজার হিসেবে কাজ করুন', impersonate_desc: 'তার অ্যাকাউন্টে ঢুকুন',
+    impersonate_btn: 'এই ইউজারের আইডিতে প্রবেশ করুন', impersonate_desc: 'তার সব কাজ করতে পারবেন — বিক্রয়, পণ্য, কাস্টমার, খরচ সব',
+    enter: 'প্রবেশ',
     save_profile: 'সংরক্ষণ করুন',
-    security_actions: 'সিকিউরিটি', reset_pwd: 'পাসওয়ার্ড রিসেট', reset_pwd_sub: 'ইমেইলে লিংক পাঠান',
+    security_actions: 'সিকিউরিটি', reset_pwd: 'পাসওয়ার্ড রিসেট', reset_pwd_sub: 'ইমেইলে লিংক',
     send: 'পাঠান', force_logout: 'সেশন টার্মিনেট', force_logout_sub: 'জোরপূর্বক লগ আউট',
     terminate: 'টার্মিনেট', block_user: 'সাময়িক ব্লক', block_user_sub: 'নির্দিষ্ট সময়ের জন্য',
-    block: 'ব্লক', unblock_user: 'আনব্লক', unblock_user_sub: 'আবার সক্রিয় করুন', unblock: 'আনব্লক',
-    danger_zone: 'ডেঞ্জার জোন', danger_zone_sub: 'এই কাজগুলি ফেরানো যাবে না',
-    reset_data: 'ডেটা রিসেট', reset_data_sub: 'সব পণ্য, কাস্টমার, বিক্রয়, খরচ মুছুন',
-    delete_user: 'সম্পূর্ণ ইউজার ডিলিট', delete_user_sub: 'Firebase থেকে সব ডেটা মুছে ফেলা হবে',
+    block: 'ব্লক', unblock_user: 'আনব্লক', unblock_user_sub: 'সক্রিয় করুন', unblock: 'আনব্লক',
+    danger_zone: 'ডেঞ্জার জোন', danger_zone_sub: 'ফেরানো যাবে না',
+    reset_data: 'ডেটা রিসেট', reset_data_sub: 'পণ্য, কাস্টমার, বিক্রয়, খরচ মুছুন',
+    delete_user: 'সম্পূর্ণ ইউজার ডিলিট', delete_user_sub: 'Firebase থেকে সব মুছে যাবে',
     all_users: 'সকল ইউজার', new_user: 'নতুন', all_roles: 'সব রোল',
     block_duration: 'সময়কাল', block_reason: 'কারণ', unblock_at: 'আনব্লক হবে',
-    block_warning: 'ব্লক করা অবস্থায় ইউজার লগইন করতে পারবে না।',
-    create: 'তৈরি করুন', user_data: 'ইউজারের ডেটা', save: 'সংরক্ষণ', update: 'আপডেট',
+    create: 'তৈরি', user_data: 'ইউজারের ডেটা', save: 'সংরক্ষণ', update: 'আপডেট', delete: 'ডিলিট',
     add_product: 'নতুন পণ্য', barcode_optional: 'বারকোড',
     unit_profit: 'লাভ/ইউনিট', total_profit_potential: 'মোট সম্ভাব্য',
-    edit_product: 'পণ্য সম্পাদনা', purchase_product: 'ক্রয়',
+    edit_product: 'সম্পাদনা', purchase_product: 'ক্রয়',
     purchase_qty: 'পরিমাণ', purchase_price: 'মূল্য', current_stock: 'বর্তমান',
     new_stock: 'নতুন', complete_purchase: 'সম্পন্ন',
     add_customer: 'নতুন কাস্টমার', initial_due_opt: 'প্রাথমিক বাকি',
-    edit_customer: 'কাস্টমার সম্পাদনা', pay_due: 'বাকি পরিশোধ', current_due: 'বর্তমান বাকি',
+    edit_customer: 'সম্পাদনা', pay_due: 'বাকি পরিশোধ', current_due: 'বর্তমান বাকি',
     pay_amount: 'পরিমাণ', remaining_due: 'অবশিষ্ট', complete_payment: 'সম্পন্ন',
     add_expense: 'নতুন খরচ', quick_select: 'দ্রুত',
     quick_add_customer: 'দ্রুত কাস্টমার', product: 'পণ্য',
-    barcode_scanner: 'বারকোড স্ক্যানার', barcode_hint: 'ক্যামেরার সামনে বারকোড ধরুন',
-    basic: 'সাধারণ', scientific: 'সাইন্টিফিক', history: 'হিস্ট্রি', copy: 'কপি',
-    cancel: 'বাতিল', offline_msg: 'আপনি অফলাইনে আছেন',
+    barcode_scanner: 'বারকোড', basic: 'সাধারণ', cancel: 'বাতিল', offline_msg: 'আপনি অফলাইনে',
     admin_mode: 'অ্যাডমিন মোড:', working_as: 'আপনি কাজ করছেন', as_user: 'হিসেবে', exit: 'প্রস্থান',
-    sale_recorded: 'বিক্রয়', purchase_recorded: 'ক্রয়', expense_recorded: 'খরচ', payment_recorded: 'পরিশোধ',
-    product_added: 'নতুন পণ্য', customer_added: 'নতুন কাস্টমার', profile_updated: 'প্রোফাইল সম্পাদনা'
+    quick_search: 'দ্রুত সার্চ ইঞ্জিন', quick_search_sub: 'সব কিছু এক জায়গায় খুঁজুন',
+    search_placeholder: '🔍 পণ্য, কাস্টমার, ইনভয়েস, সেটিংস... সব কিছু খুঁজুন'
   },
   en: {
     brand_tagline: "Bangladesh's Best Business Management Solution",
@@ -141,7 +134,7 @@ const TRANSLATIONS = {
     full_name: 'Full Name', phone: 'Phone', shop_name: 'Shop Name', address: 'Address',
     confirm_password: 'Confirm Password', terms_agree: 'I agree to the Terms',
     register_btn: 'Register', have_account: 'Have account?', login_now: 'Login',
-    reset_password: 'Password Reset', reset_subtitle: 'Reset link will be sent to email',
+    reset_password: 'Password Reset', reset_subtitle: 'Reset link sent to email',
     send_reset: 'Send Reset Link', back_to_login: 'Back to Login', password_hint: 'Enter password',
     nav_main: 'Main', nav_tools: 'Tools', nav_analytics: 'Analytics', nav_account: 'Account', nav_admin: 'Admin',
     dashboard: 'Dashboard', sales: 'Sales', new_sale: 'New Sale (POS)', sales_list: 'Sales List',
@@ -151,6 +144,7 @@ const TRANSLATIONS = {
     master_list: 'Master List', activity_log: 'Activity Log', reports: 'Reports', analytics: 'Analytics',
     profile: 'Profile', settings: 'Settings', admin_panel: 'Admin Panel', logout: 'Logout',
     view_profile: 'Profile', edit_profile: 'Edit', theme_settings: 'Settings', login_history: 'Login History',
+    command_palette: 'Command Palette', search_everything: 'Search everything...',
     welcome: 'Welcome', welcome_sub: "Today's business summary.",
     today_sales: "Today's Sales", total_sales: 'Total Sales', total_due: 'Total Due', total_expense: 'Total Expenses',
     today_income: "Today's Income", all_time: 'All time', to_collect: 'To collect', all_expenses: 'All expenses',
@@ -159,83 +153,76 @@ const TRANSLATIONS = {
     quick_summary: 'Quick Summary', stock_alert: 'Stock Alert', detailed_reports: 'Detailed Reports',
     stock_alerts: 'Stock Alerts', recent_transactions: 'Recent Transactions', view_all: 'All',
     step_product: 'Select Product', step_customer: 'Customer', step_payment: 'Payment',
-    search_add_product: 'Search Products', quantity: 'Quantity', add: 'Add',
+    search_add_product: 'Search Products', quantity: 'Quantity', add: 'Add', add_to_cart: 'Add to Cart',
+    selected_product: 'Selected Product', available_stock: 'Available Stock',
     customer_select: 'Customer', cash_sale: 'Cash Sale', new: 'New',
     cart: 'Cart', clear: 'Clear', subtotal: 'Subtotal', discount: 'Discount', grand_total: 'Grand Total',
-    paid_amount: 'Paid', change: 'Change:', will_due: 'Will Due:', complete_sale: 'Complete Sale',
+    paid_amount: 'Paid Amount', change: 'Change', will_due: 'Will Due', complete_sale: 'Complete Sale',
+    exact: 'Exact',
     export: 'Export', reset: 'Reset', all_status: 'All', paid_status: 'Paid', due_status: 'Due',
-    sort_newest: 'Newest', sort_oldest: 'Oldest', sort_highest: 'Highest', sort_lowest: 'Lowest',
-    invoice: 'Invoice', customer: 'Customer', products_col: 'Products', total: 'Total', paid: 'Paid', due: 'Due',
+    sort_newest: 'Newest', invoice: 'Invoice', customer: 'Customer', products_col: 'Products', total: 'Total', paid: 'Paid', due: 'Due',
     date_time: 'Date', action: 'Action', search: 'Search',
-    all_stock: 'All Stock', low_stock: 'Low Stock', stock_ok: 'Stock OK', stock_out: 'Out',
-    sort_name: 'Name', sort_qty_asc: 'Low Stock', sort_qty_desc: 'High Stock', sort_profit_high: 'High Profit',
+    all_stock: 'All', low_stock: 'Low Stock', stock_ok: 'Stock OK',
     new_product: 'New Product', product_name: 'Product Name', stock: 'Stock', buy_price: 'Buy Price',
     sell_price: 'Sell Price', profit_per_unit: 'Profit/Unit', total_profit: 'Total Profit', status: 'Status',
-    new_customer: 'New Customer', all_customers: 'All Customers', has_due: 'Has Due', no_due: 'No Due',
+    new_customer: 'New Customer', all_customers: 'All', has_due: 'Has Due', no_due: 'No Due',
     name: 'Name', initial_due: 'Initial Due', date: 'Date', time: 'Time',
-    expense_mgmt: 'Expense Management', expense_trend: '7-Day Trend', expense_summary: 'Expense Summary',
+    expense_mgmt: 'Expense Management', expense_trend: '7-Day Trend', expense_summary: 'Summary',
     today_expense: "Today's", month_expense: 'This Month', description: 'Description', amount: 'Amount',
-    all_data: 'All Data', activity_sub: 'View all activities in detail',
-    total_activity: 'Total Activities', total_purchase: 'Total Purchase', total_payment: 'Total Payment',
-    total_income: 'Total Income', profit_margin: 'Profit Margin',
-    avg_sale: 'Average Sale', total_items_sold: 'Items Sold', monthly_sales: 'Monthly Sales',
-    profit_analysis: 'Profit Analysis', top_products: 'Top Products', payment_status: 'Payment Status',
-    personal_info: 'Personal Info', role: 'Role', join_date: 'Join Date', join_time: 'Time',
-    system_info: 'System Info', user_id: 'User ID', ip_address: 'IP', device: 'Device',
-    browser: 'Browser', location: 'Location', last_login: 'Last Login', account_created: 'Created',
-    account_status: 'Status', active: 'Active',
-    theme: 'Theme', appearance: 'Appearance', notifications: 'Notifications', data: 'Data', security: 'Security',
-    color_select: 'Color', c_indigo: 'Indigo', c_blue: 'Blue', c_emerald: 'Emerald', c_rose: 'Rose',
-    c_amber: 'Amber', c_purple: 'Purple',
-    dark_mode: 'Dark Mode', light: 'Light', dark: 'Dark', auto: 'Auto', reset_default: 'Reset',
-    layout: 'Layout', compact_mode: 'Compact', animations: 'Animations', sound_effect: 'Sound',
+    all_data: 'All', activity_sub: 'All activities', total_activity: 'Total Activities',
+    total_purchase: 'Total Purchase', total_payment: 'Total Payment',
+    total_income: 'Total Income', profit_margin: 'Profit Margin', avg_sale: 'Average Sale',
+    total_items_sold: 'Items Sold', monthly_sales: 'Monthly Sales',
+    profit_analysis: 'Profit Analysis', top_products: 'Top Products', payment_status: 'Payment',
+    personal_info: 'Personal Info', role: 'Role', system_info: 'System',
+    device: 'Device', last_login: 'Last Login', account_status: 'Status',
+    theme: 'Theme', appearance: 'Appearance', data: 'Data', security: 'Security',
+    color_select: 'Color', c_indigo: 'Indigo', c_blue: 'Blue', c_emerald: 'Emerald', c_rose: 'Rose', c_amber: 'Amber', c_purple: 'Purple',
+    dark_mode: 'Dark Mode', light: 'Light', dark: 'Dark', auto: 'Auto',
     data_mgmt: 'Data', export_all: 'Export All', csv_export: 'CSV Export', import_data: 'Import',
-    download: 'Download', upload: 'Upload', delete: 'Delete',
+    download: 'Download', upload: 'Upload',
     save_history: 'Login History', auto_logout: 'Auto Logout',
-    change_password: 'Change Password', reset_link_msg: 'Reset link will be sent to your email.',
-    admin_control: 'Admin Control Panel', admin_control_sub: 'Complete system & user management',
+    change_password: 'Change Password', reset_link_msg: 'Reset link will be sent to email.',
+    admin_control: 'Admin Control Panel', admin_control_sub: 'Complete system control',
     total_users: 'Total Users', active_users: 'Active', blocked_users: 'Blocked', total_shops: 'Total Shops',
-    select_user: 'Select a User', select_user_sub: 'Choose a user from the left to view details',
-    select_placeholder: '— Select —', user: 'User', refresh: 'Refresh',
-    tab_overview: 'Overview', tab_access: 'Access', tab_profile: 'Profile', tab_security: 'Security', tab_danger: 'Danger',
-    user_statistics: 'Statistics', financial_overview: 'Financial Overview',
+    select_user: 'Select a User', select_user_sub: 'Select from the left side',
+    user: 'User', tab_overview: 'Overview', tab_profile: 'Profile', tab_security: 'Security', tab_danger: 'Danger',
+    user_statistics: 'Statistics', financial_overview: 'Financial',
     total_paid: 'Total Paid', stock_value: 'Stock Value', customer_due_total: 'Customer Due',
-    potential_profit: 'Potential Profit', investment: 'Total Investment',
+    potential_profit: 'Potential Profit',
     view_all_data: 'View All Data', view_all_data_sub: 'Sales, Products, Customers, Expenses',
     login_history_sub: 'IP, Device, Time',
-    impersonate_btn: 'Login as This User', impersonate_desc: 'Access their account',
+    impersonate_btn: 'Login as This User', impersonate_desc: 'Do all their tasks — sales, products, customers, expenses all',
+    enter: 'Enter',
     save_profile: 'Save Profile',
     security_actions: 'Security', reset_pwd: 'Reset Password', reset_pwd_sub: 'Send link to email',
     send: 'Send', force_logout: 'Force Logout', force_logout_sub: 'Force logout user',
     terminate: 'Terminate', block_user: 'Temporary Block', block_user_sub: 'Block for specific duration',
-    block: 'Block', unblock_user: 'Unblock', unblock_user_sub: 'Reactivate the user', unblock: 'Unblock',
-    danger_zone: 'Danger Zone', danger_zone_sub: 'These actions cannot be undone',
+    block: 'Block', unblock_user: 'Unblock', unblock_user_sub: 'Reactivate user', unblock: 'Unblock',
+    danger_zone: 'Danger Zone', danger_zone_sub: 'Cannot be undone',
     reset_data: 'Reset Data', reset_data_sub: 'Delete all products, customers, sales, expenses',
     delete_user: 'Delete User Completely', delete_user_sub: 'All data will be deleted from Firebase',
     all_users: 'All Users', new_user: 'New', all_roles: 'All Roles',
     block_duration: 'Duration', block_reason: 'Reason', unblock_at: 'Unblock at',
-    block_warning: 'Blocked users cannot login.',
-    create: 'Create', user_data: 'User Data', save: 'Save', update: 'Update',
+    create: 'Create', user_data: 'User Data', save: 'Save', update: 'Update', delete: 'Delete',
     add_product: 'New Product', barcode_optional: 'Barcode',
     unit_profit: 'Profit/Unit', total_profit_potential: 'Total Potential',
-    edit_product: 'Edit Product', purchase_product: 'Purchase',
+    edit_product: 'Edit', purchase_product: 'Purchase',
     purchase_qty: 'Quantity', purchase_price: 'Price', current_stock: 'Current',
     new_stock: 'New', complete_purchase: 'Complete',
     add_customer: 'New Customer', initial_due_opt: 'Initial Due',
-    edit_customer: 'Edit Customer', pay_due: 'Pay Due', current_due: 'Current Due',
+    edit_customer: 'Edit', pay_due: 'Pay Due', current_due: 'Current Due',
     pay_amount: 'Amount', remaining_due: 'Remaining', complete_payment: 'Complete',
     add_expense: 'New Expense', quick_select: 'Quick',
     quick_add_customer: 'Quick Add', product: 'Product',
-    barcode_scanner: 'Barcode Scanner', barcode_hint: 'Point camera at barcode',
-    basic: 'Basic', scientific: 'Scientific', history: 'History', copy: 'Copy',
-    cancel: 'Cancel', offline_msg: 'You are offline',
+    barcode_scanner: 'Barcode', basic: 'Basic', cancel: 'Cancel', offline_msg: 'You are offline',
     admin_mode: 'Admin Mode:', working_as: 'You are working as', as_user: 'as', exit: 'Exit',
-    sale_recorded: 'Sale', purchase_recorded: 'Purchase', expense_recorded: 'Expense', payment_recorded: 'Payment',
-    product_added: 'New Product', customer_added: 'New Customer', profile_updated: 'Profile Updated'
+    quick_search: 'Quick Search Engine', quick_search_sub: 'Search everything in one place',
+    search_placeholder: '🔍 Products, Customers, Invoices, Settings... search everything'
   }
 };
 
-/* ═══════════════════ LANGUAGE SYSTEM ═══════════════════ */
+/* ═══════════════════ LANGUAGE ═══════════════════ */
 let currentLang = localStorage.getItem('hk_lang') || 'bn';
 
 window.switchLanguage = (lang) => {
@@ -255,36 +242,29 @@ window.switchLanguage = (lang) => {
 
   const codeEl = document.getElementById('currentLangCode');
   if (codeEl) codeEl.textContent = lang.toUpperCase();
+  document.querySelectorAll('.lang-btn, .lang-option').forEach(btn => btn.classList.toggle('active', btn.dataset.lang === lang));
 
-  document.querySelectorAll('.lang-btn, .lang-option').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.lang === lang);
-  });
+  // Update search input placeholder
+  const qsi = document.getElementById('quickSearchInput');
+  if (qsi) qsi.placeholder = t('search_placeholder');
 
   closeLangDropdown();
 
-  // Refresh everything with new language
   if (AppState.currentUser) {
     renderProductCards(); renderInventoryTable();
-    renderCustomerCards(); renderCustomerHistoryList();
-    renderExpenses(AppState.allExpensesCache);
-    renderSalesList(AppState.allSalesCache);
-    renderAdminUsersList();
+    renderCustomerCards(); renderExpenses(AppState.allExpensesCache);
+    renderSalesList(AppState.allSalesCache); renderAdminUsersListPro();
     renderAdminGlobalStats(AppState.allUsersCache);
-    if (AppState.selectedAdminUser) onAdminUserSelect();
+    if (AppState.selectedAdminUser) selectAdminUserPro(AppState.selectedAdminUser.uid);
   }
-
   showToast('success', lang === 'bn' ? 'ভাষা পরিবর্তন' : 'Language Changed', lang === 'bn' ? 'বাংলা' : 'English');
 };
 
 window.toggleLangDropdown = (e) => {
   e.stopPropagation();
-  const dd = document.getElementById('langDropdown');
-  if (dd) dd.classList.toggle('show');
+  document.getElementById('langDropdown')?.classList.toggle('show');
 };
-function closeLangDropdown() {
-  const dd = document.getElementById('langDropdown');
-  if (dd) dd.classList.remove('show');
-}
+function closeLangDropdown() { document.getElementById('langDropdown')?.classList.remove('show'); }
 document.addEventListener('click', (e) => {
   const dd = document.getElementById('langDropdown');
   if (dd && !dd.contains(e.target) && !e.target.closest('.lang-switcher')) dd.classList.remove('show');
@@ -304,10 +284,10 @@ const AppState = {
   activityLog: [], loginHistory: [],
   editingProductId: null, editingCustomerId: null, payingCustomerId: null,
   unsubscribers: [],
-  userSettings: {}, currentIP: '—', currentLocation: '—',
+  userSettings: {}, currentIP: '—',
   impersonatingUser: null, selectedAdminUser: null,
   adminFilter: 'all', barcodeReader: null,
-  myDataListeners: {}
+  quickSearchIndex: 0, quickSearchResults: []
 };
 
 Object.keys(AppState).forEach(key => {
@@ -321,14 +301,12 @@ Object.keys(AppState).forEach(key => {
 const DEFAULT_SETTINGS = Object.freeze({
   color: 'indigo', mode: 'light', radius: 16, fontSize: 100,
   compactMode: false, animations: true,
-  notifStock: true, notifDue: true, soundEffect: false,
-  saveHistory: true, autoLogout: false
+  soundEffect: false, saveHistory: true, autoLogout: false
 });
-
 const LOW_STOCK_THRESHOLD = 5;
 const MAX_ACTIVITY_LOG = 500;
 
-/* ═══════════════════ UTILITIES ═══════════════════ */
+/* ═══════════════════ UTILS ═══════════════════ */
 const escapeHtml = (str) => {
   if (str === null || str === undefined) return '';
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
@@ -343,34 +321,36 @@ const setHtml = (id, html) => { const el = $(id); if (el) el.innerHTML = html; }
 window.escapeHtml = escapeHtml;
 
 function getDateBn(date) {
-  try {
-    const locale = currentLang === 'bn' ? 'bn-BD' : 'en-US';
-    return date.toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' });
-  } catch (e) { return date.toLocaleDateString(); }
+  try { const locale = currentLang === 'bn' ? 'bn-BD' : 'en-US'; return date.toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' }); }
+  catch (e) { return date.toLocaleDateString(); }
 }
 function getTimeBn(date) {
-  try {
-    const locale = currentLang === 'bn' ? 'bn-BD' : 'en-US';
-    return date.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', hour12: true });
-  } catch (e) { return date.toLocaleTimeString(); }
+  try { const locale = currentLang === 'bn' ? 'bn-BD' : 'en-US'; return date.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', hour12: true }); }
+  catch (e) { return date.toLocaleTimeString(); }
 }
 window.getDateBn = getDateBn;
 window.getTimeBn = getTimeBn;
 window.formatDateBn = (dateStr) => {
-  try {
-    const locale = currentLang === 'bn' ? 'bn-BD' : 'en-US';
-    return new Date(dateStr).toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-  } catch (e) { return dateStr; }
+  try { const locale = currentLang === 'bn' ? 'bn-BD' : 'en-US'; return new Date(dateStr).toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }); }
+  catch (e) { return dateStr; }
 };
 
+/** ⭐ CRITICAL: Safe money formatter - returns clean number string */
 function formatMoney(n) {
   const num = parseFloat(n) || 0;
-  const formatted = num.toLocaleString(currentLang === 'bn' ? 'bn-BD' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  return formatted;
+  return num.toLocaleString(currentLang === 'bn' ? 'bn-BD' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 window.formatMoney = formatMoney;
 
-/* ═══════════════════ LOADER ═══════════════════ */
+/** ⭐ Parse money from formatted text safely */
+function parseMoney(text) {
+  if (!text) return 0;
+  const cleaned = String(text).replace(/[^\d.-]/g, '');
+  return parseFloat(cleaned) || 0;
+}
+window.parseMoney = parseMoney;
+
+/* ═══════════════════ LOADER & TOAST ═══════════════════ */
 window.showLoader = (show, text = null) => {
   const el = $('loaderOverlay');
   if (!el) return;
@@ -379,14 +359,10 @@ window.showLoader = (show, text = null) => {
   el.classList.toggle('show', show);
 };
 
-/* ═══════════════════ TOAST ═══════════════════ */
 window.showToast = (type, title, message = '') => {
   const container = $('toastContainer');
   if (!container) return;
-  const icons = {
-    success: 'fas fa-circle-check', error: 'fas fa-circle-xmark',
-    warning: 'fas fa-triangle-exclamation', info: 'fas fa-circle-info'
-  };
+  const icons = { success: 'fas fa-circle-check', error: 'fas fa-circle-xmark', warning: 'fas fa-triangle-exclamation', info: 'fas fa-circle-info' };
   const toast = document.createElement('div');
   toast.className = `toast-pro ${type}`;
   toast.innerHTML = `
@@ -426,19 +402,18 @@ function playSound(type) {
 
 window.getFirebaseErrorMessage = (code) => {
   const messages = {
-    'auth/email-already-in-use': currentLang === 'bn' ? 'এই ইমেইল ইতিমধ্যে ব্যবহৃত' : 'Email already in use',
+    'auth/email-already-in-use': currentLang === 'bn' ? 'এই ইমেইল ব্যবহৃত' : 'Email already in use',
     'auth/invalid-email': currentLang === 'bn' ? 'ইমেইল সঠিক নয়' : 'Invalid email',
     'auth/weak-password': currentLang === 'bn' ? 'পাসওয়ার্ড দুর্বল' : 'Weak password',
-    'auth/user-not-found': currentLang === 'bn' ? 'এই ইমেইলে অ্যাকাউন্ট নেই' : 'No account found',
+    'auth/user-not-found': currentLang === 'bn' ? 'অ্যাকাউন্ট নেই' : 'No account',
     'auth/wrong-password': currentLang === 'bn' ? 'পাসওয়ার্ড ভুল' : 'Wrong password',
-    'auth/invalid-credential': currentLang === 'bn' ? 'ইমেইল বা পাসওয়ার্ড ভুল' : 'Invalid credentials',
+    'auth/invalid-credential': currentLang === 'bn' ? 'ভুল তথ্য' : 'Invalid credentials',
     'auth/too-many-requests': currentLang === 'bn' ? 'অনেকবার চেষ্টা' : 'Too many attempts',
     'auth/network-request-failed': currentLang === 'bn' ? 'ইন্টারনেট নেই' : 'Network error'
   };
   return messages[code] || `Error: ${code}`;
 };
 
-/* ═══════════════════ CONFIRM DIALOG ═══════════════════ */
 window.showConfirm = (title, text, options = {}) => {
   return new Promise((resolve) => {
     const modalEl = $('confirmModal');
@@ -470,15 +445,13 @@ window.showConfirm = (title, text, options = {}) => {
   });
 };
 
-/* ═══════════════════ ACTIVITY LOG ═══════════════════ */
+/* ═══════════════════ ACTIVITY ═══════════════════ */
 window.logActivity = (action, details, amount = null, extraData = {}) => {
   const now = new Date();
   const entry = {
     id: Date.now() + Math.random().toString(36).substr(2, 9),
-    action, details,
-    amount: amount !== null ? parseFloat(amount) : null,
-    date: now.toISOString().split('T')[0],
-    time: getTimeBn(now), timestamp: now.getTime(), ...extraData
+    action, details, amount: amount !== null ? parseFloat(amount) : null,
+    date: now.toISOString().split('T')[0], time: getTimeBn(now), timestamp: now.getTime(), ...extraData
   };
   AppState.activityLog.unshift(entry);
   if (AppState.activityLog.length > MAX_ACTIVITY_LOG) AppState.activityLog.pop();
@@ -507,10 +480,7 @@ window.renderActivityLog = () => {
   const c = $('activityLogList');
   if (!c) return;
   c.innerHTML = '';
-  if (AppState.activityLog.length === 0) {
-    c.innerHTML = `<div class="text-center text-muted py-4"><i class="fas fa-clock-rotate-left fa-2x mb-2"></i><p>0</p></div>`;
-    return;
-  }
+  if (AppState.activityLog.length === 0) { c.innerHTML = `<div class="text-center text-muted py-4"><i class="fas fa-clock-rotate-left fa-2x mb-2"></i><p>0</p></div>`; return; }
   const fragment = document.createDocumentFragment();
   AppState.activityLog.slice(0, 10).forEach(a => {
     const meta = getActivityMeta(a.action);
@@ -577,16 +547,9 @@ window.renderActivityLogAdvanced = () => {
   c.appendChild(fragment);
 };
 
-window.resetActivityFilters = () => {
-  ['activitySearchInput','activityDateFrom','activityDateTo'].forEach(id => { const el = $(id); if (el) el.value = ''; });
-  renderActivityLogAdvanced();
-};
-
 window.exportActivityLog = () => {
   let c = 'Date,Time,Action,Details,Amount\n';
-  AppState.activityLog.forEach(a => {
-    c += `${a.date},${a.time},"${(a.action || '').replace(/"/g, '""')}","${(a.details || '').replace(/"/g, '""')}",${a.amount || 0}\n`;
-  });
+  AppState.activityLog.forEach(a => { c += `${a.date},${a.time},"${(a.action || '').replace(/"/g, '""')}","${(a.details || '').replace(/"/g, '""')}",${a.amount || 0}\n`; });
   downloadFile(c, `activity-log-${new Date().toISOString().split('T')[0]}.csv`);
   showToast('success', t('export'));
 };
@@ -599,7 +562,7 @@ window.clearActivityLog = async () => {
   renderActivityLog(); renderActivityLogAdvanced(); updateActivityStats();
 };
 
-/* ═══════════════════ FILE DOWNLOAD ═══════════════════ */
+/* ═══════════════════ DOWNLOAD ═══════════════════ */
 function downloadFile(content, filename, mime = 'text/csv') {
   const blob = new Blob(['\uFEFF' + content], { type: mime + ';charset=utf-8' });
   const url = URL.createObjectURL(blob);
@@ -618,7 +581,6 @@ window.applySettings = (settings) => {
   const actualMode = s.mode === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : s.mode;
   document.documentElement.setAttribute('data-mode', actualMode);
   document.documentElement.style.setProperty('--radius', s.radius + 'px');
-  document.documentElement.style.setProperty('--radius-sm', (s.radius - 4 > 4 ? s.radius - 4 : 4) + 'px');
   document.documentElement.style.setProperty('--font-size', s.fontSize + '%');
   document.body.classList.toggle('compact', s.compactMode);
   document.body.classList.toggle('no-anim', !s.animations);
@@ -639,11 +601,7 @@ function syncSettingsUI() {
   const s = AppState.userSettings;
   document.querySelectorAll('.color-item').forEach(el => el.classList.toggle('active', el.dataset.color === s.color));
   document.querySelectorAll('.theme-mode-item').forEach(el => el.classList.toggle('active', el.dataset.mode === s.mode));
-  const map = {
-    compactMode: 'compactMode', animationsToggle: 'animations',
-    soundEffect: 'soundEffect', saveHistory: 'saveHistory', autoLogout: 'autoLogout'
-  };
-  Object.keys(map).forEach(id => { const el = $(id); if (el) el.checked = !!s[map[id]]; });
+  ['soundEffect', 'saveHistory', 'autoLogout'].forEach(id => { const el = $(id); if (el) el.checked = !!s[id]; });
 }
 
 window.setThemeColor = (color, el) => {
@@ -663,16 +621,12 @@ window.setThemeMode = (mode, el) => {
   saveUserSettings();
 };
 
-window.toggleCompact = (v) => { AppState.userSettings.compactMode = v; document.body.classList.toggle('compact', v); saveUserSettings(); };
-window.toggleAnimations = (v) => { AppState.userSettings.animations = v; document.body.classList.toggle('no-anim', !v); saveUserSettings(); };
 window.saveSetting = (key, v) => { AppState.userSettings[key] = v; saveUserSettings(); };
-
 window.switchSettingsTab = (tab, el) => {
   document.querySelectorAll('.settings-tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.settings-content').forEach(t => t.classList.remove('active'));
   el.classList.add('active');
-  const content = $('settings-' + tab);
-  if (content) content.classList.add('active');
+  $('settings-' + tab)?.classList.add('active');
 };
 
 window.checkPasswordStrength = () => {
@@ -692,7 +646,7 @@ window.checkPasswordStrength = () => {
   else { bar.style.width = '100%'; bar.className = 'password-strength-bar strength-strong'; txt.textContent = currentLang === 'bn' ? 'শক্তিশালী' : 'Strong'; }
 };
 
-/* ═══════════════════ AUTH NAVIGATION ═══════════════════ */
+/* ═══════════════════ AUTH NAV ═══════════════════ */
 window.showLogin = () => { $('loginForm').style.display = 'block'; $('registerForm').style.display = 'none'; $('forgotForm').style.display = 'none'; };
 window.showRegister = () => { $('loginForm').style.display = 'none'; $('registerForm').style.display = 'block'; $('forgotForm').style.display = 'none'; };
 window.showForgotPassword = () => { $('loginForm').style.display = 'none'; $('registerForm').style.display = 'none'; $('forgotForm').style.display = 'block'; };
@@ -703,11 +657,11 @@ window.togglePassword = (id, btn) => {
   else { i.type = 'password'; btn.innerHTML = '<i class="fas fa-eye"></i>'; }
 };
 
-/* ═══════════════════ ⭐ FIXED LOGIN — BLOCK CHECK BEFORE AUTH ═══════════════════ */
+/* ═══════════════════ LOGIN WITH BLOCK CHECK ═══════════════════ */
 window.login = async () => {
   const email = $('loginEmail').value.trim();
   const pass = $('loginPassword').value;
-  if (!email || !pass) { showToast('warning', t('login_btn'), currentLang === 'bn' ? 'সব ঘর পূরণ করুন' : 'Fill all fields'); return; }
+  if (!email || !pass) { showToast('warning', t('login_btn')); return; }
   if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) { showToast('error', t('email')); return; }
 
   const btn = $('loginBtn');
@@ -716,82 +670,56 @@ window.login = async () => {
   showLoader(true, currentLang === 'bn' ? 'যাচাই করা হচ্ছে...' : 'Verifying...');
 
   try {
-    // ⭐ STEP 1: BLOCK CHECK — Find user by email BEFORE authentication
-    let foundUser = null;
-    let foundUid = null;
+    let foundUser = null, foundUid = null;
     try {
       const usersSnap = await get(ref(db, 'users'));
       if (usersSnap.exists()) {
         const users = usersSnap.val();
         for (const uid in users) {
-          if (users[uid].email === email) {
-            foundUser = users[uid];
-            foundUid = uid;
-            break;
-          }
+          if (users[uid].email === email) { foundUser = users[uid]; foundUid = uid; break; }
         }
       }
-    } catch (blockCheckErr) {
-      console.warn('Block check error:', blockCheckErr.code);
-    }
+    } catch (e) { console.warn('Block check error:', e.code); }
 
-    // ⭐ STEP 2: If user exists, check block status BEFORE allowing login
     if (foundUser) {
       const status = foundUser.status || 'Active';
-
-      // BLOCKED CHECK
       if (status === 'Blocked') {
         const blockUntil = foundUser.blockUntil ? new Date(foundUser.blockUntil) : null;
         if (!blockUntil || blockUntil > new Date()) {
           const untilText = blockUntil ? getDateBn(blockUntil) + ' ' + getTimeBn(blockUntil) : (currentLang === 'bn' ? 'চিরতরে' : 'Forever');
-          showLoader(false);
-          btn.disabled = false;
+          showLoader(false); btn.disabled = false;
           btn.innerHTML = '<i class="fas fa-right-to-bracket me-2"></i>' + t('login_btn');
           await Swal.fire({
             icon: 'error',
-            title: currentLang === 'bn' ? 'অ্যাকাউন্ট ব্লক করা হয়েছে' : 'Account Blocked',
+            title: currentLang === 'bn' ? 'অ্যাকাউন্ট ব্লক' : 'Account Blocked',
             html: `<div style="text-align:left;font-size:0.9rem;">
               <p><strong>${currentLang === 'bn' ? 'কারণ' : 'Reason'}:</strong> ${escapeHtml(foundUser.blockReason || 'Admin')}</p>
               <p><strong>${t('unblock_at')}:</strong> ${escapeHtml(untilText)}</p>
-              <p class="text-muted small mt-2">${currentLang === 'bn' ? 'সাহায্যের জন্য অ্যাডমিনের সাথে যোগাযোগ করুন।' : 'Contact admin for help.'}</p>
             </div>`,
-            confirmButtonText: currentLang === 'bn' ? 'ঠিক আছে' : 'OK'
+            confirmButtonText: 'OK'
           });
-          return; // ⛔ BLOCK LOGIN
+          return;
         } else {
-          // Auto-unblock if expired
           try { await update(ref(db, 'users/' + foundUid), { status: 'Active', blockUntil: null, blockReason: null }); } catch (e) {}
         }
       }
-
-      // SUSPENDED CHECK
       if (status === 'Suspended') {
-        showLoader(false);
-        btn.disabled = false;
+        showLoader(false); btn.disabled = false;
         btn.innerHTML = '<i class="fas fa-right-to-bracket me-2"></i>' + t('login_btn');
-        await Swal.fire({
-          icon: 'error',
-          title: currentLang === 'bn' ? 'অ্যাকাউন্ট সাসপেন্ড' : 'Account Suspended',
-          text: currentLang === 'bn' ? 'আপনার অ্যাকাউন্ট সাসপেন্ড করা হয়েছে। অ্যাডমিনের সাথে যোগাযোগ করুন।' : 'Your account is suspended. Contact admin.',
-          confirmButtonText: 'OK'
-        });
-        return; // ⛔ BLOCK LOGIN
+        await Swal.fire({ icon: 'error', title: 'Suspended', text: currentLang === 'bn' ? 'অ্যাডমিনের সাথে যোগাযোগ করুন।' : 'Contact admin.', confirmButtonText: 'OK' });
+        return;
       }
     }
 
-    // ⭐ STEP 3: Only after block check passes, try Firebase Auth
     await signInWithEmailAndPassword(auth, email, pass);
-    showToast('success', t('welcome_back'), '');
+    showToast('success', t('welcome_back'));
   } catch (e) {
-    console.error('Login error:', e);
     showToast('error', t('login_btn'), getFirebaseErrorMessage(e.code));
-    showLoader(false);
-    btn.disabled = false;
+    showLoader(false); btn.disabled = false;
     btn.innerHTML = '<i class="fas fa-right-to-bracket me-2"></i>' + t('login_btn');
   }
 };
 
-/* ═══════════════════ REGISTER ═══════════════════ */
 window.register = async () => {
   const name = $('regName').value.trim();
   const email = $('regEmail').value.trim();
@@ -803,7 +731,7 @@ window.register = async () => {
   const terms = $('termsCheck').checked;
   if (!name || !email || !phone || !shopName || !address || !pass || !cp) { showToast('warning', t('register_btn')); return; }
   if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) { showToast('error', t('email')); return; }
-  if (!phone.match(/^01[3-9]\d{8}$/)) { showToast('error', t('phone'), '01XXXXXXXXX'); return; }
+  if (!phone.match(/^01[3-9]\d{8}$/)) { showToast('error', t('phone')); return; }
   if (pass.length < 6) { showToast('error', t('password')); return; }
   if (pass !== cp) { showToast('error', t('confirm_password')); return; }
   if (!terms) { showToast('warning', t('terms_agree')); return; }
@@ -825,19 +753,17 @@ window.register = async () => {
       createdAt: now.toISOString(),
       createdAtDate: now.toISOString().split('T')[0],
       createdAtTime: getTimeBn(now),
-      registrationIp: ipInfo.ip || '—', registrationLocation: ipInfo.location || '—',
-      registrationDevice: device.device, registrationBrowser: device.browser, registrationOS: device.os,
+      registrationIp: ipInfo.ip || '—', registrationDevice: device.device,
       settings: DEFAULT_SETTINGS
     });
     const histRef = push(ref(db, 'users/' + user.uid + '/loginHistory'));
-    await set(histRef, { id: histRef.key, date: now.toISOString().split('T')[0], time: getTimeBn(now), timestamp: now.getTime(), ip: ipInfo.ip || '—', device: device.device, browser: device.browser, action: 'Registration' });
+    await set(histRef, { id: histRef.key, date: now.toISOString().split('T')[0], time: getTimeBn(now), timestamp: now.getTime(), ip: ipInfo.ip || '—', device: device.device, action: 'Registration' });
     showToast('success', t('register_btn'));
     ['regName','regEmail','regPhone','regShopName','regAddress','regPassword','regConfirmPassword'].forEach(id => { const el = $(id); if (el) el.value = ''; });
     $('termsCheck').checked = false;
   } catch (e) {
     showToast('error', t('register_btn'), getFirebaseErrorMessage(e.code));
-    showLoader(false);
-    btn.disabled = false;
+    showLoader(false); btn.disabled = false;
     btn.innerHTML = '<i class="fas fa-rocket me-2"></i>' + t('register_btn');
   }
 };
@@ -864,46 +790,37 @@ window.logout = async () => {
   try { await signOut(auth); showToast('info', t('logout')); } catch (e) {}
 };
 
-/* ═══════════════════ IP & DEVICE ═══════════════════ */
 async function fetchIPInfo() {
   try {
     const r = await fetch('https://ipapi.co/json/');
     if (!r.ok) throw new Error('Failed');
     const data = await r.json();
     AppState.currentIP = data.ip || '—';
-    AppState.currentLocation = `${data.city || ''}${data.city && data.country_name ? ', ' : ''}${data.country_name || ''}` || '—';
-    return { ip: AppState.currentIP, location: AppState.currentLocation };
+    return { ip: AppState.currentIP };
   } catch (e) {
     try {
       const r2 = await fetch('https://api.ipify.org?format=json');
       const d2 = await r2.json();
       AppState.currentIP = d2.ip || '—';
-      return { ip: AppState.currentIP, location: '—' };
-    } catch (e2) { return { ip: '—', location: '—' }; }
+      return { ip: AppState.currentIP };
+    } catch (e2) { return { ip: '—' }; }
   }
 }
 
 function getDeviceInfo() {
   const ua = navigator.userAgent;
-  let device = 'Unknown', browser = 'Unknown', os = 'Unknown';
-  if (/Windows/i.test(ua)) os = 'Windows';
-  else if (/Mac/i.test(ua)) os = 'macOS';
-  else if (/Linux/i.test(ua)) os = 'Linux';
-  else if (/Android/i.test(ua)) os = 'Android';
-  else if (/iPhone|iPad|iPod/i.test(ua)) os = 'iOS';
+  let device = 'Desktop', browser = 'Unknown';
   if (/Mobile/i.test(ua)) device = 'Mobile';
   else if (/Tablet|iPad/i.test(ua)) device = 'Tablet';
-  else device = 'Desktop';
   if (/Edg/i.test(ua)) browser = 'Edge';
   else if (/Chrome/i.test(ua)) browser = 'Chrome';
   else if (/Firefox/i.test(ua)) browser = 'Firefox';
   else if (/Safari/i.test(ua)) browser = 'Safari';
-  return { device, browser, os };
+  return { device, browser };
 }
 
 /* ═══════════════════ AUTH STATE ═══════════════════ */
 onAuthStateChanged(auth, async (user) => {
-  // Cleanup all previous listeners
   AppState.unsubscribers.forEach(unsub => { try { unsub(); } catch (e) {} });
   AppState.unsubscribers = [];
 
@@ -918,15 +835,13 @@ onAuthStateChanged(auth, async (user) => {
     showLoader(false);
     const btn = $('loginBtn');
     if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-right-to-bracket me-2"></i>' + t('login_btn'); }
-    const rbtn = $('registerBtn');
-    if (rbtn) { rbtn.disabled = false; rbtn.innerHTML = '<i class="fas fa-rocket me-2"></i>' + t('register_btn'); }
     return;
   }
 
   AppState.currentUser = user;
   showLoader(true);
 
-  let ipInfo = { ip: '—', location: '—' };
+  let ipInfo = { ip: '—' };
   try { ipInfo = await fetchIPInfo(); } catch (e) {}
   const device = getDeviceInfo();
 
@@ -940,30 +855,19 @@ onAuthStateChanged(auth, async (user) => {
         email: user.email, phone: '', shopName: '', address: '',
         role: 'Staff', status: 'Active',
         createdAt: now.toISOString(),
-        createdAtDate: now.toISOString().split('T')[0],
-        createdAtTime: getTimeBn(now),
         settings: DEFAULT_SETTINGS
       });
       data = (await get(ref(db, 'users/' + user.uid))).val();
     } else { data = snap.val(); }
-  } catch (e) {
-    console.error(e);
-    showLoader(false);
-    return;
-  }
+  } catch (e) { showLoader(false); return; }
 
-  // ⭐ REAL-TIME BLOCK CHECK: If user is blocked while logged in, force logout
-  if (data.status === 'Blocked') {
+  // ⭐ REAL-TIME BLOCK CHECK
+  if (data.status === 'Blocked' && !AppState.impersonatingUser) {
     const blockUntil = data.blockUntil ? new Date(data.blockUntil) : null;
     if (!blockUntil || blockUntil > new Date()) {
       await signOut(auth);
       showLoader(false);
-      await Swal.fire({
-        icon: 'error',
-        title: currentLang === 'bn' ? 'অ্যাকাউন্ট ব্লক করা হয়েছে' : 'Account Blocked',
-        text: currentLang === 'bn' ? 'আপনার অ্যাকাউন্ট ব্লক করা হয়েছে।' : 'Your account has been blocked.',
-        confirmButtonText: 'OK'
-      });
+      await Swal.fire({ icon: 'error', title: currentLang === 'bn' ? 'অ্যাকাউন্ট ব্লক' : 'Account Blocked', confirmButtonText: 'OK' });
       return;
     }
   }
@@ -986,18 +890,14 @@ onAuthStateChanged(auth, async (user) => {
   AppState.currentUserFullName = activeData.fullName || 'User';
   const isAdmin = AppState.currentUserRole === 'Admin';
 
-  // Save login history
   if (!AppState.impersonatingUser) {
     (async () => {
       try {
         const now = new Date();
-        const newLoginEntry = { date: now.toISOString().split('T')[0], time: getTimeBn(now), timestamp: now.getTime(), ip: ipInfo.ip || '—', device: device.device, browser: device.browser, action: 'Login' };
-        await update(ref(db, 'users/' + user.uid), {
-          lastLogin: newLoginEntry, lastIp: ipInfo.ip || '—',
-          lastDevice: device.device, lastBrowser: device.browser
-        });
+        const loginEntry = { date: now.toISOString().split('T')[0], time: getTimeBn(now), timestamp: now.getTime(), ip: ipInfo.ip || '—', device: device.device, action: 'Login' };
+        await update(ref(db, 'users/' + user.uid), { lastLogin: loginEntry, lastIp: ipInfo.ip || '—', lastDevice: device.device });
         const histRef = push(ref(db, 'users/' + user.uid + '/loginHistory'));
-        await set(histRef, { id: histRef.key, ...newLoginEntry });
+        await set(histRef, { id: histRef.key, ...loginEntry });
       } catch (e) {}
     })();
   }
@@ -1032,7 +932,7 @@ onAuthStateChanged(auth, async (user) => {
   try { renderProfile(); } catch (e) {}
   try { loadLoginHistory(); } catch (e) {}
 
-  // ⭐ ADMIN: Listen to own user doc for real-time block check
+  // Real-time block check (self)
   if (!AppState.impersonatingUser) {
     const selfRef = onValue(ref(db, 'users/' + user.uid + '/status'), (snap) => {
       const status = snap.val();
@@ -1051,9 +951,7 @@ onAuthStateChanged(auth, async (user) => {
   try { showSection('dashboard'); } catch (e) {}
   showLoader(false);
 
-  setTimeout(() => {
-    try { showToast('success', t('welcome'), activeData.fullName || 'User'); } catch (e) {}
-  }, 300);
+  setTimeout(() => { try { showToast('success', t('welcome'), activeData.fullName || 'User'); } catch (e) {} }, 300);
 });
 
 /* ═══════════════════ INIT APP ═══════════════════ */
@@ -1094,12 +992,15 @@ function initApp() {
       res.innerHTML = '';
       if (q.length > 0) {
         const matches = AppState.inventory.filter(i => i.name.toLowerCase().includes(q) && parseInt(i.qty) > 0);
-        matches.forEach(item => {
+        matches.slice(0, 8).forEach(item => {
           res.innerHTML += `<button class="list-group-item list-group-item-action d-flex justify-content-between" onclick="selectProduct('${item.id}')">
             <span><strong>${escapeHtml(item.name)}</strong> <small class="text-muted">(${t('stock')}:${item.qty})</small></span>
             <b class="text-primary">৳${item.sellPrice}</b>
           </button>`;
         });
+        if (matches.length === 0) {
+          res.innerHTML = `<div class="text-center py-3 text-muted small"><i class="fas fa-search me-2"></i>${currentLang === 'bn' ? 'কোনো পণ্য পাওয়া যায়নি' : 'No products found'}</div>`;
+        }
       }
     }, 250));
   }
@@ -1107,10 +1008,6 @@ function initApp() {
   ['addProdQty','addProdBuyPrice','addProdSellPrice'].forEach(id => {
     const el = $(id);
     if (el && !el.dataset.bound) { el.dataset.bound = 'true'; el.addEventListener('input', updateAddProdLive); }
-  });
-  ['purchaseQty','purchasePrice'].forEach(id => {
-    const el = $(id);
-    if (el && !el.dataset.bound) { el.dataset.bound = 'true'; el.addEventListener('input', updatePurchaseLive); }
   });
 
   setText('currentDate', getDateBn(new Date()));
@@ -1127,17 +1024,9 @@ function updateAddProdLive() {
   setText('addProdTotalProfit', '৳' + formatMoney(profit * qty));
 }
 
-function updatePurchaseLive() {
-  const qty = parseFloat($('purchaseQty').value) || 0;
-  const price = parseFloat($('purchasePrice').value) || 0;
-  setText('purchaseTotalCost', formatMoney(qty * price));
-  const cur = parseFloat($('purchaseCurrentStock').textContent) || 0;
-  setText('purchaseNewStock', (cur + qty).toString());
-}
-
 window.previewPayDue = () => {
   const amount = parseFloat($('payAmount').value) || 0;
-  const curDue = parseFloat($('payCurrentDue').value.replace(/[^\d.]/g, '')) || 0;
+  const curDue = parseMoney($('payCurrentDue').value);
   const remaining = Math.max(0, curDue - amount);
   setText('payRemainingDue', '৳' + formatMoney(remaining));
   setHtml('payStatus', remaining <= 0 ? `<span class="tag tag-success">${currentLang === 'bn' ? 'সম্পূর্ণ' : 'Full'}</span>` : `<span class="tag tag-warning">${currentLang === 'bn' ? 'আংশিক' : 'Partial'}</span>`);
@@ -1145,8 +1034,8 @@ window.previewPayDue = () => {
 
 window.quickExpense = (desc) => { const el = $('addExpDesc'); if (el) el.value = desc; };
 window.openAddCustomerQuick = () => { new bootstrap.Modal($('quickAddCustomerModal')).show(); };
-window.increaseQty = () => { const el = $('productQty'); if (el) el.value = (parseInt(el.value) || 0) + 1; };
-window.decreaseQty = () => { const el = $('productQty'); if (el) el.value = Math.max(1, (parseInt(el.value) || 1) - 1); };
+window.increaseQty = () => { const el = $('productQty'); if (el) { el.value = (parseInt(el.value) || 0) + 1; updatePosPreview(); } };
+window.decreaseQty = () => { const el = $('productQty'); if (el) { el.value = Math.max(1, (parseInt(el.value) || 1) - 1); updatePosPreview(); } };
 
 /* ═══════════════════ PRODUCTS ═══════════════════ */
 window.renderProductCards = () => {
@@ -1228,27 +1117,15 @@ window.renderInventoryTable = () => {
 function getFilteredInventory() {
   const q = ($('inventorySearchFilter')?.value || '').toLowerCase();
   const sf = $('inventoryStockFilter')?.value || '';
-  const sort = $('inventorySortFilter')?.value || 'name';
-  let arr = AppState.inventory.filter(i => {
+  return AppState.inventory.filter(i => {
     if (q && !i.name.toLowerCase().includes(q)) return false;
     if (sf === 'low' && parseInt(i.qty) > LOW_STOCK_THRESHOLD) return false;
     if (sf === 'ok' && parseInt(i.qty) <= LOW_STOCK_THRESHOLD) return false;
-    if (sf === 'out' && parseInt(i.qty) > 0) return false;
     return true;
   });
-  arr.sort((a, b) => {
-    if (sort === 'qty-asc') return parseInt(a.qty) - parseInt(b.qty);
-    if (sort === 'qty-desc') return parseInt(b.qty) - parseInt(a.qty);
-    if (sort === 'profit-high') return (parseFloat(b.sellPrice) - parseFloat(b.buyPrice)) - (parseFloat(a.sellPrice) - parseFloat(a.buyPrice));
-    return a.name.localeCompare(b.name);
-  });
-  return arr;
 }
 
-function getFilteredInventoryList() {
-  const q = ($('inventoryListSearchFilter')?.value || '').toLowerCase();
-  return AppState.inventory.filter(i => !q || i.name.toLowerCase().includes(q));
-}
+function getFilteredInventoryList() { return [...AppState.inventory]; }
 window.filterInventory = () => renderProductCards();
 window.filterInventoryList = () => renderInventoryTable();
 
@@ -1280,13 +1157,19 @@ window.updateInventory = async () => {
   showLoader(false);
 };
 
+/* ⭐ SELL PRODUCT — Pre-fills POS correctly */
 window.sellProduct = (id) => {
   const p = AppState.inventory.find(i => i.id === id);
   if (!p) return;
+  if (parseInt(p.qty) <= 0) { showToast('error', currentLang === 'bn' ? 'স্টক নেই' : 'Out of stock', p.name); return; }
+
   showSection('sales');
   AppState.lastSelectedProductId = id;
   $('productSearch').value = p.name;
+  $('productSearchResults').innerHTML = '';
   $('productQty').value = '1';
+  updatePosPreview();
+  showToast('info', t('selected_product'), p.name);
 };
 
 window.purchaseProductModal = (id) => {
@@ -1349,10 +1232,7 @@ window.renderCustomerCards = () => {
   if (!c) return;
   const f = getFilteredCustomers();
   setText('customerCount', `${f.length} ${t('customers')}`);
-  if (f.length === 0) {
-    c.innerHTML = `<div class="col-12"><div class="empty-state"><i class="fas fa-users"></i><h5>0</h5><button class="btn btn-gradient" data-bs-toggle="modal" data-bs-target="#addCustomerModal"><i class="fas fa-plus"></i>${t('new_customer')}</button></div></div>`;
-    return;
-  }
+  if (f.length === 0) { c.innerHTML = `<div class="col-12"><div class="empty-state"><i class="fas fa-users"></i><h5>0</h5><button class="btn btn-gradient" data-bs-toggle="modal" data-bs-target="#addCustomerModal"><i class="fas fa-plus"></i>${t('new_customer')}</button></div></div>`; return; }
   const fragment = document.createDocumentFragment();
   f.forEach(cust => {
     const hasDue = parseFloat(cust.due) > 0;
@@ -1515,22 +1395,6 @@ window.renderExpenses = (exp) => {
   }
 };
 
-window.filterExpenseList = () => {
-  let exp = [...AppState.allExpensesCache];
-  const q = ($('expenseSearchFilter')?.value || '').toLowerCase();
-  const from = $('expenseDateFrom')?.value;
-  const to = $('expenseDateTo')?.value;
-  if (q) exp = exp.filter(e => e.title.toLowerCase().includes(q));
-  if (from) exp = exp.filter(e => e.date >= from);
-  if (to) exp = exp.filter(e => e.date <= to);
-  renderExpenses(exp);
-};
-
-window.resetExpenseFilters = () => {
-  ['expenseSearchFilter','expenseDateFrom','expenseDateTo'].forEach(id => { const el = $(id); if (el) el.value = ''; });
-  renderExpenses(AppState.allExpensesCache);
-};
-
 window.renderExpenseChart = (exp) => {
   const ctx = $('expenseChart')?.getContext('2d');
   if (!ctx) return;
@@ -1543,7 +1407,7 @@ window.renderExpenseChart = (exp) => {
   if (AppState.charts.expense) AppState.charts.expense.destroy();
   AppState.charts.expense = new Chart(ctx, {
     type: 'bar',
-    data: { labels: last7.map(d => d.label), datasets: [{ label: t('expenses'), data: last7.map(d => d.amount), backgroundColor: 'rgba(239,68,68,0.7)', borderRadius: 8 }] },
+    data: { labels: last7.map(d => d.label), datasets: [{ data: last7.map(d => d.amount), backgroundColor: 'rgba(239,68,68,0.7)', borderRadius: 8 }] },
     options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
   });
   const today = new Date().toISOString().split('T')[0];
@@ -1570,64 +1434,6 @@ window.addExpense = async () => {
     ['addExpDesc','addExpAmt'].forEach(id => { const el = $(id); if (el) el.value = ''; });
   } catch (e) { showToast('error', e.message); }
   showLoader(false);
-};
-
-/* ═══════════════════ SALES LIST ═══════════════════ */
-window.renderSalesList = (sales) => {
-  const tbody = $('salesTableBody');
-  if (!tbody) return;
-  setText('salesListCount', `${sales.length} ${t('sales')}`);
-  if (sales.length === 0) { tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted py-4">0</td></tr>`; return; }
-  const fragment = document.createDocumentFragment();
-  sales.slice().reverse().forEach(s => {
-    const d = s.date ? new Date(s.date) : new Date();
-    const cls = parseFloat(s.due) > 0 ? 'text-danger' : 'text-success';
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td><strong>${escapeHtml(s.invoiceNo || 'N/A')}</strong></td>
-      <td>${escapeHtml(s.customerName || '—')}</td>
-      <td>${escapeHtml(s.name || '')}</td>
-      <td class="fw-bold">৳${s.totalAmount}</td>
-      <td class="text-success">৳${s.paid || 0}</td>
-      <td class="${cls} fw-bold">৳${s.due || 0}</td>
-      <td>${getDateBn(d)}<br><small class="text-muted">${escapeHtml(s.time || '—')}</small></td>
-      <td>
-        <button class="btn btn-sm btn-outline-primary" onclick="printInvoice('${s.id}')"><i class="fas fa-print"></i></button>
-        <button class="btn btn-sm btn-outline-success" onclick="downloadInvoice('${s.id}')"><i class="fas fa-download"></i></button>
-      </td>`;
-    fragment.appendChild(tr);
-  });
-  tbody.innerHTML = ''; tbody.appendChild(fragment);
-  const footer = $('salesTableFooter');
-  if (footer) {
-    const totalAmount = sales.reduce((s, x) => s + parseFloat(x.totalAmount || 0), 0);
-    const totalPaid = sales.reduce((s, x) => s + parseFloat(x.paid || 0), 0);
-    const totalDue = sales.reduce((s, x) => s + parseFloat(x.due || 0), 0);
-    footer.innerHTML = `
-      <div class="table-footer-stat"><small>${t('sales_list')}</small><strong>${sales.length}</strong></div>
-      <div class="table-footer-stat"><small>${t('total')}</small><strong class="text-primary">৳${formatMoney(totalAmount)}</strong></div>
-      <div class="table-footer-stat"><small>${t('paid')}</small><strong class="text-success">৳${formatMoney(totalPaid)}</strong></div>
-      <div class="table-footer-stat"><small>${t('due')}</small><strong class="text-danger">৳${formatMoney(totalDue)}</strong></div>`;
-  }
-};
-
-window.filterSalesList = () => {
-  let sales = [...AppState.allSalesCache];
-  const q = ($('salesSearchFilter')?.value || '').toLowerCase();
-  const from = $('salesDateFrom')?.value;
-  const to = $('salesDateTo')?.value;
-  const st = $('salesStatusFilter')?.value;
-  if (q) sales = sales.filter(s => (s.invoiceNo || '').toLowerCase().includes(q) || (s.customerName || '').toLowerCase().includes(q));
-  if (from) sales = sales.filter(s => s.date >= from);
-  if (to) sales = sales.filter(s => s.date <= to);
-  if (st === 'paid') sales = sales.filter(s => parseFloat(s.due) <= 0);
-  if (st === 'due') sales = sales.filter(s => parseFloat(s.due) > 0);
-  renderSalesList(sales);
-};
-
-window.resetSalesFilters = () => {
-  ['salesSearchFilter','salesDateFrom','salesDateTo','salesStatusFilter'].forEach(id => { const el = $(id); if (el) el.value = ''; });
-  renderSalesList(AppState.allSalesCache);
 };
 
 /* ═══════════════════ DASHBOARD ═══════════════════ */
@@ -1659,7 +1465,7 @@ window.updateChartPeriod = (days, btn) => {
   if (!ctx) return;
   AppState.charts.sales = new Chart(ctx, {
     type: 'line',
-    data: { labels, datasets: [{ label: t('sales'), data, borderColor: '#6366f1', backgroundColor: 'rgba(99,102,241,0.1)', fill: true, tension: 0.4, pointBackgroundColor: '#6366f1', pointRadius: 5, borderWidth: 3 }] },
+    data: { labels, datasets: [{ data, borderColor: '#6366f1', backgroundColor: 'rgba(99,102,241,0.1)', fill: true, tension: 0.4, pointBackgroundColor: '#6366f1', pointRadius: 5, borderWidth: 3 }] },
     options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
   });
 };
@@ -1699,7 +1505,7 @@ window.updateTotalExpense = (exp) => {
   const totalExpense = exp.reduce((s, i) => s + parseFloat(i.amount || 0), 0);
   setText('totalExpense', formatMoney(totalExpense));
   setText('repExpense', formatMoney(totalExpense));
-  const ts = parseFloat(($('totalSales')?.textContent || '0').replace(/[^\d.]/g, '')) || 0;
+  const ts = parseMoney($('totalSales')?.textContent);
   const net = ts - totalExpense;
   setText('repProfit', formatMoney(net));
   setText('netProfitQuick', '৳' + formatMoney(net));
@@ -1732,13 +1538,39 @@ window.updateCustomerDue = () => {
   calculateCartTotal();
 };
 
+/* ⭐ SELECT PRODUCT FROM SEARCH RESULTS */
 window.selectProduct = (id) => {
   AppState.lastSelectedProductId = id;
   const item = AppState.inventory.find(i => i.id === id);
   if (item) {
     $('productSearch').value = item.name;
     $('productSearchResults').innerHTML = '';
+    updatePosPreview();
+    showToast('info', t('selected_product'), item.name);
   }
+};
+
+window.selectFirstProductMatch = () => {
+  const q = $('productSearch').value.toLowerCase();
+  const matches = AppState.inventory.filter(i => i.name.toLowerCase().includes(q) && parseInt(i.qty) > 0);
+  if (matches.length > 0) selectProduct(matches[0].id);
+};
+
+/* ⭐ UPDATE POS PREVIEW */
+window.updatePosPreview = () => {
+  const preview = $('posPreview');
+  if (!preview) return;
+  if (!AppState.lastSelectedProductId) { preview.style.display = 'none'; return; }
+  const p = AppState.inventory.find(i => i.id === AppState.lastSelectedProductId);
+  if (!p) { preview.style.display = 'none'; return; }
+  const qty = parseInt($('productQty').value) || 1;
+  const price = parseFloat(p.sellPrice) || 0;
+  preview.style.display = 'block';
+  setText('posPreviewName', p.name);
+  setText('posPreviewPrice', price);
+  setText('posPreviewQty', qty);
+  setText('posPreviewTotal', formatMoney(price * qty));
+  setText('posPreviewStock', p.qty);
 };
 
 function updateQuickStats() {
@@ -1790,30 +1622,45 @@ window.renderRecentTransactions = (sales) => {
   l.appendChild(fragment);
 };
 
-/* ═══════════════════ CART ═══════════════════ */
+/* ═══════════════════ ⭐ CART — PROFESSIONAL & ACCURATE ═══════════════════ */
 window.addToCartFromSearch = () => {
   const id = AppState.lastSelectedProductId;
   if (!id) { showToast('warning', t('product')); return; }
   const item = AppState.inventory.find(i => i.id === id);
-  if (!item) return;
+  if (!item) { showToast('error', t('product')); return; }
+
   const qty = parseInt($('productQty').value) || 1;
-  if (parseInt(item.qty) < qty) { showToast('error', t('stock'), `${item.qty}`); return; }
+  if (qty <= 0) { showToast('error', t('quantity')); return; }
+  if (parseInt(item.qty) < qty) { showToast('error', t('stock'), `${t('available_stock')}: ${item.qty}`); return; }
+
   const idx = AppState.cart.findIndex(i => i.id === id);
-  if (idx > -1) { AppState.cart[idx].qty += qty; }
-  else { AppState.cart.push({ id: item.id, name: item.name, price: parseFloat(item.sellPrice), qty }); }
+  if (idx > -1) {
+    const newQty = AppState.cart[idx].qty + qty;
+    if (newQty > parseInt(item.qty)) { showToast('error', t('stock'), `${t('available_stock')}: ${item.qty}`); return; }
+    AppState.cart[idx].qty = newQty;
+  } else {
+    AppState.cart.push({ id: item.id, name: item.name, price: parseFloat(item.sellPrice), qty });
+  }
+
   renderCart();
   AppState.lastSelectedProductId = null;
   $('productSearch').value = '';
   $('productSearchResults').innerHTML = '';
   $('productQty').value = '1';
-  showToast('success', t('add'), `${item.name} × ${qty}`);
+  $('posPreview').style.display = 'none';
+  showToast('success', t('add_to_cart'), `${item.name} × ${qty}`);
 };
 
 window.removeFromCart = (i) => { AppState.cart.splice(i, 1); renderCart(); };
 
 window.clearCart = async () => {
+  if (AppState.cart.length === 0) return;
   const ok = await showConfirm(t('clear'), t('cart') + '?', { type: 'warning' });
-  if (ok) { AppState.cart = []; renderCart(); showToast('info', t('clear')); }
+  if (ok) {
+    AppState.cart = [];
+    renderCart();
+    showToast('info', t('clear'));
+  }
 };
 
 window.renderCart = () => {
@@ -1821,26 +1668,34 @@ window.renderCart = () => {
   if (!c) return;
   c.innerHTML = '';
   setText('cartCountBadge', AppState.cart.length);
+
   if (AppState.cart.length === 0) {
     c.innerHTML = `<div class="empty-state py-4"><i class="fas fa-shopping-cart"></i><p class="mb-0">${t('cart')}: 0</p></div>`;
-    setText('cartTotal', '0.00'); setText('cartSubtotal', '0.00');
-    setText('cartDiscount', '0.00'); setText('duePreview', '৳0.00');
+    setText('cartSubtotal', '0.00');
+    setText('cartDiscount', '0.00');
+    setText('cartTotal', '0.00');
+    setText('changeAmount', '৳0.00');
+    setText('duePreview', '৳0.00');
+    setText('btnCompleteTotal', '0.00');
     const btn = $('completeSaleBtn'); if (btn) btn.disabled = true;
     return;
   }
+
   let subtotal = 0;
   const fragment = document.createDocumentFragment();
   AppState.cart.forEach((item, i) => {
     const tot = item.price * item.qty;
     subtotal += tot;
     const div = document.createElement('div');
-    div.style.cssText = 'display:flex;justify-content:space-between;align-items:center;padding:10px;border-bottom:1px solid var(--border);';
+    div.className = 'cart-item-pro';
     div.innerHTML = `
-      <div><div class="fw-bold">${escapeHtml(item.name)}</div><div class="small text-muted">৳${item.price} × ${item.qty}</div></div>
-      <div class="d-flex align-items-center gap-2">
-        <span class="fw-bold">৳${formatMoney(tot)}</span>
-        <button class="btn btn-sm btn-outline-danger" onclick="removeFromCart(${i})"><i class="fas fa-times"></i></button>
-      </div>`;
+      <div class="cart-item-info">
+        <strong>${escapeHtml(item.name)}</strong>
+        <small>৳${formatMoney(item.price)} × ${item.qty}</small>
+      </div>
+      <div class="cart-item-price">৳${formatMoney(tot)}</div>
+      <button class="btn btn-sm btn-outline-danger" onclick="removeFromCart(${i})"><i class="fas fa-times"></i></button>
+    `;
     fragment.appendChild(div);
   });
   c.appendChild(fragment);
@@ -1848,66 +1703,193 @@ window.renderCart = () => {
   calculateCartTotal();
 };
 
+/* ⭐ CRITICAL: ACCURATE CART CALCULATION */
 window.calculateCartTotal = () => {
-  const subtotal = parseFloat(($('cartSubtotal')?.textContent || '0').replace(/[^\d.]/g, '')) || 0;
-  const discount = parseFloat($('discountInput')?.value) || 0;
+  const subtotal = parseMoney($('cartSubtotal')?.textContent);
+  const discount = Math.max(0, parseFloat($('discountInput')?.value) || 0);
   const total = Math.max(0, subtotal - discount);
-  const paid = parseFloat($('paidAmount')?.value) || 0;
+  const paid = Math.max(0, parseFloat($('paidAmount')?.value) || 0);
   const change = Math.max(0, paid - total);
   const due = Math.max(0, total - paid);
+
   setText('cartDiscount', formatMoney(discount));
   setText('cartTotal', formatMoney(total));
   setText('changeAmount', '৳' + formatMoney(change));
   setText('duePreview', '৳' + formatMoney(due));
-  const cc = $('cartLiveCard'); if (cc) cc.classList.toggle('active', AppState.cart.length > 0);
-  const btn = $('completeSaleBtn'); if (btn) btn.disabled = AppState.cart.length === 0;
+  setText('btnCompleteTotal', formatMoney(total));
+
+  const btn = $('completeSaleBtn');
+  if (btn) btn.disabled = AppState.cart.length === 0;
+
   const s1 = $('step1'), s2 = $('step2');
   if (s1) s1.classList.toggle('done', AppState.cart.length > 0);
   if (s2) s2.classList.toggle('active', AppState.cart.length > 0);
 };
 
+window.quickPay = (type) => {
+  const el = $('paidAmount');
+  if (!el) return;
+  if (type === 'cartTotal') {
+    el.value = parseMoney($('cartTotal').textContent);
+  } else {
+    el.value = (parseFloat(el.value) || 0) + type;
+  }
+  calculateCartTotal();
+};
+
+/* ⭐ CRITICAL: COMPLETE SALE — Accurate accounting */
 window.completeSale = async () => {
   if (AppState.cart.length === 0) { showToast('warning', t('cart')); return; }
+
   const s = $('customerSelect');
   const cId = s.value;
   const cDue = parseFloat(s.options[s.selectedIndex]?.getAttribute('data-due')) || 0;
-  const paid = parseFloat($('paidAmount').value) || 0;
-  const discount = parseFloat($('discountInput').value) || 0;
-  const subtotal = parseFloat(($('cartSubtotal').textContent || '0').replace(/[^\d.]/g, '')) || 0;
+  const paid = Math.max(0, parseFloat($('paidAmount').value) || 0);
+  const discount = Math.max(0, parseFloat($('discountInput').value) || 0);
+  const subtotal = parseMoney($('cartSubtotal').textContent);
   const total = Math.max(0, subtotal - discount);
   const due = Math.max(0, total - paid);
+
+  // Validate
   if (due > 0 && !cId) { showToast('warning', t('customer')); return; }
-  const ok = await showConfirm(t('complete_sale'), `${t('total')}: ৳${formatMoney(total)} | ${t('paid')}: ৳${formatMoney(paid)} | ${t('due')}: ৳${formatMoney(due)}`, { type: 'success', okText: t('complete_sale') });
+
+  // Validate stock again
+  for (const item of AppState.cart) {
+    const inv = AppState.inventory.find(i => i.id === item.id);
+    if (!inv || parseInt(inv.qty) < item.qty) {
+      showToast('error', t('stock'), `${item.name}: ${inv?.qty || 0}`);
+      return;
+    }
+  }
+
+  const cName = cId ? (s.options[s.selectedIndex]?.text.split('(')[0].trim() || '—') : (currentLang === 'bn' ? 'সাধারণ কাস্টমার' : 'General Customer');
+
+  const ok = await showConfirm(
+    t('complete_sale'),
+    `${t('total')}: ৳${formatMoney(total)} | ${t('paid')}: ৳${formatMoney(paid)} | ${t('due')}: ৳${formatMoney(due)}`,
+    { type: 'success', okText: t('complete_sale') }
+  );
   if (!ok) return;
+
   showLoader(true);
   try {
     const uid = AppState.impersonatingUser || AppState.currentUser.uid;
     const r = push(ref(db, 'users/' + uid + '/sales'));
-    const cName = s.options[s.selectedIndex]?.text.split('(')[0].trim() || 'Cash';
     const now = new Date();
     const invoiceNo = 'INV-' + Date.now().toString().slice(-6);
+
+    // Save sale record
     await set(r, {
-      id: r.key, invoiceNo, name: AppState.cart.map(i => i.name).join(', '),
-      qty: AppState.cart.reduce((a, b) => a + b.qty, 0), totalAmount: total, paid, due,
-      customerId: cId, customerName: cName,
-      date: now.toISOString().split('T')[0], time: getTimeBn(now), createdAt: now.toISOString()
+      id: r.key,
+      invoiceNo,
+      name: AppState.cart.map(i => i.name).join(', '),
+      qty: AppState.cart.reduce((a, b) => a + b.qty, 0),
+      totalAmount: total,
+      subtotal: subtotal,
+      discount: discount,
+      paid: paid,
+      due: due,
+      customerId: cId || null,
+      customerName: cName,
+      date: now.toISOString().split('T')[0],
+      time: getTimeBn(now),
+      createdAt: now.toISOString()
     });
-    if (due > 0 && cId) { await update(ref(db, 'users/' + uid + '/customers/' + cId), { due: cDue + due }); }
+
+    // Update customer due
+    if (due > 0 && cId) {
+      await update(ref(db, 'users/' + uid + '/customers/' + cId), { due: cDue + due });
+    }
+
+    // Reduce stock
     for (const item of AppState.cart) {
       const inv = AppState.inventory.find(i => i.id === item.id);
-      if (inv) { await update(ref(db, 'users/' + uid + '/inventory/' + inv.id), { qty: parseInt(inv.qty) - item.qty }); }
+      if (inv) {
+        const newQty = parseInt(inv.qty) - item.qty;
+        await update(ref(db, 'users/' + uid + '/inventory/' + inv.id), { qty: Math.max(0, newQty) });
+      }
     }
-    logActivity('বিক্রয়', `${cName} - ${AppState.cart.length} items`, total, { customerName: cName, invoiceNo });
+
+    logActivity('বিক্রয়', `${cName} - ${AppState.cart.length} ${currentLang === 'bn' ? 'পণ্য' : 'items'}`, total, {
+      customerName: cName,
+      invoiceNo
+    });
+
+    // Reset
     AppState.cart = [];
     renderCart();
     $('paidAmount').value = '';
     $('discountInput').value = '0';
+    AppState.lastSelectedProductId = null;
+    $('posPreview').style.display = 'none';
+
     showToast('success', t('complete_sale'), `৳${formatMoney(total)}`);
-  } catch (e) { showToast('error', e.message); }
+  } catch (e) {
+    console.error('Sale error:', e);
+    showToast('error', t('complete_sale'), e.message);
+  }
   showLoader(false);
 };
 
-/* ═══════════════════ INVOICE / EXPORTS ═══════════════════ */
+/* ═══════════════════ SALES LIST ═══════════════════ */
+window.renderSalesList = (sales) => {
+  const tbody = $('salesTableBody');
+  if (!tbody) return;
+  setText('salesListCount', `${sales.length} ${t('sales')}`);
+  if (sales.length === 0) { tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted py-4">0</td></tr>`; return; }
+  const fragment = document.createDocumentFragment();
+  sales.slice().reverse().forEach(s => {
+    const d = s.date ? new Date(s.date) : new Date();
+    const cls = parseFloat(s.due) > 0 ? 'text-danger' : 'text-success';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><strong>${escapeHtml(s.invoiceNo || 'N/A')}</strong></td>
+      <td>${escapeHtml(s.customerName || '—')}</td>
+      <td><span class="small">${escapeHtml(s.name || '')}</span></td>
+      <td class="fw-bold">৳${s.totalAmount}</td>
+      <td class="text-success">৳${s.paid || 0}</td>
+      <td class="${cls} fw-bold">৳${s.due || 0}</td>
+      <td>${getDateBn(d)}<br><small class="text-muted">${escapeHtml(s.time || '—')}</small></td>
+      <td>
+        <button class="btn btn-sm btn-outline-primary" onclick="printInvoice('${s.id}')"><i class="fas fa-print"></i></button>
+        <button class="btn btn-sm btn-outline-success" onclick="downloadInvoice('${s.id}')"><i class="fas fa-download"></i></button>
+      </td>`;
+    fragment.appendChild(tr);
+  });
+  tbody.innerHTML = ''; tbody.appendChild(fragment);
+  const footer = $('salesTableFooter');
+  if (footer) {
+    const totalAmount = sales.reduce((s, x) => s + parseFloat(x.totalAmount || 0), 0);
+    const totalPaid = sales.reduce((s, x) => s + parseFloat(x.paid || 0), 0);
+    const totalDue = sales.reduce((s, x) => s + parseFloat(x.due || 0), 0);
+    footer.innerHTML = `
+      <div class="table-footer-stat"><small>${t('sales_list')}</small><strong>${sales.length}</strong></div>
+      <div class="table-footer-stat"><small>${t('total')}</small><strong class="text-primary">৳${formatMoney(totalAmount)}</strong></div>
+      <div class="table-footer-stat"><small>${t('paid')}</small><strong class="text-success">৳${formatMoney(totalPaid)}</strong></div>
+      <div class="table-footer-stat"><small>${t('due')}</small><strong class="text-danger">৳${formatMoney(totalDue)}</strong></div>`;
+  }
+};
+
+window.filterSalesList = () => {
+  let sales = [...AppState.allSalesCache];
+  const q = ($('salesSearchFilter')?.value || '').toLowerCase();
+  const from = $('salesDateFrom')?.value;
+  const to = $('salesDateTo')?.value;
+  const st = $('salesStatusFilter')?.value;
+  if (q) sales = sales.filter(s => (s.invoiceNo || '').toLowerCase().includes(q) || (s.customerName || '').toLowerCase().includes(q));
+  if (from) sales = sales.filter(s => s.date >= from);
+  if (to) sales = sales.filter(s => s.date <= to);
+  if (st === 'paid') sales = sales.filter(s => parseFloat(s.due) <= 0);
+  if (st === 'due') sales = sales.filter(s => parseFloat(s.due) > 0);
+  renderSalesList(sales);
+};
+
+window.resetSalesFilters = () => {
+  ['salesSearchFilter','salesDateFrom','salesDateTo','salesStatusFilter'].forEach(id => { const el = $(id); if (el) el.value = ''; });
+  renderSalesList(AppState.allSalesCache);
+};
+
+/* INVOICE */
 window.printInvoice = (id) => {
   const s = AppState.allSalesCache.find(x => x.id === id);
   if (!s) return;
@@ -1930,6 +1912,7 @@ window.downloadInvoice = (id) => {
   showToast('success', t('download'));
 };
 
+/* EXPORTS */
 window.exportSales = () => {
   let c = 'Invoice,Customer,Products,Total,Paid,Due,Date\n';
   AppState.allSalesCache.forEach(s => { c += `${s.invoiceNo},${s.customerName},"${s.name}",${s.totalAmount},${s.paid},${s.due},${s.date}\n`; });
@@ -1937,51 +1920,36 @@ window.exportSales = () => {
   showToast('success', t('export'));
 };
 
-window.exportInventory = () => {
-  let c = 'Name,Qty,BuyPrice,SellPrice,Profit\n';
-  AppState.inventory.forEach(i => { c += `${i.name},${i.qty},${i.buyPrice},${i.sellPrice},${(i.sellPrice - i.buyPrice).toFixed(2)}\n`; });
-  downloadFile(c, 'inventory.csv');
-  showToast('success', t('export'));
-};
-
-window.exportExpenses = () => {
-  let c = 'Description,Amount,Date,Time\n';
-  AppState.allExpensesCache.forEach(e => { c += `${e.title},${e.amount},${e.date}\n`; });
-  downloadFile(c, 'expenses.csv');
-  showToast('success', t('export'));
-};
-
 window.exportMasterList = () => {
   const type = $('masterDataType').value;
   let c = '';
   if (type === 'all' || type === 'sales') {
-    c += '\n=== SALES ===\nInvoice,Customer,Products,Total,Paid,Due,Date\n';
+    c += '\n=== SALES ===\n';
     AppState.allSalesCache.forEach(s => { c += `${s.invoiceNo},${s.customerName},"${s.name}",${s.totalAmount},${s.paid},${s.due},${s.date}\n`; });
   }
   if (type === 'all' || type === 'inventory') {
-    c += '\n=== INVENTORY ===\nName,Qty,Buy,Sell\n';
+    c += '\n=== INVENTORY ===\n';
     AppState.inventory.forEach(i => { c += `${i.name},${i.qty},${i.buyPrice},${i.sellPrice}\n`; });
   }
   if (type === 'all' || type === 'customers') {
-    c += '\n=== CUSTOMERS ===\nName,Phone,Due\n';
+    c += '\n=== CUSTOMERS ===\n';
     AppState.customers.forEach(x => { c += `${x.name},${x.phone},${x.due}\n`; });
   }
   if (type === 'all' || type === 'expenses') {
-    c += '\n=== EXPENSES ===\nDesc,Amount,Date\n';
+    c += '\n=== EXPENSES ===\n';
     AppState.allExpensesCache.forEach(e => { c += `${e.title},${e.amount},${e.date}\n`; });
   }
   downloadFile(c, 'master-list.csv');
   showToast('success', t('export'));
 };
 
-/* ═══════════════════ BACKUP/RESTORE ═══════════════════ */
 window.exportAllData = () => {
   const backup = {
-    exportedAt: new Date().toISOString(), version: '10.0',
+    exportedAt: new Date().toISOString(), version: '11.0',
     user: { email: AppState.currentUser.email, uid: AppState.currentUser.uid, fullName: AppState.currentUserFullName },
     inventory: AppState.inventory, customers: AppState.customers,
     sales: AppState.allSalesCache, expenses: AppState.allExpensesCache,
-    activityLog: AppState.activityLog, settings: AppState.userSettings
+    settings: AppState.userSettings
   };
   downloadFile(JSON.stringify(backup, null, 2), `hesabkhata-backup-${new Date().toISOString().split('T')[0]}.json`, 'application/json');
   showToast('success', t('export_all'));
@@ -1989,13 +1957,13 @@ window.exportAllData = () => {
 
 window.exportAllCSV = () => {
   let c = `=== BACKUP ===\nDate: ${new Date().toLocaleString()}\n\n`;
-  c += '=== INVENTORY ===\nName,Qty,Buy,Sell\n';
+  c += '=== INVENTORY ===\n';
   AppState.inventory.forEach(i => { c += `${i.name},${i.qty},${i.buyPrice},${i.sellPrice}\n`; });
-  c += '\n=== CUSTOMERS ===\nName,Phone,Due\n';
+  c += '\n=== CUSTOMERS ===\n';
   AppState.customers.forEach(x => { c += `${x.name},${x.phone},${x.due}\n`; });
-  c += '\n=== SALES ===\nInvoice,Customer,Total,Paid,Due,Date\n';
+  c += '\n=== SALES ===\n';
   AppState.allSalesCache.forEach(s => { c += `${s.invoiceNo},${s.customerName},${s.totalAmount},${s.paid},${s.due},${s.date}\n`; });
-  c += '\n=== EXPENSES ===\nDesc,Amount,Date\n';
+  c += '\n=== EXPENSES ===\n';
   AppState.allExpensesCache.forEach(e => { c += `${e.title},${e.amount},${e.date}\n`; });
   downloadFile(c, `hesabkhata-full-${new Date().toISOString().split('T')[0]}.csv`);
   showToast('success', t('csv_export'));
@@ -2086,7 +2054,7 @@ function renderReports(sales) {
   if (mc) {
     AppState.charts.monthly = new Chart(mc, {
       type: 'bar',
-      data: { labels: ml, datasets: [{ label: t('monthly_sales'), data: ml.map(m => months[m]), backgroundColor: 'rgba(99,102,241,0.7)', borderRadius: 8 }] },
+      data: { labels: ml, datasets: [{ data: ml.map(m => months[m]), backgroundColor: 'rgba(99,102,241,0.7)', borderRadius: 8 }] },
       options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
     });
   }
@@ -2113,16 +2081,12 @@ function renderReports(sales) {
 window.renderMasterList = () => {
   const type = $('masterDataType')?.value || 'all';
   const q = ($('masterSearchFilter')?.value || '').toLowerCase();
-  const from = $('masterDateFrom')?.value || '';
-  const to = $('masterDateTo')?.value || '';
   const th = $('masterTableHead'), tb = $('masterTableBody');
   if (!th || !tb) return;
   let headers = [], rows = [];
   if (type === 'all' || type === 'sales') {
     AppState.allSalesCache.forEach(s => {
       if (q && !(s.invoiceNo || '').toLowerCase().includes(q)) return;
-      if (from && s.date < from) return;
-      if (to && s.date > to) return;
       rows.push([`<span class="tag tag-primary">${t('sales')}</span>`, s.invoiceNo, s.customerName, '৳' + s.totalAmount, s.date, s.time || '—']);
     });
   }
@@ -2141,8 +2105,6 @@ window.renderMasterList = () => {
   if (type === 'all' || type === 'expenses') {
     AppState.allExpensesCache.forEach(e => {
       if (q && !e.title.toLowerCase().includes(q)) return;
-      if (from && e.date < from) return;
-      if (to && e.date > to) return;
       rows.push([`<span class="tag tag-danger">${t('expenses')}</span>`, e.title, '৳' + e.amount, e.date, e.time || '—', '']);
     });
   }
@@ -2178,13 +2140,9 @@ function renderProfile() {
   setText('infoPhone', data.phone || '—');
   setText('infoShopName', data.shopName || '—');
   setText('infoAddress', data.address || '—');
-  setText('infoRole', AppState.currentUserRole);
-  setText('infoIp', data.lastIp || data.registrationIp || AppState.currentIP || '—');
-  setText('infoDevice', data.lastDevice || data.registrationDevice || '—');
+  setText('infoIp', data.lastIp || AppState.currentIP || '—');
+  setText('infoDevice', data.lastDevice || '—');
   setText('infoLastLogin', data.lastLogin ? `${data.lastLogin.date} • ${data.lastLogin.time}` : '—');
-  const status = data.status || 'Active';
-  const statusEl = $('infoAccountStatus');
-  if (statusEl) { statusEl.textContent = status; statusEl.className = status === 'Active' ? 'text-success' : 'text-danger'; }
 }
 window.renderProfile = renderProfile;
 
@@ -2232,7 +2190,6 @@ window.sendPasswordReset = async () => {
   } catch (e) { showToast('error', e.message); }
 };
 
-/* ═══════════════════ LOGIN HISTORY ═══════════════════ */
 function loadLoginHistory() {
   if (!AppState.currentUser) return;
   const uid = AppState.impersonatingUser || AppState.currentUser.uid;
@@ -2245,16 +2202,15 @@ function loadLoginHistory() {
 }
 
 function renderLoginHistory() {
-  const el = $('loginHistoryList'), cnt = $('loginHistoryCount'), modalEl = $('loginHistoryModalContent');
-  if (cnt) cnt.textContent = AppState.loginHistory.length;
+  const el = $('loginHistoryList'), modalEl = $('loginHistoryModalContent');
   const html = AppState.loginHistory.length === 0
     ? `<div class="text-center text-muted py-3"><i class="fas fa-clock-rotate-left fa-2x mb-2"></i><p>0</p></div>`
     : AppState.loginHistory.slice(0, 20).map(h => `
-        <div class="login-history-item">
-          <div class="lh-icon"><i class="fas fa-right-to-bracket"></i></div>
-          <div class="lh-content">
-            <div class="lh-title">${escapeHtml(h.action || 'Login')}</div>
-            <div class="lh-meta">
+        <div class="login-history-item" style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--border-light);">
+          <div class="lh-icon" style="width:36px;height:36px;border-radius:50%;background:var(--primary-soft);color:var(--primary);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fas fa-right-to-bracket"></i></div>
+          <div style="flex:1;">
+            <div style="font-weight:700;font-size:0.88rem;">${escapeHtml(h.action || 'Login')}</div>
+            <div style="display:flex;gap:12px;font-size:0.72rem;color:var(--text-muted);flex-wrap:wrap;margin-top:4px;">
               <span><i class="fas fa-calendar"></i> ${escapeHtml(h.date)} ${escapeHtml(h.time)}</span>
               <span><i class="fas fa-globe"></i> ${escapeHtml(h.ip || '—')}</span>
               <span><i class="fas fa-desktop"></i> ${escapeHtml(h.device || '—')}</span>
@@ -2265,13 +2221,12 @@ function renderLoginHistory() {
   if (modalEl) modalEl.innerHTML = html;
 }
 
-/* ═══════════════════ USER DROPDOWN ═══════════════════ */
+/* USER DROPDOWN */
 window.toggleUserDropdown = (e) => {
   e.stopPropagation();
-  const dd = $('userDropdown');
-  if (dd) dd.classList.toggle('show');
+  document.getElementById('userDropdown')?.classList.toggle('show');
 };
-function closeUserDropdown() { const dd = $('userDropdown'); if (dd) dd.classList.remove('show'); }
+function closeUserDropdown() { document.getElementById('userDropdown')?.classList.remove('show'); }
 document.addEventListener('click', (e) => {
   const dd = $('userDropdown');
   if (dd && !dd.contains(e.target) && !e.target.closest('.user-menu-btn')) dd.classList.remove('show');
@@ -2290,15 +2245,12 @@ function loadAllUsers() {
 
 function renderAdminGlobalStats(users) {
   setText('adminTotalUsers', users.length);
-  const active = users.filter(u => (u.status || 'Active') === 'Active').length;
-  const blocked = users.filter(u => u.status === 'Blocked').length;
-  const shops = users.filter(u => u.shopName).length;
-  setText('adminActiveUsers', active);
-  setText('adminBlockedUsers', blocked);
-  setText('adminTotalShops', shops);
+  setText('adminActiveUsers', users.filter(u => (u.status || 'Active') === 'Active').length);
+  setText('adminBlockedUsers', users.filter(u => u.status === 'Blocked').length);
+  setText('adminTotalShops', users.filter(u => u.shopName).length);
   setText('chipAllCount', users.length);
-  setText('chipActiveCount', active);
-  setText('chipBlockedCount', blocked);
+  setText('chipActiveCount', users.filter(u => (u.status || 'Active') === 'Active').length);
+  setText('chipBlockedCount', users.filter(u => u.status === 'Blocked').length);
 }
 
 window.setAdminFilter = (filter, el) => {
@@ -2318,17 +2270,15 @@ window.renderAdminUsersListPro = () => {
   if (q) users = users.filter(u => (u.fullName || '').toLowerCase().includes(q) || (u.email || '').toLowerCase().includes(q));
   if (filter === 'Active') users = users.filter(u => (u.status || 'Active') === 'Active');
   if (filter === 'Blocked') users = users.filter(u => u.status === 'Blocked');
-  if (filter === 'Admin') users = users.filter(u => u.role === 'Admin');
 
-  // Sort: current user first, then by status
   users.sort((a, b) => {
-    if (a.uid === AppState.currentUser.uid) return -1;
-    if (b.uid === AppState.currentUser.uid) return 1;
+    if (a.uid === AppState.currentUser?.uid) return -1;
+    if (b.uid === AppState.currentUser?.uid) return 1;
     return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
   });
 
   if (users.length === 0) {
-    list.innerHTML = `<div class="text-center py-4 text-muted"><i class="fas fa-user-slash fa-2x mb-2 opacity-50"></i><p>${currentLang === 'bn' ? 'কোনো ইউজার নেই' : 'No users found'}</p></div>`;
+    list.innerHTML = `<div class="text-center py-4 text-muted"><i class="fas fa-user-slash fa-2x mb-2 opacity-50"></i><p>0</p></div>`;
     return;
   }
 
@@ -2345,24 +2295,18 @@ window.renderAdminUsersListPro = () => {
     div.className = `admin-user-row ${isSelected ? 'selected' : ''}`;
     div.onclick = () => selectAdminUserPro(u.uid);
     div.innerHTML = `
-      <div class="admin-user-row-avatar">
-        ${initial}
-        <div class="admin-user-row-status ${statusClass}"></div>
-      </div>
+      <div class="admin-user-row-avatar">${initial}<div class="admin-user-row-status ${statusClass}"></div></div>
       <div class="admin-user-row-info">
         <strong>${escapeHtml(u.fullName || 'User')}${isSelf ? ' <span class="tag tag-info" style="font-size:0.6rem;">You</span>' : ''}</strong>
         <small>${escapeHtml(u.email)}</small>
         <div class="admin-user-row-role"><span class="tag ${roleTagClass}">${escapeHtml(u.role || 'Staff')}</span></div>
       </div>
-      <i class="fas fa-chevron-right admin-user-row-arrow"></i>
-    `;
+      <i class="fas fa-chevron-right admin-user-row-arrow"></i>`;
     fragment.appendChild(div);
   });
   list.innerHTML = '';
   list.appendChild(fragment);
 };
-
-// Keep legacy name working
 window.renderAdminUsersList = renderAdminUsersListPro;
 
 window.selectAdminUser = (uid) => selectAdminUserPro(uid);
@@ -2401,21 +2345,15 @@ function selectAdminUserPro(uid) {
   $('adEditRole').value = user.role || 'Staff';
   $('adEditStatus').value = user.status || 'Active';
 
-  // Reset money displays
-  ['adMoneySales','adMoneyPaid','adMoneyDue','adMoneyExpense','adMoneyProfit','adMoneyStockValue','adMoneyCustDue','adMoneyPotential','adMoneyInvestment'].forEach(id => setText(id, '৳0'));
+  ['adMoneySales','adMoneyPaid','adMoneyDue','adMoneyExpense','adMoneyProfit','adMoneyStockValue','adMoneyCustDue','adMoneyPotential'].forEach(id => setText(id, '৳0'));
   ['adStatProducts','adStatCustomers','adStatSales','adStatExpenses'].forEach(id => setText(id, '0'));
 
-  // Refresh list to show selection
   renderAdminUsersListPro();
-
-  // Load stats
   loadUserStatsPro(uid);
 }
-
-window.onAdminUserSelect = () => {}; // Legacy
+window.onAdminUserSelect = () => {};
 
 function loadUserStatsPro(uid) {
-  // Products
   onValue(ref(db, 'users/' + uid + '/inventory'), (snap) => {
     const data = snap.val() ? Object.values(snap.val()) : [];
     setText('adStatProducts', data.length);
@@ -2423,10 +2361,8 @@ function loadUserStatsPro(uid) {
     const potential = data.reduce((s, x) => s + ((parseFloat(x.sellPrice || 0) - parseFloat(x.buyPrice || 0)) * parseInt(x.qty || 0)), 0);
     setText('adMoneyStockValue', '৳' + formatMoney(stockValue));
     setText('adMoneyPotential', '৳' + formatMoney(potential));
-    setText('adMoneyInvestment', '৳' + formatMoney(stockValue));
   }, { onlyOnce: true });
 
-  // Customers
   onValue(ref(db, 'users/' + uid + '/customers'), (snap) => {
     const data = snap.val() ? Object.values(snap.val()) : [];
     setText('adStatCustomers', data.length);
@@ -2434,7 +2370,6 @@ function loadUserStatsPro(uid) {
     setText('adMoneyCustDue', '৳' + formatMoney(custDue));
   }, { onlyOnce: true });
 
-  // Sales
   onValue(ref(db, 'users/' + uid + '/sales'), (snap) => {
     const data = snap.val() ? Object.values(snap.val()) : [];
     setText('adStatSales', data.length);
@@ -2445,14 +2380,12 @@ function loadUserStatsPro(uid) {
     setText('adMoneyPaid', '৳' + formatMoney(totalPaid));
     setText('adMoneyDue', '৳' + formatMoney(totalDue));
 
-    // After sales loaded, update net profit
     setTimeout(() => {
-      const te = parseFloat(($('adMoneyExpense')?.textContent || '0').replace(/[^\d.]/g, '')) || 0;
+      const te = parseMoney($('adMoneyExpense')?.textContent);
       setText('adMoneyProfit', '৳' + formatMoney(totalSales - te));
     }, 200);
   }, { onlyOnce: true });
 
-  // Expenses
   onValue(ref(db, 'users/' + uid + '/expenses'), (snap) => {
     const data = snap.val() ? Object.values(snap.val()) : [];
     setText('adStatExpenses', data.length);
@@ -2460,7 +2393,7 @@ function loadUserStatsPro(uid) {
     setText('adMoneyExpense', '৳' + formatMoney(totalExp));
 
     setTimeout(() => {
-      const ts = parseFloat(($('adMoneySales')?.textContent || '0').replace(/[^\d.]/g, '')) || 0;
+      const ts = parseMoney($('adMoneySales')?.textContent);
       setText('adMoneyProfit', '৳' + formatMoney(ts - totalExp));
     }, 200);
   }, { onlyOnce: true });
@@ -2479,42 +2412,66 @@ window.switchAdminTab = (tab, el) => {
   document.querySelectorAll('.admin-tab-pro').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.admin-tab-content-pro').forEach(t => t.classList.remove('active'));
   el.classList.add('active');
-  const content = $('admin-tab-' + tab);
-  if (content) content.classList.add('active');
+  $('admin-tab-' + tab)?.classList.add('active');
 };
 
-/* ⭐ IMPERSONATE USER */
+/* ⭐⭐ CRITICAL: IMPERSONATE USER ⭐⭐ */
 window.impersonateUser = async () => {
   if (!AppState.selectedAdminUser) { showToast('warning', t('select_user')); return; }
-  const ok = await showConfirm(t('impersonate_btn'), AppState.selectedAdminUser.fullName || AppState.selectedAdminUser.email, { type: 'warning' });
+
+  const user = AppState.selectedAdminUser;
+  if (user.uid === AppState.currentUser.uid) {
+    showToast('warning', currentLang === 'bn' ? 'আপনি নিজেই এই ইউজার' : 'This is you');
+    return;
+  }
+
+  const ok = await showConfirm(
+    t('impersonate_btn'),
+    currentLang === 'bn'
+      ? `${user.fullName || user.email} এর আইডিতে প্রবেশ করবেন। আপনি তার সব কাজ করতে পারবেন।`
+      : `Login as ${user.fullName || user.email}. You can do all their tasks.`,
+    { type: 'warning', okText: t('enter') }
+  );
   if (!ok) return;
-  AppState.impersonatingUser = AppState.selectedAdminUser.uid;
-  showToast('success', t('admin_mode'), AppState.selectedAdminUser.fullName);
-  setTimeout(() => onAuthStateChanged_reload(), 100);
+
+  showLoader(true, currentLang === 'bn' ? 'প্রবেশ করা হচ্ছে...' : 'Entering...');
+
+  AppState.impersonatingUser = user.uid;
+
+  setTimeout(() => {
+    onAuthStateChanged_reload();
+    showToast('success', t('admin_mode'), user.fullName || user.email);
+  }, 100);
 };
 
 window.exitImpersonation = async () => {
   if (!AppState.impersonatingUser) return;
   AppState.impersonatingUser = null;
+  showLoader(true);
   showToast('info', t('exit'));
   setTimeout(() => onAuthStateChanged_reload(), 100);
 };
 
 async function onAuthStateChanged_reload() {
   const user = auth.currentUser;
-  if (!user) return;
+  if (!user) { showLoader(false); return; }
+
   AppState.unsubscribers.forEach(unsub => { try { unsub(); } catch (e) {} });
   AppState.unsubscribers = [];
+
   const effectiveUid = AppState.impersonatingUser || user.uid;
   const snap = await get(ref(db, 'users/' + effectiveUid));
-  if (!snap.exists()) return;
+  if (!snap.exists()) { showLoader(false); return; }
+
   const data = snap.val();
   AppState.currentUserData = data;
   AppState.currentUserRole = data.role || 'Staff';
   AppState.currentUserShopName = data.shopName || '';
   AppState.currentUserAddress = data.address || '';
   AppState.currentUserFullName = data.fullName || 'User';
+
   loadUserSettings(data);
+
   const email = data.email || user.email;
   const initial = (email[0] || 'U').toUpperCase();
   setText('userAvatar', initial); setText('dropdownAvatar', initial);
@@ -2524,11 +2481,17 @@ async function onAuthStateChanged_reload() {
   setText('dropdownName', data.fullName || 'User');
   setText('dropdownEmail', email);
   setText('dropdownRole', AppState.currentUserRole);
-  const isAdmin = AppState.currentUserRole === 'Admin';
+
+  // ⭐ CRITICAL: When impersonating, KEEP admin panel visible (original user's role = admin)
+  const originalUserSnap = await get(ref(db, 'users/' + user.uid));
+  const originalRole = originalUserSnap.exists() ? (originalUserSnap.val().role || 'Staff') : 'Staff';
+  const showAdmin = (originalRole === 'Admin') || (AppState.currentUserRole === 'Admin');
+
   const navAdmin = $('nav-admin'), adminDivider = $('adminDivider'), adminLabel = $('adminLabel');
-  if (navAdmin) navAdmin.style.display = isAdmin ? 'flex' : 'none';
-  if (adminDivider) adminDivider.style.display = isAdmin ? 'block' : 'none';
-  if (adminLabel) adminLabel.style.display = isAdmin ? 'block' : 'none';
+  if (navAdmin) navAdmin.style.display = showAdmin ? 'flex' : 'none';
+  if (adminDivider) adminDivider.style.display = showAdmin ? 'block' : 'none';
+  if (adminLabel) adminLabel.style.display = showAdmin ? 'block' : 'none';
+
   if (AppState.impersonatingUser && AppState.impersonatingUser !== user.uid) {
     document.body.classList.add('impersonating');
     const banner = $('impersonationBanner');
@@ -2539,12 +2502,21 @@ async function onAuthStateChanged_reload() {
     const banner = $('impersonationBanner');
     if (banner) banner.style.display = 'none';
   }
+
+  // Reset state
+  AppState.cart = [];
+  AppState.inventory = [];
+  AppState.customers = [];
+  AppState.allSalesCache = [];
+  AppState.allExpensesCache = [];
+
   initApp();
   renderProfile();
   showSection('dashboard');
+  showLoader(false);
 }
 
-/* ⭐ ADMIN: VIEW USER DATA */
+/* ADMIN: View Data */
 window.adminViewUserData = () => {
   if (!AppState.selectedAdminUser) { showToast('warning', t('select_user')); return; }
   setText('viewDataUserName', AppState.selectedAdminUser.fullName || AppState.selectedAdminUser.email);
@@ -2564,25 +2536,17 @@ window.switchViewDataTab = async (type, el) => {
   const data = snap.val() ? Object.values(snap.val()) : [];
   if (data.length === 0) { c.innerHTML = `<div class="empty-state"><i class="fas fa-inbox"></i><h5>0</h5></div>`; return; }
   if (type === 'sales') {
-    c.innerHTML = `<div class="table-responsive"><table class="table modern-table">
-      <thead><tr><th>${t('invoice')}</th><th>${t('customer')}</th><th>${t('total')}</th><th>${t('paid')}</th><th>${t('due')}</th><th>${t('date')}</th></tr></thead>
-      <tbody>${data.map(s => `<tr><td>${escapeHtml(s.invoiceNo)}</td><td>${escapeHtml(s.customerName)}</td><td>৳${s.totalAmount}</td><td>৳${s.paid || 0}</td><td>৳${s.due || 0}</td><td>${escapeHtml(s.date)}</td></tr>`).join('')}</tbody>
-    </table></div>`;
+    c.innerHTML = `<div class="table-responsive"><table class="table modern-table"><thead><tr><th>${t('invoice')}</th><th>${t('customer')}</th><th>${t('total')}</th><th>${t('paid')}</th><th>${t('due')}</th><th>${t('date')}</th></tr></thead>
+      <tbody>${data.map(s => `<tr><td>${escapeHtml(s.invoiceNo)}</td><td>${escapeHtml(s.customerName)}</td><td>৳${s.totalAmount}</td><td>৳${s.paid || 0}</td><td>৳${s.due || 0}</td><td>${escapeHtml(s.date)}</td></tr>`).join('')}</tbody></table></div>`;
   } else if (type === 'inventory') {
-    c.innerHTML = `<div class="table-responsive"><table class="table modern-table">
-      <thead><tr><th>${t('product')}</th><th>${t('stock')}</th><th>${t('buy_price')}</th><th>${t('sell_price')}</th></tr></thead>
-      <tbody>${data.map(p => `<tr><td>${escapeHtml(p.name)}</td><td>${p.qty}</td><td>৳${p.buyPrice}</td><td>৳${p.sellPrice}</td></tr>`).join('')}</tbody>
-    </table></div>`;
+    c.innerHTML = `<div class="table-responsive"><table class="table modern-table"><thead><tr><th>${t('product')}</th><th>${t('stock')}</th><th>${t('buy_price')}</th><th>${t('sell_price')}</th></tr></thead>
+      <tbody>${data.map(p => `<tr><td>${escapeHtml(p.name)}</td><td>${p.qty}</td><td>৳${p.buyPrice}</td><td>৳${p.sellPrice}</td></tr>`).join('')}</tbody></table></div>`;
   } else if (type === 'customers') {
-    c.innerHTML = `<div class="table-responsive"><table class="table modern-table">
-      <thead><tr><th>${t('name')}</th><th>${t('phone')}</th><th>${t('due')}</th></tr></thead>
-      <tbody>${data.map(x => `<tr><td>${escapeHtml(x.name)}</td><td>${escapeHtml(x.phone)}</td><td>৳${x.due || 0}</td></tr>`).join('')}</tbody>
-    </table></div>`;
+    c.innerHTML = `<div class="table-responsive"><table class="table modern-table"><thead><tr><th>${t('name')}</th><th>${t('phone')}</th><th>${t('due')}</th></tr></thead>
+      <tbody>${data.map(x => `<tr><td>${escapeHtml(x.name)}</td><td>${escapeHtml(x.phone)}</td><td>৳${x.due || 0}</td></tr>`).join('')}</tbody></table></div>`;
   } else if (type === 'expenses') {
-    c.innerHTML = `<div class="table-responsive"><table class="table modern-table">
-      <thead><tr><th>${t('description')}</th><th>${t('amount')}</th><th>${t('date')}</th></tr></thead>
-      <tbody>${data.map(e => `<tr><td>${escapeHtml(e.title)}</td><td>৳${e.amount}</td><td>${escapeHtml(e.date)}</td></tr>`).join('')}</tbody>
-    </table></div>`;
+    c.innerHTML = `<div class="table-responsive"><table class="table modern-table"><thead><tr><th>${t('description')}</th><th>${t('amount')}</th><th>${t('date')}</th></tr></thead>
+      <tbody>${data.map(e => `<tr><td>${escapeHtml(e.title)}</td><td>৳${e.amount}</td><td>${escapeHtml(e.date)}</td></tr>`).join('')}</tbody></table></div>`;
   }
 };
 
@@ -2593,7 +2557,7 @@ window.adminLoginHistory = async () => {
   history.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
   const html = history.length === 0
     ? '<div class="empty-state"><i class="fas fa-clock-rotate-left"></i><h5>0</h5></div>'
-    : history.map(h => `<div class="login-history-item"><div class="lh-icon"><i class="fas fa-right-to-bracket"></i></div><div class="lh-content"><div class="lh-title">${escapeHtml(h.action || 'Login')}</div><div class="lh-meta"><span><i class="fas fa-calendar"></i> ${escapeHtml(h.date)} ${escapeHtml(h.time)}</span><span><i class="fas fa-globe"></i> ${escapeHtml(h.ip || '—')}</span><span><i class="fas fa-desktop"></i> ${escapeHtml(h.device || '—')}</span></div></div></div>`).join('');
+    : history.map(h => `<div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #e2e8f0;"><div style="width:36px;height:36px;border-radius:50%;background:#e0e7ff;color:#6366f1;display:flex;align-items:center;justify-content:center;"><i class="fas fa-right-to-bracket"></i></div><div style="flex:1;"><div style="font-weight:700;font-size:0.88rem;">${escapeHtml(h.action || 'Login')}</div><div style="display:flex;gap:12px;font-size:0.72rem;color:#64748b;flex-wrap:wrap;margin-top:4px;"><span><i class="fas fa-calendar"></i> ${escapeHtml(h.date)} ${escapeHtml(h.time)}</span><span><i class="fas fa-globe"></i> ${escapeHtml(h.ip || '—')}</span></div></div></div>`).join('');
   Swal.fire({ title: AppState.selectedAdminUser.fullName || AppState.selectedAdminUser.email, html: `<div style="max-height:400px;overflow-y:auto;text-align:left;">${html}</div>`, width: 600, confirmButtonText: 'OK' });
 };
 
@@ -2636,7 +2600,6 @@ window.adminForceLogout = async () => {
   } catch (e) { showToast('error', e.message); }
 };
 
-/* ⭐ ADMIN BLOCK — Sets status=Blocked permanently with optional duration */
 window.adminBlockUser = () => {
   if (!AppState.selectedAdminUser) { showToast('warning', t('select_user')); return; }
   $('blockUserName').value = AppState.selectedAdminUser.fullName || AppState.selectedAdminUser.email;
@@ -2679,7 +2642,6 @@ window.confirmAdminBlock = async () => {
   }
   showLoader(true);
   try {
-    // ⭐ CRITICAL: Set status = 'Blocked'. This will force logout the user if currently logged in.
     await update(ref(db, 'users/' + AppState.selectedAdminUser.uid), {
       status: 'Blocked',
       blockUntil,
@@ -2700,11 +2662,7 @@ window.adminUnblockUser = async () => {
   showLoader(true);
   try {
     await update(ref(db, 'users/' + AppState.selectedAdminUser.uid), {
-      status: 'Active',
-      blockUntil: null,
-      blockReason: null,
-      blockedAt: null,
-      blockedBy: null
+      status: 'Active', blockUntil: null, blockReason: null, blockedAt: null, blockedBy: null
     });
     showToast('success', t('unblock'));
   } catch (e) { showToast('error', e.message); }
@@ -2727,71 +2685,33 @@ window.adminResetUserData = async () => {
   showLoader(false);
 };
 
-/* ⭐⭐⭐ CRITICAL: COMPLETE USER DELETION FROM FIREBASE REALTIME DATABASE ⭐⭐⭐ */
 window.adminDeleteUserCompletely = async () => {
   if (!AppState.selectedAdminUser) { showToast('warning', t('select_user')); return; }
   const targetUser = AppState.selectedAdminUser;
-
-  // Prevent self-deletion
-  if (targetUser.uid === AppState.currentUser.uid) {
-    showToast('warning', currentLang === 'bn' ? 'নিজেকে ডিলিট করতে পারবেন না' : 'Cannot delete yourself');
-    return;
-  }
+  if (targetUser.uid === AppState.currentUser.uid) { showToast('warning', currentLang === 'bn' ? 'নিজেকে ডিলিট করা যাবে না' : 'Cannot delete self'); return; }
 
   const ok = await showConfirm(
     t('delete_user'),
-    currentLang === 'bn'
-      ? `${targetUser.fullName || targetUser.email} এর সব ডেটা Firebase থেকে স্থায়ীভাবে মুছে যাবে। এই কাজটি ফেরানো যাবে না!`
-      : `All data of ${targetUser.fullName || targetUser.email} will be permanently deleted from Firebase. This cannot be undone!`,
-    { type: 'danger', danger: true, okText: currentLang === 'bn' ? 'হ্যাঁ, সম্পূর্ণ ডিলিট' : 'Yes, Delete' }
+    currentLang === 'bn' ? `${targetUser.fullName || targetUser.email} এর সব ডেটা স্থায়ীভাবে মুছে যাবে!` : `All data of ${targetUser.fullName || targetUser.email} will be permanently deleted!`,
+    { type: 'danger', danger: true, okText: t('delete') }
   );
   if (!ok) return;
 
-  showLoader(true, currentLang === 'bn' ? 'সম্পূর্ণ ডেটা মুছে ফেলা হচ্ছে...' : 'Deleting all data...');
-
+  showLoader(true);
   try {
-    const uid = targetUser.uid;
-
-    // ⭐ STEP 1: Remove ALL sub-nodes completely
-    // Remove the ENTIRE /users/{uid} node — this includes inventory, customers, sales, expenses, loginHistory, settings, everything!
-    await remove(ref(db, 'users/' + uid));
-
-    // ⭐ STEP 2: Also remove any orphaned references (in case rules or structure have any)
-    // Log the deletion action
-    logActivity(
-      'অ্যাডমিন: সম্পূর্ণ ইউজার ডিলিট',
-      `${targetUser.fullName || targetUser.email} — সব ডেটা মুছে ফেলা হয়েছে`,
-      null,
-      { deletedUid: uid, deletedEmail: targetUser.email }
-    );
-
-    // ⭐ STEP 3: Clear selection since user no longer exists
+    await remove(ref(db, 'users/' + targetUser.uid));
     clearUserSelection();
-
-    // ⭐ STEP 4: The onValue listener on `users` will automatically update the list in real-time
-
     await Swal.fire({
-      icon: 'success',
-      title: currentLang === 'bn' ? '✓ সম্পূর্ণ ডিলিট হয়েছে' : '✓ Completely Deleted',
-      html: `<div style="text-align:left;">
-        <p><strong>${currentLang === 'bn' ? 'ইউজার' : 'User'}:</strong> ${escapeHtml(targetUser.fullName || targetUser.email)}</p>
-        <p class="text-muted small">${currentLang === 'bn' ? 'Firebase Realtime Database থেকে সব ডেটা মুছে ফেলা হয়েছে।' : 'All data has been removed from Firebase Realtime Database.'}</p>
-        <p class="text-muted small">${currentLang === 'bn' ? 'নোট: Firebase Authentication থেকে ইউজারটি মুছতে Firebase Console ব্যবহার করুন।' : 'Note: Use Firebase Console to remove the user from Authentication.'}</p>
-      </div>`,
+      icon: 'success', title: '✓',
+      html: `<div style="text-align:left;"><p><strong>${targetUser.fullName || targetUser.email}</strong></p><p class="text-muted small">${currentLang === 'bn' ? 'Firebase থেকে সব ডেটা মুছে ফেলা হয়েছে।' : 'All data removed from Firebase.'}</p></div>`,
       confirmButtonText: 'OK'
     });
-
-  } catch (e) {
-    console.error('Delete error:', e);
-    showToast('error', currentLang === 'bn' ? 'ডিলিট ব্যর্থ' : 'Delete Failed', e.message);
-  }
+  } catch (e) { showToast('error', 'Delete Failed', e.message); }
   showLoader(false);
 };
-
-// Legacy alias
 window.adminDeleteUser = window.adminDeleteUserCompletely;
 window.adminDeleteUserById = async (uid, email) => {
-  if (uid === AppState.currentUser.uid) { showToast('warning', currentLang === 'bn' ? 'নিজেকে ডিলিট করতে পারবেন না' : 'Cannot delete self'); return; }
+  if (uid === AppState.currentUser.uid) { showToast('warning'); return; }
   const ok = await showConfirm(t('delete_user'), email, { type: 'danger', danger: true });
   if (!ok) return;
   showLoader(true);
@@ -2839,15 +2759,13 @@ window.confirmAdminCreateUser = async () => {
       uid: newUid, fullName: name, email, phone, shopName, address,
       role, status: 'Active',
       createdAt: now.toISOString(),
-      createdAtDate: now.toISOString().split('T')[0],
-      createdAtTime: getTimeBn(now),
       createdByAdmin: adminEmail,
       settings: DEFAULT_SETTINGS
     });
     await signOut(auth);
     await Swal.fire({
       icon: 'success', title: '✓',
-      html: `<div style="text-align:left;"><p><strong>${t('full_name')}:</strong> ${escapeHtml(name)}</p><p><strong>${t('email')}:</strong> ${escapeHtml(email)}</p><p><strong>${t('password')}:</strong> <code style="background:#f1f5f9;padding:4px 8px;border-radius:6px;">${escapeHtml(password)}</code></p></div>`,
+      html: `<div style="text-align:left;"><p><strong>${t('full_name')}:</strong> ${escapeHtml(name)}</p><p><strong>Email:</strong> ${escapeHtml(email)}</p><p><strong>Password:</strong> <code style="background:#f1f5f9;padding:4px 8px;border-radius:6px;">${escapeHtml(password)}</code></p></div>`,
       confirmButtonText: 'OK'
     });
     bootstrap.Modal.getInstance($('adminNewUserModal')).hide();
@@ -2859,14 +2777,12 @@ window.confirmAdminCreateUser = async () => {
 
 /* ═══════════════════ NAVIGATION ═══════════════════ */
 window.toggleSidebar = () => {
-  const sidebar = $('sidebar'), overlay = $('overlay');
-  if (sidebar) sidebar.classList.toggle('show');
-  if (overlay) overlay.classList.toggle('show');
+  $('sidebar')?.classList.toggle('show');
+  $('overlay')?.classList.toggle('show');
 };
 window.closeSidebar = () => {
-  const sidebar = $('sidebar'), overlay = $('overlay');
-  if (sidebar) sidebar.classList.remove('show');
-  if (overlay) overlay.classList.remove('show');
+  $('sidebar')?.classList.remove('show');
+  $('overlay')?.classList.remove('show');
 };
 
 window.showSection = (sec) => {
@@ -2874,17 +2790,9 @@ window.showSection = (sec) => {
   const s = $(sec + '-section');
   if (s) { s.style.display = 'block'; s.classList.add('fade-in'); }
   document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
-  const nav = $('nav-' + sec);
-  if (nav) nav.classList.add('active');
+  $('nav-' + sec)?.classList.add('active');
 
-  const titleMap = {
-    dashboard: t('dashboard'), sales: t('new_sale'), 'sales-list': t('sales_list'),
-    inventory: t('product_cards'), 'inventory-list': t('product_table'), customers: t('customers'),
-    expenses: t('expense_mgmt'), 'expenses-list': t('expenses_list'), invoices: t('invoices'),
-    'master-list': t('master_list'), 'activity-log': t('activity_log'),
-    reports: t('reports'), analytics: t('analytics'), profile: t('profile'),
-    settings: t('settings'), admin: t('admin_panel')
-  };
+  const titleMap = { dashboard: t('dashboard'), sales: t('new_sale'), 'sales-list': t('sales_list'), inventory: t('product_cards'), 'inventory-list': t('product_table'), customers: t('customers'), expenses: t('expense_mgmt'), 'expenses-list': t('expenses_list'), invoices: t('invoices'), 'master-list': t('master_list'), 'activity-log': t('activity_log'), reports: t('reports'), analytics: t('analytics'), profile: t('profile'), settings: t('settings'), admin: t('admin_panel') };
   setText('pageTitle', titleMap[sec] || t('dashboard'));
   setText('pageSubtitle', '');
 
@@ -2898,7 +2806,7 @@ window.showSection = (sec) => {
   closeSidebar();
 };
 
-/* ═══════════════════ NOTIFICATIONS ═══════════════════ */
+/* NOTIFICATIONS */
 window.showNotifications = () => {
   const ls = AppState.inventory.filter(i => parseInt(i.qty) <= LOW_STOCK_THRESHOLD);
   const dc = AppState.customers.filter(c => parseFloat(c.due) > 0);
@@ -2918,7 +2826,7 @@ window.toggleFullscreen = () => {
   else document.exitFullscreen();
 };
 
-/* ═══════════════════ BARCODE ═══════════════════ */
+/* BARCODE */
 window.openBarcodeScanner = () => {
   const modal = new bootstrap.Modal($('barcodeModal'));
   modal.show();
@@ -2928,23 +2836,16 @@ window.openBarcodeScanner = () => {
     try {
       AppState.barcodeReader = new ZXing.BrowserMultiFormatReader();
       AppState.barcodeReader.decodeFromVideoDevice(null, 'barcodeReader', (result) => {
-        if (result) {
-          $('manualBarcode').value = result.text;
-          searchByBarcode();
-          closeBarcodeScanner();
-        }
+        if (result) { $('manualBarcode').value = result.text; searchByBarcode(); closeBarcodeScanner(); }
       });
     } catch (e) {}
   }, 500);
 };
-
 window.closeBarcodeScanner = () => {
   try { AppState.barcodeReader?.reset(); } catch (e) {}
   AppState.barcodeReader = null;
-  const modal = bootstrap.Modal.getInstance($('barcodeModal'));
-  if (modal) modal.hide();
+  bootstrap.Modal.getInstance($('barcodeModal'))?.hide();
 };
-
 window.searchByBarcode = () => {
   const code = $('manualBarcode').value.trim();
   if (!code) { showToast('warning', t('barcode')); return; }
@@ -2954,38 +2855,23 @@ window.searchByBarcode = () => {
     showSection('sales');
     AppState.lastSelectedProductId = item.id;
     $('productSearch').value = item.name;
+    updatePosPreview();
     showToast('success', t('product'), item.name);
-  } else {
-    showToast('error', t('product'), code);
-  }
+  } else { showToast('error', t('product'), code); }
 };
 
-/* ═══════════════════ CALCULATOR ═══════════════════ */
-const calcState = { current: '0', previous: null, operator: null, waitingForOperand: false, angleMode: 'DEG', history: [], expression: '' };
-
-window.openCalculator = (e) => {
-  if (e) e.preventDefault();
-  new bootstrap.Modal($('calculatorModal')).show();
-  updateCalcDisplay();
-};
-
-window.switchCalcMode = (mode, el) => {
-  document.querySelectorAll('.calc-tab').forEach(tt => tt.classList.remove('active'));
-  el.classList.add('active');
-  $('calcPadBasic').style.display = mode === 'basic' ? 'grid' : 'none';
-  $('calcPadSci').style.display = mode === 'scientific' ? 'block' : 'none';
-};
-
+/* CALCULATOR */
+const calcState = { current: '0', previous: null, operator: null, waitingForOperand: false };
+window.openCalculator = (e) => { if (e) e.preventDefault(); new bootstrap.Modal($('calculatorModal')).show(); updateCalcDisplay(); };
 window.calcNum = (n) => {
   if (calcState.waitingForOperand) { calcState.current = n; calcState.waitingForOperand = false; }
   else { calcState.current = calcState.current === '0' ? n : calcState.current + n; }
   updateCalcDisplay();
 };
-
 window.calcAction = (action) => {
   const cur = parseFloat(calcState.current) || 0;
   switch (action) {
-    case 'clear': calcState.current = '0'; calcState.previous = null; calcState.operator = null; calcState.waitingForOperand = false; calcState.expression = ''; break;
+    case 'clear': calcState.current = '0'; calcState.previous = null; calcState.operator = null; calcState.waitingForOperand = false; break;
     case 'backspace': calcState.current = calcState.current.length > 1 ? calcState.current.slice(0, -1) : '0'; break;
     case 'decimal': if (calcState.waitingForOperand) { calcState.current = '0.'; calcState.waitingForOperand = false; } else if (!calcState.current.includes('.')) calcState.current += '.'; break;
     case 'negate': calcState.current = calcState.current.startsWith('-') ? calcState.current.slice(1) : '-' + calcState.current; break;
@@ -2995,16 +2881,13 @@ window.calcAction = (action) => {
       calcState.previous = parseFloat(calcState.current);
       calcState.operator = action;
       calcState.waitingForOperand = true;
-      calcState.expression = `${calcState.previous} ${getOpSymbol(action)}`;
       break;
-    case 'equals': if (calcState.operator !== null) { performCalc(); calcState.operator = null; calcState.previous = null; calcState.waitingForOperand = true; } break;
-    case 'openParen': calcState.current = calcState.current === '0' ? '(' : calcState.current + '('; break;
-    case 'closeParen': calcState.current += ')'; break;
-    case 'copy': navigator.clipboard.writeText(calcState.current).then(() => showToast('success', t('copy'))); break;
+    case 'equals':
+      if (calcState.operator !== null) { performCalc(); calcState.operator = null; calcState.previous = null; calcState.waitingForOperand = true; }
+      break;
   }
   updateCalcDisplay();
 };
-
 function performCalc() {
   const prev = calcState.previous, cur = parseFloat(calcState.current);
   let result = 0;
@@ -3013,116 +2896,184 @@ function performCalc() {
     case 'subtract': result = prev - cur; break;
     case 'multiply': result = prev * cur; break;
     case 'divide': result = cur === 0 ? 0 : prev / cur; break;
-    default: result = cur;
   }
   calcState.current = String(result);
-  calcState.history.unshift(`${prev} ${getOpSymbol(calcState.operator)} ${cur} = ${result}`);
-  if (calcState.history.length > 20) calcState.history.pop();
 }
-function getOpSymbol(op) { return { add: '+', subtract: '−', multiply: '×', divide: '÷' }[op] || ''; }
+function updateCalcDisplay() { const input = $('calcInput'); if (input) input.value = calcState.current; }
+window.switchCalcMode = () => {};
 
-window.calcFunc = (fn) => {
-  let cur = parseFloat(calcState.current) || 0, result = cur;
-  try {
-    switch (fn) {
-      case 'sin': result = Math.sin(calcState.angleMode === 'DEG' ? cur * Math.PI / 180 : cur); break;
-      case 'cos': result = Math.cos(calcState.angleMode === 'DEG' ? cur * Math.PI / 180 : cur); break;
-      case 'tan': result = Math.tan(calcState.angleMode === 'DEG' ? cur * Math.PI / 180 : cur); break;
-      case 'log': result = Math.log10(cur); break;
-      case 'ln': result = Math.log(cur); break;
-      case 'sqrt': result = Math.sqrt(cur); break;
-      case 'cbrt': result = Math.cbrt(cur); break;
-      case 'square': result = cur * cur; break;
-      case 'cube': result = cur * cur * cur; break;
-      case 'inverse': result = cur === 0 ? 0 : 1 / cur; break;
-      case 'pi': result = Math.PI; break;
-      case 'e': result = Math.E; break;
-      case 'fact': if (cur > 170) return; result = 1; for (let i = 2; i <= cur; i++) result *= i; break;
-    }
-    calcState.current = String(result);
-  } catch (e) {}
-  calcState.waitingForOperand = true;
-  updateCalcDisplay();
-};
-
-function updateCalcDisplay() {
-  const input = $('calcInput'), hist = $('calcHistory');
-  if (input) input.value = calcState.current;
-  if (hist) hist.textContent = calcState.expression || (calcState.history[0] || '');
-}
-window.clearCalcHistory = () => { calcState.history = []; updateCalcDisplay(); };
-
-/* ═══════════════════ COMMAND PALETTE ═══════════════════ */
+/* ⭐⭐⭐ COMMAND PALETTE — ULTRA PRO ⭐⭐⭐ */
 (function initCommandPalette() {
-  const getCommands = () => [
-    { id: 'dashboard', title: t('dashboard'), icon: 'fas fa-chart-line', action: () => showSection('dashboard') },
-    { id: 'new-sale', title: t('new_sale'), icon: 'fas fa-cart-plus', action: () => showSection('sales') },
-    { id: 'sales-list', title: t('sales_list'), icon: 'fas fa-list-check', action: () => showSection('sales-list') },
-    { id: 'inventory', title: t('product_cards'), icon: 'fas fa-box', action: () => showSection('inventory') },
-    { id: 'customers', title: t('customers'), icon: 'fas fa-users', action: () => showSection('customers') },
-    { id: 'expenses', title: t('expenses'), icon: 'fas fa-hand-holding-dollar', action: () => showSection('expenses') },
-    { id: 'invoices', title: t('invoices'), icon: 'fas fa-file-invoice-dollar', action: () => showSection('invoices') },
-    { id: 'reports', title: t('reports'), icon: 'fas fa-chart-pie', action: () => showSection('reports') },
-    { id: 'analytics', title: t('analytics'), icon: 'fas fa-chart-column', action: () => showSection('analytics') },
-    { id: 'activity', title: t('activity_log'), icon: 'fas fa-clock-rotate-left', action: () => showSection('activity-log') },
-    { id: 'profile', title: t('profile'), icon: 'fas fa-user-circle', action: () => showSection('profile') },
-    { id: 'settings', title: t('settings'), icon: 'fas fa-gear', action: () => showSection('settings') },
-    { id: 'calculator', title: t('calculator'), icon: 'fas fa-calculator', action: () => openCalculator() },
-    { id: 'barcode', title: t('barcode'), icon: 'fas fa-barcode', action: () => openBarcodeScanner() },
-    { id: 'add-product', title: t('add_product'), icon: 'fas fa-plus-circle', action: () => new bootstrap.Modal($('addProductModal')).show() },
-    { id: 'add-customer', title: t('add_customer'), icon: 'fas fa-user-plus', action: () => new bootstrap.Modal($('addCustomerModal')).show() },
-    { id: 'add-expense', title: t('add_expense'), icon: 'fas fa-receipt', action: () => new bootstrap.Modal($('addExpenseModal')).show() },
-    { id: 'logout', title: t('logout'), icon: 'fas fa-right-from-bracket', action: () => logout() }
-  ];
-
   const overlay = document.createElement('div');
   overlay.className = 'command-palette-overlay';
-  overlay.innerHTML = `<div class="command-palette"><input type="text" class="command-palette-input" id="commandPaletteInput" placeholder="🔍 ..."><div class="command-palette-list" id="commandPaletteList"></div></div>`;
+  overlay.id = 'commandPaletteOverlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,0.75);backdrop-filter:blur(12px);display:none;align-items:flex-start;justify-content:center;padding-top:8vh;z-index:99998;';
+  overlay.innerHTML = `
+    <div style="width:100%;max-width:680px;background:var(--bg-card);border-radius:20px;box-shadow:0 32px 80px rgba(0,0,0,0.4);overflow:hidden;border:1px solid var(--border);animation:slideDown 0.3s;">
+      <div style="display:flex;align-items:center;gap:12px;padding:18px 24px;border-bottom:1px solid var(--border);">
+        <i class="fas fa-magnifying-glass" style="color:var(--primary);font-size:1.2rem;"></i>
+        <input type="text" id="cmdInput" placeholder="Search commands, products, customers, invoices..." style="flex:1;border:none;background:transparent;color:var(--text);font-size:1.05rem;outline:none;font-weight:500;">
+        <span class="kbd-hint">ESC</span>
+      </div>
+      <div id="cmdResults" style="max-height:440px;overflow-y:auto;padding:8px;"></div>
+      <div style="padding:12px 20px;background:var(--bg-body);border-top:1px solid var(--border);display:flex;justify-content:space-between;font-size:0.72rem;color:var(--text-muted);flex-wrap:wrap;gap:8px;">
+        <span><kbd style="padding:2px 6px;background:var(--bg-card);border:1px solid var(--border);border-radius:4px;">↑↓</kbd> Navigate</span>
+        <span><kbd style="padding:2px 6px;background:var(--bg-card);border:1px solid var(--border);border-radius:4px;">Enter</kbd> Select</span>
+        <span><kbd style="padding:2px 6px;background:var(--bg-card);border:1px solid var(--border);border-radius:4px;">Esc</kbd> Close</span>
+        <span><kbd style="padding:2px 6px;background:var(--bg-card);border:1px solid var(--border);border-radius:4px;">Ctrl+K</kbd> Open</span>
+      </div>
+    </div>`;
   document.body.appendChild(overlay);
 
-  const input = overlay.querySelector('#commandPaletteInput');
-  const list = overlay.querySelector('#commandPaletteList');
-  let activeIndex = 0, filteredCommands = [];
+  const input = overlay.querySelector('#cmdInput');
+  const results = overlay.querySelector('#cmdResults');
+  let activeIndex = 0;
+  let currentResults = [];
 
-  function render() {
-    const commands = getCommands();
-    if (filteredCommands.length === 0 && !input.value) filteredCommands = [...commands];
-    list.innerHTML = filteredCommands.map((cmd, i) => `<div class="command-palette-item ${i === activeIndex ? 'active' : ''}" data-index="${i}"><i class="${cmd.icon}"></i><span>${cmd.title}</span></div>`).join('');
-    list.querySelectorAll('.command-palette-item').forEach(item => {
-      item.addEventListener('click', () => execute(parseInt(item.dataset.index)));
-      item.addEventListener('mouseenter', () => { activeIndex = parseInt(item.dataset.index); render(); });
+  function buildCommands() {
+    const commands = [
+      { section: currentLang === 'bn' ? 'নেভিগেশন' : 'Navigation', items: [
+        { title: t('dashboard'), icon: 'fas fa-chart-line', action: () => showSection('dashboard') },
+        { title: t('new_sale'), icon: 'fas fa-cart-plus', action: () => showSection('sales') },
+        { title: t('sales_list'), icon: 'fas fa-list-check', action: () => showSection('sales-list') },
+        { title: t('product_cards'), icon: 'fas fa-box', action: () => showSection('inventory') },
+        { title: t('customers'), icon: 'fas fa-users', action: () => showSection('customers') },
+        { title: t('expenses'), icon: 'fas fa-hand-holding-dollar', action: () => showSection('expenses') },
+        { title: t('invoices'), icon: 'fas fa-file-invoice-dollar', action: () => showSection('invoices') },
+        { title: t('reports'), icon: 'fas fa-chart-pie', action: () => showSection('reports') },
+        { title: t('analytics'), icon: 'fas fa-chart-column', action: () => showSection('analytics') },
+        { title: t('activity_log'), icon: 'fas fa-clock-rotate-left', action: () => showSection('activity-log') },
+        { title: t('profile'), icon: 'fas fa-user-circle', action: () => showSection('profile') },
+        { title: t('settings'), icon: 'fas fa-gear', action: () => showSection('settings') }
+      ]},
+      { section: currentLang === 'bn' ? 'অ্যাকশন' : 'Actions', items: [
+        { title: t('add_product'), icon: 'fas fa-plus-circle', action: () => new bootstrap.Modal($('addProductModal')).show() },
+        { title: t('add_customer'), icon: 'fas fa-user-plus', action: () => new bootstrap.Modal($('addCustomerModal')).show() },
+        { title: t('add_expense'), icon: 'fas fa-receipt', action: () => new bootstrap.Modal($('addExpenseModal')).show() },
+        { title: t('calculator'), icon: 'fas fa-calculator', action: () => openCalculator() },
+        { title: t('barcode'), icon: 'fas fa-barcode', action: () => openBarcodeScanner() },
+        { title: t('export_all'), icon: 'fas fa-download', action: () => exportAllData() }
+      ]},
+      { section: currentLang === 'bn' ? 'অ্যাডমিন' : 'Admin', items: [
+        { title: t('admin_panel'), icon: 'fas fa-shield-halved', action: () => showSection('admin'), adminOnly: true }
+      ]}
+    ];
+
+    // Add recent products
+    if (AppState.inventory.length > 0) {
+      commands.push({
+        section: currentLang === 'bn' ? 'পণ্য' : 'Products',
+        items: AppState.inventory.slice(0, 8).map(p => ({
+          title: p.name,
+          sub: `৳${p.sellPrice} • ${t('stock')}: ${p.qty}`,
+          icon: 'fas fa-box',
+          action: () => { showSection('sales'); setTimeout(() => selectProduct(p.id), 200); }
+        }))
+      });
+    }
+
+    // Add customers
+    if (AppState.customers.length > 0) {
+      commands.push({
+        section: currentLang === 'bn' ? 'কাস্টমার' : 'Customers',
+        items: AppState.customers.slice(0, 6).map(c => ({
+          title: c.name,
+          sub: `${c.phone || '—'} • ${t('due')}: ৳${c.due || 0}`,
+          icon: 'fas fa-user',
+          action: () => { showSection('customers'); }
+        }))
+      });
+    }
+
+    // Add recent invoices
+    if (AppState.allSalesCache.length > 0) {
+      commands.push({
+        section: currentLang === 'bn' ? 'ইনভয়েস' : 'Invoices',
+        items: AppState.allSalesCache.slice(-6).reverse().map(s => ({
+          title: s.invoiceNo,
+          sub: `${s.customerName || '—'} • ৳${s.totalAmount}`,
+          icon: 'fas fa-file-invoice',
+          action: () => { showSection('sales-list'); }
+        }))
+      });
+    }
+
+    return commands;
+  }
+
+  function renderResults(query = '') {
+    const commands = buildCommands();
+    const q = query.toLowerCase().trim();
+    const allItems = [];
+
+    commands.forEach(group => {
+      const filtered = q ? group.items.filter(item => item.title.toLowerCase().includes(q) || (item.sub && item.sub.toLowerCase().includes(q))) : group.items;
+      if (filtered.length > 0) {
+        allItems.push({ type: 'section', title: group.section });
+        filtered.forEach(item => allItems.push({ type: 'item', data: item }));
+      }
+    });
+
+    // Filter admin-only if not admin
+    const isAdmin = AppState.currentUserRole === 'Admin' || AppState.impersonatingUser;
+    const finalItems = allItems.filter(item => !item.data?.adminOnly || isAdmin);
+
+    currentResults = finalItems;
+    if (activeIndex >= currentResults.length) activeIndex = 0;
+
+    if (finalItems.length === 0) {
+      results.innerHTML = `<div style="text-align:center;padding:40px 20px;color:var(--text-muted);"><i class="fas fa-magnifying-glass" style="font-size:2.5rem;opacity:0.3;margin-bottom:12px;display:block;"></i><p>${currentLang === 'bn' ? 'কিছু পাওয়া যায়নি' : 'Nothing found'}</p></div>`;
+      return;
+    }
+
+    results.innerHTML = '';
+    finalItems.forEach((item, idx) => {
+      if (item.type === 'section') {
+        const sec = document.createElement('div');
+        sec.style.cssText = 'padding:10px 16px 4px;font-size:0.68rem;text-transform:uppercase;color:var(--text-soft);font-weight:700;letter-spacing:0.5px;';
+        sec.textContent = item.title;
+        results.appendChild(sec);
+      } else {
+        const div = document.createElement('div');
+        div.className = 'command-palette-item';
+        div.style.cssText = `display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:12px;cursor:pointer;font-size:0.9rem;${idx === activeIndex ? 'background:var(--primary-soft);color:var(--primary);' : ''}`;
+        div.dataset.index = idx;
+        div.innerHTML = `
+          <div style="width:36px;height:36px;border-radius:50%;background:var(--primary-soft);color:var(--primary);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="${item.data.icon}"></i></div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-weight:600;">${escapeHtml(item.data.title)}</div>
+            ${item.data.sub ? `<div style="font-size:0.75rem;color:var(--text-muted);">${escapeHtml(item.data.sub)}</div>` : ''}
+          </div>
+          <i class="fas fa-arrow-right" style="color:var(--text-soft);font-size:0.8rem;"></i>`;
+        div.addEventListener('click', () => execute(idx));
+        div.addEventListener('mouseenter', () => { activeIndex = idx; renderResults(input.value); });
+        results.appendChild(div);
+      }
     });
   }
 
-  function execute(index) {
-    const cmd = filteredCommands[index];
-    if (!cmd) return;
-    overlay.classList.remove('show');
+  function execute(idx) {
+    const item = currentResults[idx];
+    if (!item || item.type !== 'item') return;
+    overlay.style.display = 'none';
     input.value = '';
-    setTimeout(() => cmd.action(), 100);
+    activeIndex = 0;
+    setTimeout(() => item.data.action(), 150);
   }
 
-  input.addEventListener('input', (e) => {
-    const commands = getCommands();
-    const q = e.target.value.toLowerCase().trim();
-    filteredCommands = q ? commands.filter(c => c.title.toLowerCase().includes(q)) : [...commands];
-    activeIndex = 0; render();
-  });
-
+  input.addEventListener('input', (e) => { activeIndex = 0; renderResults(e.target.value); });
   input.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowDown') { e.preventDefault(); activeIndex = Math.min(activeIndex + 1, filteredCommands.length - 1); render(); }
-    else if (e.key === 'ArrowUp') { e.preventDefault(); activeIndex = Math.max(activeIndex - 1, 0); render(); }
+    if (e.key === 'ArrowDown') { e.preventDefault(); activeIndex = Math.min(activeIndex + 1, currentResults.length - 1); renderResults(input.value); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); activeIndex = Math.max(activeIndex - 1, 0); renderResults(input.value); }
     else if (e.key === 'Enter') { e.preventDefault(); execute(activeIndex); }
-    else if (e.key === 'Escape') { overlay.classList.remove('show'); }
+    else if (e.key === 'Escape') { overlay.style.display = 'none'; }
   });
 
-  overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.remove('show'); });
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.style.display = 'none'; });
 
   window.openCommandPalette = () => {
-    overlay.classList.add('show');
-    filteredCommands = [...getCommands()];
-    activeIndex = 0;
-    setTimeout(() => { input.value = ''; input.focus(); render(); }, 50);
+    overlay.style.display = 'flex';
+    setTimeout(() => { input.value = ''; input.focus(); activeIndex = 0; renderResults(); }, 50);
   };
 
   document.addEventListener('keydown', (e) => {
@@ -3130,73 +3081,155 @@ window.clearCalcHistory = () => { calcState.history = []; updateCalcDisplay(); }
   });
 })();
 
-/* ═══════════════════ KEYBOARD SHORTCUTS ═══════════════════ */
-document.addEventListener('keydown', (e) => {
-  const calcModal = $('calculatorModal');
-  if (calcModal && calcModal.classList.contains('show')) {
-    if (e.key >= '0' && e.key <= '9') calcNum(e.key);
-    else if (e.key === '.') calcAction('decimal');
-    else if (e.key === '+') calcAction('add');
-    else if (e.key === '-') calcAction('subtract');
-    else if (e.key === '*') calcAction('multiply');
-    else if (e.key === '/') { e.preventDefault(); calcAction('divide'); }
-    else if (e.key === 'Enter' || e.key === '=') calcAction('equals');
-    else if (e.key === 'Backspace') calcAction('backspace');
-    else if (e.key === 'Escape') calcAction('clear');
-    return;
+/* ⭐ QUICK SEARCH ENGINE (Dashboard) */
+window.quickSearch = debounce((e) => {
+  const q = e.target.value.toLowerCase().trim();
+  const results = $('quickSearchResults');
+  if (!results) return;
+
+  if (!q) { results.style.display = 'none'; return; }
+
+  const items = [];
+
+  // Products
+  AppState.inventory.filter(p => p.name.toLowerCase().includes(q)).slice(0, 5).forEach(p => {
+    items.push({
+      section: 'পণ্য / Products',
+      title: p.name,
+      sub: `৳${p.sellPrice} • ${t('stock')}: ${p.qty}`,
+      icon: 'fas fa-box',
+      action: () => { showSection('sales'); setTimeout(() => selectProduct(p.id), 200); }
+    });
+  });
+
+  // Customers
+  AppState.customers.filter(c => c.name.toLowerCase().includes(q) || (c.phone || '').includes(q)).slice(0, 5).forEach(c => {
+    items.push({
+      section: 'কাস্টমার / Customers',
+      title: c.name,
+      sub: `${c.phone || '—'} • ${t('due')}: ৳${c.due || 0}`,
+      icon: 'fas fa-user',
+      action: () => showSection('customers')
+    });
+  });
+
+  // Sales
+  AppState.allSalesCache.filter(s => (s.invoiceNo || '').toLowerCase().includes(q) || (s.customerName || '').toLowerCase().includes(q)).slice(0, 5).forEach(s => {
+    items.push({
+      section: 'ইনভয়েস / Invoices',
+      title: s.invoiceNo,
+      sub: `${s.customerName || '—'} • ৳${s.totalAmount}`,
+      icon: 'fas fa-file-invoice',
+      action: () => showSection('sales-list')
+    });
+  });
+
+  // Static commands
+  const staticMatches = [
+    { kw: ['dashboard', 'ড্যাশবোর্ড', 'dash'], title: t('dashboard'), icon: 'fas fa-chart-line', action: () => showSection('dashboard'), section: 'পেজ / Pages' },
+    { kw: ['sales', 'বিক্রয়'], title: t('new_sale'), icon: 'fas fa-cart-plus', action: () => showSection('sales'), section: 'পেজ / Pages' },
+    { kw: ['settings', 'সেটিংস'], title: t('settings'), icon: 'fas fa-gear', action: () => showSection('settings'), section: 'পেজ / Pages' },
+    { kw: ['report', 'রিপোর্ট'], title: t('reports'), icon: 'fas fa-chart-pie', action: () => showSection('reports'), section: 'পেজ / Pages' },
+    { kw: ['expense', 'খরচ'], title: t('expenses'), icon: 'fas fa-hand-holding-dollar', action: () => showSection('expenses'), section: 'পেজ / Pages' }
+  ];
+  staticMatches.forEach(m => {
+    if (m.kw.some(k => k.includes(q) || q.includes(k))) items.push(m);
+  });
+
+  if (items.length === 0) {
+    results.innerHTML = `<div style="padding:20px;text-align:center;color:var(--text-muted);"><i class="fas fa-magnifying-glass" style="font-size:1.5rem;opacity:0.3;margin-bottom:8px;display:block;"></i>${currentLang === 'bn' ? 'কিছু পাওয়া যায়নি' : 'Nothing found'}</div>`;
+  } else {
+    let html = '';
+    let lastSection = '';
+    items.forEach((item, idx) => {
+      if (item.section !== lastSection) {
+        html += `<div class="qsr-section">${item.section}</div>`;
+        lastSection = item.section;
+      }
+      html += `<div class="qsr-item" onclick="quickSearchClick(${idx})">
+        <div class="qsr-item-icon"><i class="${item.icon}"></i></div>
+        <div class="qsr-item-content">
+          <div class="qsr-item-title">${escapeHtml(item.title)}</div>
+          ${item.sub ? `<div class="qsr-item-sub">${escapeHtml(item.sub)}</div>` : ''}
+        </div>
+        <i class="fas fa-arrow-right qsr-item-arrow"></i>
+      </div>`;
+    });
+    results.innerHTML = html;
+    window._quickSearchItems = items;
   }
-  if (e.key === 'Enter') {
-    const loginForm = $('loginForm'), registerForm = $('registerForm'), authScreen = $('authScreen');
-    if (loginForm && loginForm.style.display !== 'none' && authScreen.style.display !== 'none') login();
-    else if (registerForm && registerForm.style.display !== 'none') register();
+  results.style.display = 'block';
+}, 200);
+
+window.showQuickSearchResults = () => {
+  const el = $('quickSearchResults');
+  if (el && el.innerHTML.trim()) el.style.display = 'block';
+};
+
+window.quickSearchClick = (idx) => {
+  const items = window._quickSearchItems || [];
+  const item = items[idx];
+  if (!item) return;
+  const results = $('quickSearchResults');
+  if (results) results.style.display = 'none';
+  $('quickSearchInput').value = '';
+  setTimeout(() => item.action(), 100);
+};
+
+window.quickSearchAction = (action) => {
+  if (action === 'sales') showSection('sales');
+  else if (action === 'inventory') new bootstrap.Modal($('addProductModal')).show();
+  else if (action === 'customers') new bootstrap.Modal($('addCustomerModal')).show();
+  else if (action === 'expenses') new bootstrap.Modal($('addExpenseModal')).show();
+  else if (action === 'reports') showSection('reports');
+  else if (action === 'activity-log') showSection('activity-log');
+};
+
+// Hide quick search on click outside
+document.addEventListener('click', (e) => {
+  const qs = $('quickSearchResults');
+  const qi = $('quickSearchInput');
+  if (qs && qi && !qs.contains(e.target) && e.target !== qi) {
+    qs.style.display = 'none';
   }
-  if (e.key === 'Escape') { closeUserDropdown(); closeLangDropdown(); }
 });
 
 /* FAB */
 (function initFAB() {
   const fab = document.createElement('button');
   fab.className = 'fab';
-  fab.id = 'mainFab';
-  fab.title = 'Ctrl+K';
   fab.innerHTML = '<i class="fas fa-bolt"></i>';
-  fab.addEventListener('click', () => window.openCommandPalette?.());
+  fab.onclick = () => window.openCommandPalette?.();
   document.body.appendChild(fab);
 })();
 
 /* ONLINE/OFFLINE */
-window.addEventListener('online', () => {
-  const banner = $('offlineBanner');
-  if (banner) banner.style.display = 'none';
-});
-window.addEventListener('offline', () => {
-  const banner = $('offlineBanner');
-  if (banner) banner.style.display = 'block';
-});
+window.addEventListener('online', () => { const b = $('offlineBanner'); if (b) b.style.display = 'none'; });
+window.addEventListener('offline', () => { const b = $('offlineBanner'); if (b) b.style.display = 'block'; });
 
 /* DOM READY */
 document.addEventListener('DOMContentLoaded', () => {
   switchLanguage(currentLang);
-  const paid = $('paidAmount'), disc = $('discountInput');
+  const paid = $('paidAmount'), disc = $('discountInput'), qty = $('productQty');
   if (paid) paid.addEventListener('input', calculateCartTotal);
   if (disc) disc.addEventListener('input', calculateCartTotal);
+  if (qty) qty.addEventListener('input', updatePosPreview);
 });
 
 /* AUTO LOGOUT */
 let idleTimer;
-function resetIdleTimer() {
-  clearTimeout(idleTimer);
-  if (AppState.userSettings.autoLogout && AppState.currentUser) {
-    idleTimer = setTimeout(() => { logout(); }, 30 * 60 * 1000);
-  }
-}
 ['mousemove', 'keypress', 'click', 'scroll', 'touchstart'].forEach(evt => {
-  document.addEventListener(evt, resetIdleTimer, { passive: true });
+  document.addEventListener(evt, () => {
+    clearTimeout(idleTimer);
+    if (AppState.userSettings.autoLogout && AppState.currentUser) {
+      idleTimer = setTimeout(() => logout(), 30 * 60 * 1000);
+    }
+  }, { passive: true });
 });
 
 window.addEventListener('beforeunload', () => {
   AppState.unsubscribers.forEach(unsub => { try { unsub(); } catch (e) {} });
 });
 
-console.log('%c🚀 HesabKhata Enterprise Pro v10.0', 'color:#6366f1;font-size:16px;font-weight:bold;');
-console.log('%c✓ Fixed: Block system • Complete user deletion • Pro Admin Panel', 'color:#10b981;font-size:12px;');
+console.log('%c🚀 HesabKhata Enterprise Pro v11.0', 'color:#6366f1;font-size:16px;font-weight:bold;');
+console.log('%c✓ Fixed POS accounting • Pro Admin Impersonation • Ultra Command Palette', 'color:#10b981;font-size:12px;');
