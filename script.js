@@ -1,17 +1,11 @@
 /* ═══════════════════════════════════════════════════════════
-   HesabKhata Enterprise Pro v11.0
+   HesabKhata Enterprise Pro v12.0
    ═══════════════════════════════════════════════════════════ */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import {
-  getDatabase, ref, push, set, onValue, remove, update, get
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-import {
-  getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
-  onAuthStateChanged, signOut, sendPasswordResetEmail
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getDatabase, ref, push, set, onValue, remove, update, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-/* ═══════════════════ FIREBASE ═══════════════════ */
 const firebaseConfig = {
   apiKey: "AIzaSyBiBGWukd3PNjxK6-gv_4qiCHmwAfO3GzQ",
   authDomain: "hesab-khata.firebaseapp.com",
@@ -56,14 +50,15 @@ const TRANSLATIONS = {
     quick_summary: 'দ্রুত সারাংশ', stock_alert: 'স্টক সতর্কতা', detailed_reports: 'বিস্তারিত রিপোর্ট',
     stock_alerts: 'স্টক সতর্কতা', recent_transactions: 'সাম্প্রতিক লেনদেন', view_all: 'সব',
     step_product: 'পণ্য নির্বাচন', step_customer: 'কাস্টমার', step_payment: 'পেমেন্ট',
-    search_add_product: 'পণ্য খুঁজুন', quantity: 'পরিমাণ', add: 'যোগ', add_to_cart: 'কার্টে যোগ করুন',
+    search_add_product: 'পণ্য খুঁজুন', pos_search_sub: 'নাম বা বারকোড দিয়ে', pos_customer_sub: 'ঐচ্ছিক',
+    quantity: 'পরিমাণ', add: 'যোগ', add_to_cart: 'কার্টে যোগ করুন',
     selected_product: 'নির্বাচিত পণ্য', available_stock: 'স্টক',
     customer_select: 'কাস্টমার', cash_sale: 'নগদ বিক্রয়', new: 'নতুন',
     cart: 'কার্ট', clear: 'ক্লিয়ার', subtotal: 'সাবটোটাল', discount: 'ডিসকাউন্ট', grand_total: 'সর্বমোট',
     paid_amount: 'প্রাপ্ত টাকা', change: 'পরিবর্তন', will_due: 'বাকি থাকবে', complete_sale: 'বিক্রয় সম্পন্ন করুন',
     exact: 'সঠিক',
     export: 'এক্সপোর্ট', reset: 'রিসেট', all_status: 'সব', paid_status: 'পরিশোধিত', due_status: 'বাকি',
-    sort_newest: 'নতুন আগে', invoice: 'ইনভয়েস', customer: 'কাস্টমার', products_col: 'পণ্য', total: 'মোট', paid: 'পরিশোধিত', due: 'বাকি',
+    invoice: 'ইনভয়েস', customer: 'কাস্টমার', products_col: 'পণ্য', total: 'মোট', paid: 'পরিশোধিত', due: 'বাকি',
     date_time: 'তারিখ', action: 'অ্যাকশন', search: 'খুঁজুন',
     all_stock: 'সব', low_stock: 'স্টক কম', stock_ok: 'স্টক ঠিক',
     new_product: 'নতুন পণ্য', product_name: 'পণ্যের নাম', stock: 'স্টক', buy_price: 'ক্রয় মূল্য',
@@ -153,14 +148,15 @@ const TRANSLATIONS = {
     quick_summary: 'Quick Summary', stock_alert: 'Stock Alert', detailed_reports: 'Detailed Reports',
     stock_alerts: 'Stock Alerts', recent_transactions: 'Recent Transactions', view_all: 'All',
     step_product: 'Select Product', step_customer: 'Customer', step_payment: 'Payment',
-    search_add_product: 'Search Products', quantity: 'Quantity', add: 'Add', add_to_cart: 'Add to Cart',
+    search_add_product: 'Search Products', pos_search_sub: 'By name or barcode', pos_customer_sub: 'Optional',
+    quantity: 'Quantity', add: 'Add', add_to_cart: 'Add to Cart',
     selected_product: 'Selected Product', available_stock: 'Available Stock',
     customer_select: 'Customer', cash_sale: 'Cash Sale', new: 'New',
     cart: 'Cart', clear: 'Clear', subtotal: 'Subtotal', discount: 'Discount', grand_total: 'Grand Total',
     paid_amount: 'Paid Amount', change: 'Change', will_due: 'Will Due', complete_sale: 'Complete Sale',
     exact: 'Exact',
     export: 'Export', reset: 'Reset', all_status: 'All', paid_status: 'Paid', due_status: 'Due',
-    sort_newest: 'Newest', invoice: 'Invoice', customer: 'Customer', products_col: 'Products', total: 'Total', paid: 'Paid', due: 'Due',
+    invoice: 'Invoice', customer: 'Customer', products_col: 'Products', total: 'Total', paid: 'Paid', due: 'Due',
     date_time: 'Date', action: 'Action', search: 'Search',
     all_stock: 'All', low_stock: 'Low Stock', stock_ok: 'Stock OK',
     new_product: 'New Product', product_name: 'Product Name', stock: 'Stock', buy_price: 'Buy Price',
@@ -244,7 +240,6 @@ window.switchLanguage = (lang) => {
   if (codeEl) codeEl.textContent = lang.toUpperCase();
   document.querySelectorAll('.lang-btn, .lang-option').forEach(btn => btn.classList.toggle('active', btn.dataset.lang === lang));
 
-  // Update search input placeholder
   const qsi = document.getElementById('quickSearchInput');
   if (qsi) qsi.placeholder = t('search_placeholder');
 
@@ -255,6 +250,7 @@ window.switchLanguage = (lang) => {
     renderCustomerCards(); renderExpenses(AppState.allExpensesCache);
     renderSalesList(AppState.allSalesCache); renderAdminUsersListPro();
     renderAdminGlobalStats(AppState.allUsersCache);
+    renderCart(); // Recalculate everything
     if (AppState.selectedAdminUser) selectAdminUserPro(AppState.selectedAdminUser.uid);
   }
   showToast('success', lang === 'bn' ? 'ভাষা পরিবর্তন' : 'Language Changed', lang === 'bn' ? 'বাংলা' : 'English');
@@ -269,7 +265,6 @@ document.addEventListener('click', (e) => {
   const dd = document.getElementById('langDropdown');
   if (dd && !dd.contains(e.target) && !e.target.closest('.lang-switcher')) dd.classList.remove('show');
 });
-
 function t(key) { return TRANSLATIONS[currentLang][key] || key; }
 window.t = t;
 
@@ -287,9 +282,8 @@ const AppState = {
   userSettings: {}, currentIP: '—',
   impersonatingUser: null, selectedAdminUser: null,
   adminFilter: 'all', barcodeReader: null,
-  quickSearchIndex: 0, quickSearchResults: []
+  quickSearchIndex: 0
 };
-
 Object.keys(AppState).forEach(key => {
   Object.defineProperty(window, key, {
     get() { return AppState[key]; },
@@ -297,12 +291,7 @@ Object.keys(AppState).forEach(key => {
     configurable: true
   });
 });
-
-const DEFAULT_SETTINGS = Object.freeze({
-  color: 'indigo', mode: 'light', radius: 16, fontSize: 100,
-  compactMode: false, animations: true,
-  soundEffect: false, saveHistory: true, autoLogout: false
-});
+const DEFAULT_SETTINGS = Object.freeze({ color: 'indigo', mode: 'light', radius: 16, fontSize: 100, compactMode: false, animations: true, soundEffect: false, saveHistory: true, autoLogout: false });
 const LOW_STOCK_THRESHOLD = 5;
 const MAX_ACTIVITY_LOG = 500;
 
@@ -335,20 +324,28 @@ window.formatDateBn = (dateStr) => {
   catch (e) { return dateStr; }
 };
 
-/** ⭐ CRITICAL: Safe money formatter - returns clean number string */
+/* ⭐ CRITICAL: Money handling - always return number, never NaN */
+function toNum(v) {
+  if (v === null || v === undefined || v === '') return 0;
+  const n = parseFloat(String(v).replace(/[^\d.-]/g, ''));
+  return isNaN(n) ? 0 : n;
+}
+window.toNum = toNum;
+
+/* ⭐ Format money for display (with thousand separator) */
 function formatMoney(n) {
-  const num = parseFloat(n) || 0;
+  const num = toNum(n);
   return num.toLocaleString(currentLang === 'bn' ? 'bn-BD' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 window.formatMoney = formatMoney;
 
-/** ⭐ Parse money from formatted text safely */
-function parseMoney(text) {
-  if (!text) return 0;
-  const cleaned = String(text).replace(/[^\d.-]/g, '');
-  return parseFloat(cleaned) || 0;
+/* ⭐ Read money from DOM element (input or text) */
+function readMoney(elOrId) {
+  const el = typeof elOrId === 'string' ? $(elOrId) : elOrId;
+  if (!el) return 0;
+  return toNum(el.value !== undefined ? el.value : el.textContent);
 }
-window.parseMoney = parseMoney;
+window.readMoney = readMoney;
 
 /* ═══════════════════ LOADER & TOAST ═══════════════════ */
 window.showLoader = (show, text = null) => {
@@ -450,7 +447,7 @@ window.logActivity = (action, details, amount = null, extraData = {}) => {
   const now = new Date();
   const entry = {
     id: Date.now() + Math.random().toString(36).substr(2, 9),
-    action, details, amount: amount !== null ? parseFloat(amount) : null,
+    action, details, amount: amount !== null ? toNum(amount) : null,
     date: now.toISOString().split('T')[0], time: getTimeBn(now), timestamp: now.getTime(), ...extraData
   };
   AppState.activityLog.unshift(entry);
@@ -486,12 +483,13 @@ window.renderActivityLog = () => {
     const meta = getActivityMeta(a.action);
     const div = document.createElement('div');
     div.className = 'activity-item';
+    div.style.cssText = 'display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--border-light);';
     div.innerHTML = `
-      <div class="activity-icon ${meta.color}"><i class="${meta.icon}"></i></div>
-      <div class="activity-content">
-        <div class="activity-title">${escapeHtml(a.action)}</div>
-        <div class="activity-details">${escapeHtml(a.details)}</div>
-        <div class="activity-time"><i class="fas fa-clock me-1"></i>${escapeHtml(a.date)} • ${escapeHtml(a.time)}</div>
+      <div class="activity-icon ${meta.color}" style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="${meta.icon}"></i></div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-weight:700;font-size:0.9rem;">${escapeHtml(a.action)}</div>
+        <div style="font-size:0.82rem;color:var(--text-muted);margin:2px 0;">${escapeHtml(a.details)}</div>
+        <div style="font-size:0.72rem;color:var(--text-soft);"><i class="fas fa-clock me-1"></i>${escapeHtml(a.date)} • ${escapeHtml(a.time)}</div>
       </div>`;
     fragment.appendChild(div);
   });
@@ -510,13 +508,7 @@ window.updateActivityStats = () => {
 window.renderActivityLogAdvanced = () => {
   const c = $('activityTimelineList');
   if (!c) return;
-  const q = ($('activitySearchInput')?.value || '').toLowerCase();
-  const from = $('activityDateFrom')?.value || '';
-  const to = $('activityDateTo')?.value || '';
   let filtered = [...AppState.activityLog];
-  if (q) filtered = filtered.filter(a => a.action.toLowerCase().includes(q) || (a.details || '').toLowerCase().includes(q));
-  if (from) filtered = filtered.filter(a => a.date >= from);
-  if (to) filtered = filtered.filter(a => a.date <= to);
   filtered.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
   c.innerHTML = '';
   if (filtered.length === 0) { c.innerHTML = `<div class="empty-state"><i class="fas fa-magnifying-glass"></i><h5>0</h5></div>`; return; }
@@ -562,7 +554,6 @@ window.clearActivityLog = async () => {
   renderActivityLog(); renderActivityLogAdvanced(); updateActivityStats();
 };
 
-/* ═══════════════════ DOWNLOAD ═══════════════════ */
 function downloadFile(content, filename, mime = 'text/csv') {
   const blob = new Blob(['\uFEFF' + content], { type: mime + ';charset=utf-8' });
   const url = URL.createObjectURL(blob);
@@ -573,7 +564,7 @@ function downloadFile(content, filename, mime = 'text/csv') {
 }
 window.downloadFile = downloadFile;
 
-/* ═══════════════════ THEME ═══════════════════ */
+/* THEME */
 window.applySettings = (settings) => {
   AppState.userSettings = { ...DEFAULT_SETTINGS, ...settings };
   const s = AppState.userSettings;
@@ -585,25 +576,20 @@ window.applySettings = (settings) => {
   document.body.classList.toggle('compact', s.compactMode);
   document.body.classList.toggle('no-anim', !s.animations);
 };
-
 window.saveUserSettings = async () => {
   if (!AppState.currentUser) return;
   try { await update(ref(db, 'users/' + AppState.currentUser.uid), { settings: AppState.userSettings }); } catch (e) {}
 };
-
 window.loadUserSettings = (data) => {
   const saved = data?.settings || {};
   window.applySettings(saved);
   syncSettingsUI();
 };
-
 function syncSettingsUI() {
   const s = AppState.userSettings;
   document.querySelectorAll('.color-item').forEach(el => el.classList.toggle('active', el.dataset.color === s.color));
   document.querySelectorAll('.theme-mode-item').forEach(el => el.classList.toggle('active', el.dataset.mode === s.mode));
-  ['soundEffect', 'saveHistory', 'autoLogout'].forEach(id => { const el = $(id); if (el) el.checked = !!s[id]; });
 }
-
 window.setThemeColor = (color, el) => {
   AppState.userSettings.color = color;
   document.querySelectorAll('.color-item').forEach(c => c.classList.remove('active'));
@@ -611,7 +597,6 @@ window.setThemeColor = (color, el) => {
   document.documentElement.setAttribute('data-color', color);
   saveUserSettings();
 };
-
 window.setThemeMode = (mode, el) => {
   AppState.userSettings.mode = mode;
   document.querySelectorAll('.theme-mode-item').forEach(c => c.classList.remove('active'));
@@ -620,15 +605,12 @@ window.setThemeMode = (mode, el) => {
   document.documentElement.setAttribute('data-mode', actual);
   saveUserSettings();
 };
-
-window.saveSetting = (key, v) => { AppState.userSettings[key] = v; saveUserSettings(); };
 window.switchSettingsTab = (tab, el) => {
   document.querySelectorAll('.settings-tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.settings-content').forEach(t => t.classList.remove('active'));
   el.classList.add('active');
   $('settings-' + tab)?.classList.add('active');
 };
-
 window.checkPasswordStrength = () => {
   const p = $('regPassword').value;
   const bar = $('strengthBar'), txt = $('strengthText');
@@ -646,7 +628,7 @@ window.checkPasswordStrength = () => {
   else { bar.style.width = '100%'; bar.className = 'password-strength-bar strength-strong'; txt.textContent = currentLang === 'bn' ? 'শক্তিশালী' : 'Strong'; }
 };
 
-/* ═══════════════════ AUTH NAV ═══════════════════ */
+/* AUTH NAV */
 window.showLogin = () => { $('loginForm').style.display = 'block'; $('registerForm').style.display = 'none'; $('forgotForm').style.display = 'none'; };
 window.showRegister = () => { $('loginForm').style.display = 'none'; $('registerForm').style.display = 'block'; $('forgotForm').style.display = 'none'; };
 window.showForgotPassword = () => { $('loginForm').style.display = 'none'; $('registerForm').style.display = 'none'; $('forgotForm').style.display = 'block'; };
@@ -657,7 +639,7 @@ window.togglePassword = (id, btn) => {
   else { i.type = 'password'; btn.innerHTML = '<i class="fas fa-eye"></i>'; }
 };
 
-/* ═══════════════════ LOGIN WITH BLOCK CHECK ═══════════════════ */
+/* LOGIN */
 window.login = async () => {
   const email = $('loginEmail').value.trim();
   const pass = $('loginPassword').value;
@@ -679,7 +661,7 @@ window.login = async () => {
           if (users[uid].email === email) { foundUser = users[uid]; foundUid = uid; break; }
         }
       }
-    } catch (e) { console.warn('Block check error:', e.code); }
+    } catch (e) {}
 
     if (foundUser) {
       const status = foundUser.status || 'Active';
@@ -699,8 +681,6 @@ window.login = async () => {
             confirmButtonText: 'OK'
           });
           return;
-        } else {
-          try { await update(ref(db, 'users/' + foundUid), { status: 'Active', blockUntil: null, blockReason: null }); } catch (e) {}
         }
       }
       if (status === 'Suspended') {
@@ -742,7 +722,6 @@ window.register = async () => {
   showLoader(true);
 
   try {
-    const ipInfo = await fetchIPInfo();
     const device = getDeviceInfo();
     const uc = await createUserWithEmailAndPassword(auth, email, pass);
     const user = uc.user;
@@ -751,13 +730,11 @@ window.register = async () => {
       uid: user.uid, fullName: name, email, phone, shopName, address,
       role: 'Staff', status: 'Active',
       createdAt: now.toISOString(),
-      createdAtDate: now.toISOString().split('T')[0],
-      createdAtTime: getTimeBn(now),
-      registrationIp: ipInfo.ip || '—', registrationDevice: device.device,
+      registrationDevice: device.device,
       settings: DEFAULT_SETTINGS
     });
     const histRef = push(ref(db, 'users/' + user.uid + '/loginHistory'));
-    await set(histRef, { id: histRef.key, date: now.toISOString().split('T')[0], time: getTimeBn(now), timestamp: now.getTime(), ip: ipInfo.ip || '—', device: device.device, action: 'Registration' });
+    await set(histRef, { id: histRef.key, date: now.toISOString().split('T')[0], time: getTimeBn(now), timestamp: now.getTime(), device: device.device, action: 'Registration' });
     showToast('success', t('register_btn'));
     ['regName','regEmail','regPhone','regShopName','regAddress','regPassword','regConfirmPassword'].forEach(id => { const el = $(id); if (el) el.value = ''; });
     $('termsCheck').checked = false;
@@ -773,7 +750,6 @@ window.resetPassword = async () => {
   if (!email) { showToast('warning', t('email')); return; }
   const btn = $('resetBtn');
   btn.disabled = true;
-  btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>' + t('send_reset');
   try {
     await sendPasswordResetEmail(auth, email);
     showToast('success', t('send_reset'), email);
@@ -781,7 +757,6 @@ window.resetPassword = async () => {
     setTimeout(showLogin, 1500);
   } catch (e) { showToast('error', t('send_reset'), getFirebaseErrorMessage(e.code)); }
   btn.disabled = false;
-  btn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>' + t('send_reset');
 };
 
 window.logout = async () => {
@@ -790,36 +765,15 @@ window.logout = async () => {
   try { await signOut(auth); showToast('info', t('logout')); } catch (e) {}
 };
 
-async function fetchIPInfo() {
-  try {
-    const r = await fetch('https://ipapi.co/json/');
-    if (!r.ok) throw new Error('Failed');
-    const data = await r.json();
-    AppState.currentIP = data.ip || '—';
-    return { ip: AppState.currentIP };
-  } catch (e) {
-    try {
-      const r2 = await fetch('https://api.ipify.org?format=json');
-      const d2 = await r2.json();
-      AppState.currentIP = d2.ip || '—';
-      return { ip: AppState.currentIP };
-    } catch (e2) { return { ip: '—' }; }
-  }
-}
-
 function getDeviceInfo() {
   const ua = navigator.userAgent;
-  let device = 'Desktop', browser = 'Unknown';
+  let device = 'Desktop';
   if (/Mobile/i.test(ua)) device = 'Mobile';
   else if (/Tablet|iPad/i.test(ua)) device = 'Tablet';
-  if (/Edg/i.test(ua)) browser = 'Edge';
-  else if (/Chrome/i.test(ua)) browser = 'Chrome';
-  else if (/Firefox/i.test(ua)) browser = 'Firefox';
-  else if (/Safari/i.test(ua)) browser = 'Safari';
-  return { device, browser };
+  return { device };
 }
 
-/* ═══════════════════ AUTH STATE ═══════════════════ */
+/* AUTH STATE */
 onAuthStateChanged(auth, async (user) => {
   AppState.unsubscribers.forEach(unsub => { try { unsub(); } catch (e) {} });
   AppState.unsubscribers = [];
@@ -841,10 +795,7 @@ onAuthStateChanged(auth, async (user) => {
   AppState.currentUser = user;
   showLoader(true);
 
-  let ipInfo = { ip: '—' };
-  try { ipInfo = await fetchIPInfo(); } catch (e) {}
   const device = getDeviceInfo();
-
   let data = null;
   try {
     const snap = await get(ref(db, 'users/' + user.uid));
@@ -861,7 +812,6 @@ onAuthStateChanged(auth, async (user) => {
     } else { data = snap.val(); }
   } catch (e) { showLoader(false); return; }
 
-  // ⭐ REAL-TIME BLOCK CHECK
   if (data.status === 'Blocked' && !AppState.impersonatingUser) {
     const blockUntil = data.blockUntil ? new Date(data.blockUntil) : null;
     if (!blockUntil || blockUntil > new Date()) {
@@ -894,8 +844,8 @@ onAuthStateChanged(auth, async (user) => {
     (async () => {
       try {
         const now = new Date();
-        const loginEntry = { date: now.toISOString().split('T')[0], time: getTimeBn(now), timestamp: now.getTime(), ip: ipInfo.ip || '—', device: device.device, action: 'Login' };
-        await update(ref(db, 'users/' + user.uid), { lastLogin: loginEntry, lastIp: ipInfo.ip || '—', lastDevice: device.device });
+        const loginEntry = { date: now.toISOString().split('T')[0], time: getTimeBn(now), timestamp: now.getTime(), device: device.device, action: 'Login' };
+        await update(ref(db, 'users/' + user.uid), { lastLogin: loginEntry, lastDevice: device.device });
         const histRef = push(ref(db, 'users/' + user.uid + '/loginHistory'));
         await set(histRef, { id: histRef.key, ...loginEntry });
       } catch (e) {}
@@ -932,14 +882,13 @@ onAuthStateChanged(auth, async (user) => {
   try { renderProfile(); } catch (e) {}
   try { loadLoginHistory(); } catch (e) {}
 
-  // Real-time block check (self)
   if (!AppState.impersonatingUser) {
     const selfRef = onValue(ref(db, 'users/' + user.uid + '/status'), (snap) => {
       const status = snap.val();
       if (status === 'Blocked' || status === 'Suspended') {
         setTimeout(async () => {
           await signOut(auth);
-          Swal.fire({ icon: 'error', title: status, text: currentLang === 'bn' ? 'আপনার অ্যাকাউন্ট নিষ্ক্রিয়।' : 'Account disabled.', confirmButtonText: 'OK' });
+          Swal.fire({ icon: 'error', title: status, confirmButtonText: 'OK' });
         }, 500);
       }
     });
@@ -950,11 +899,10 @@ onAuthStateChanged(auth, async (user) => {
 
   try { showSection('dashboard'); } catch (e) {}
   showLoader(false);
-
   setTimeout(() => { try { showToast('success', t('welcome'), activeData.fullName || 'User'); } catch (e) {} }, 300);
 });
 
-/* ═══════════════════ INIT APP ═══════════════════ */
+/* INIT APP */
 function initApp() {
   if (!AppState.currentUser) return;
   const uid = AppState.impersonatingUser || AppState.currentUser.uid;
@@ -963,6 +911,8 @@ function initApp() {
     AppState.inventory = snap.val() ? Object.values(snap.val()) : [];
     renderProductCards(); renderInventoryTable(); renderCustomerSelect();
     renderLowStock(); updateQuickStats();
+    // Refresh cart items to reflect new stock
+    renderCart();
   }));
 
   AppState.unsubscribers.push(onValue(ref(db, 'users/' + uid + '/customers'), (snap) => {
@@ -1014,19 +964,18 @@ function initApp() {
   if (AppState.currentUserRole === 'Admin') loadAllUsers();
 }
 
-/* ═══════════════════ LIVE PREVIEWS ═══════════════════ */
 function updateAddProdLive() {
-  const qty = parseFloat($('addProdQty').value) || 0;
-  const buy = parseFloat($('addProdBuyPrice').value) || 0;
-  const sell = parseFloat($('addProdSellPrice').value) || 0;
+  const qty = toNum($('addProdQty').value);
+  const buy = toNum($('addProdBuyPrice').value);
+  const sell = toNum($('addProdSellPrice').value);
   const profit = sell - buy;
   setText('addProdProfit', '৳' + formatMoney(profit));
   setText('addProdTotalProfit', '৳' + formatMoney(profit * qty));
 }
 
 window.previewPayDue = () => {
-  const amount = parseFloat($('payAmount').value) || 0;
-  const curDue = parseMoney($('payCurrentDue').value);
+  const amount = toNum($('payAmount').value);
+  const curDue = toNum($('payCurrentDue').value);
   const remaining = Math.max(0, curDue - amount);
   setText('payRemainingDue', '৳' + formatMoney(remaining));
   setHtml('payStatus', remaining <= 0 ? `<span class="tag tag-success">${currentLang === 'bn' ? 'সম্পূর্ণ' : 'Full'}</span>` : `<span class="tag tag-warning">${currentLang === 'bn' ? 'আংশিক' : 'Partial'}</span>`);
@@ -1034,10 +983,17 @@ window.previewPayDue = () => {
 
 window.quickExpense = (desc) => { const el = $('addExpDesc'); if (el) el.value = desc; };
 window.openAddCustomerQuick = () => { new bootstrap.Modal($('quickAddCustomerModal')).show(); };
-window.increaseQty = () => { const el = $('productQty'); if (el) { el.value = (parseInt(el.value) || 0) + 1; updatePosPreview(); } };
-window.decreaseQty = () => { const el = $('productQty'); if (el) { el.value = Math.max(1, (parseInt(el.value) || 1) - 1); updatePosPreview(); } };
 
-/* ═══════════════════ PRODUCTS ═══════════════════ */
+/* ⭐ CHANGE QTY — Proper handling */
+window.changeQty = (delta) => {
+  const el = $('productQty');
+  if (!el) return;
+  const cur = parseInt(el.value) || 1;
+  el.value = Math.max(1, cur + delta);
+  updatePosPreview();
+};
+
+/* PRODUCTS */
 window.renderProductCards = () => {
   const c = $('productCardsContainer');
   if (!c) return;
@@ -1074,13 +1030,13 @@ window.renderProductCards = () => {
 window.renderInventoryTable = () => {
   const tbody = $('inventoryTableBody');
   if (!tbody) return;
-  const f = getFilteredInventoryList();
+  const f = [...AppState.inventory];
   setText('inventoryTableCount', `${f.length} ${t('products')}`);
   if (f.length === 0) { tbody.innerHTML = `<tr><td colspan="9" class="text-center text-muted py-4">0</td></tr>`; return; }
   const fragment = document.createDocumentFragment();
   let totalStock = 0, totalProfit = 0, lowCount = 0;
   f.forEach((p, i) => {
-    const ppu = parseFloat(p.sellPrice) - parseFloat(p.buyPrice);
+    const ppu = toNum(p.sellPrice) - toNum(p.buyPrice);
     const tp = ppu * parseInt(p.qty);
     totalStock += parseInt(p.qty);
     totalProfit += tp;
@@ -1124,8 +1080,6 @@ function getFilteredInventory() {
     return true;
   });
 }
-
-function getFilteredInventoryList() { return [...AppState.inventory]; }
 window.filterInventory = () => renderProductCards();
 window.filterInventoryList = () => renderInventoryTable();
 
@@ -1157,12 +1111,11 @@ window.updateInventory = async () => {
   showLoader(false);
 };
 
-/* ⭐ SELL PRODUCT — Pre-fills POS correctly */
+/* ⭐ SELL PRODUCT — Pre-fills POS */
 window.sellProduct = (id) => {
   const p = AppState.inventory.find(i => i.id === id);
   if (!p) return;
   if (parseInt(p.qty) <= 0) { showToast('error', currentLang === 'bn' ? 'স্টক নেই' : 'Out of stock', p.name); return; }
-
   showSection('sales');
   AppState.lastSelectedProductId = id;
   $('productSearch').value = p.name;
@@ -1187,7 +1140,7 @@ window.purchaseProductModal = (id) => {
 window.purchaseProduct = async () => {
   const name = $('purchaseProdName').value;
   const qty = parseInt($('purchaseQty').value);
-  const price = parseFloat($('purchasePrice').value);
+  const price = toNum($('purchasePrice').value);
   if (!qty || qty <= 0) { showToast('error', t('purchase_qty')); return; }
   if (!price || price < 0) { showToast('error', t('purchase_price')); return; }
   const p = AppState.inventory.find(i => i.name === name);
@@ -1211,7 +1164,7 @@ window.addInventory = async () => {
   const s = $('addProdSellPrice').value;
   const barcode = $('addProdBarcode')?.value.trim() || '';
   if (!n || q === '' || b === '' || s === '') { showToast('warning', t('product_name')); return; }
-  if (parseFloat(q) < 0 || parseFloat(b) < 0 || parseFloat(s) < 0) { showToast('error', t('product_name')); return; }
+  if (toNum(q) < 0 || toNum(b) < 0 || toNum(s) < 0) { showToast('error', t('product_name')); return; }
   showLoader(true);
   try {
     const uid = AppState.impersonatingUser || AppState.currentUser.uid;
@@ -1226,7 +1179,7 @@ window.addInventory = async () => {
   showLoader(false);
 };
 
-/* ═══════════════════ CUSTOMERS ═══════════════════ */
+/* CUSTOMERS */
 window.renderCustomerCards = () => {
   const c = $('customerCardsContainer');
   if (!c) return;
@@ -1235,7 +1188,7 @@ window.renderCustomerCards = () => {
   if (f.length === 0) { c.innerHTML = `<div class="col-12"><div class="empty-state"><i class="fas fa-users"></i><h5>0</h5><button class="btn btn-gradient" data-bs-toggle="modal" data-bs-target="#addCustomerModal"><i class="fas fa-plus"></i>${t('new_customer')}</button></div></div>`; return; }
   const fragment = document.createDocumentFragment();
   f.forEach(cust => {
-    const hasDue = parseFloat(cust.due) > 0;
+    const hasDue = toNum(cust.due) > 0;
     const badge = hasDue ? `<span class="badge-stock low"><i class="fas fa-circle-exclamation"></i>${t('due')}: ৳${cust.due}</span>` : `<span class="badge-stock ok"><i class="fas fa-circle-check"></i>${t('no_due')}</span>`;
     const div = document.createElement('div');
     div.className = 'col-xl-3 col-md-4 col-sm-6';
@@ -1261,8 +1214,8 @@ function getFilteredCustomers() {
   const df = $('customerDueFilter')?.value || '';
   return AppState.customers.filter(c => {
     if (q && !c.name.toLowerCase().includes(q)) return false;
-    if (df === 'due' && parseFloat(c.due) <= 0) return false;
-    if (df === 'clear' && parseFloat(c.due) > 0) return false;
+    if (df === 'due' && toNum(c.due) <= 0) return false;
+    if (df === 'clear' && toNum(c.due) > 0) return false;
     return true;
   });
 }
@@ -1313,11 +1266,11 @@ window.payDueModal = (id) => {
 
 window.makePayment = async () => {
   if (!AppState.payingCustomerId) return;
-  const amount = parseFloat($('payAmount').value);
+  const amount = toNum($('payAmount').value);
   const c = AppState.customers.find(i => i.id === AppState.payingCustomerId);
   if (!amount || amount <= 0) { showToast('error', t('pay_amount')); return; }
-  if (amount > (parseFloat(c.due) || 0)) { showToast('warning', t('pay_amount')); return; }
-  const newDue = Math.max(0, (parseFloat(c.due) || 0) - amount);
+  if (amount > toNum(c.due)) { showToast('warning', t('pay_amount')); return; }
+  const newDue = Math.max(0, toNum(c.due) - amount);
   showLoader(true);
   try {
     const uid = AppState.impersonatingUser || AppState.currentUser.uid;
@@ -1356,8 +1309,8 @@ window.addCustomer = async () => {
   try {
     const uid = AppState.impersonatingUser || AppState.currentUser.uid;
     const r = push(ref(db, 'users/' + uid + '/customers'));
-    await set(r, { id: r.key, name: n, phone: p, due: parseFloat(d), createdAt: new Date().toISOString() });
-    logActivity('নতুন কাস্টমার', `${n} - ${p}`, parseFloat(d));
+    await set(r, { id: r.key, name: n, phone: p, due: toNum(d), createdAt: new Date().toISOString() });
+    logActivity('নতুন কাস্টমার', `${n} - ${p}`, toNum(d));
     bootstrap.Modal.getInstance($('addCustomerModal')).hide();
     showToast('success', t('new_customer'), n);
     ['addCustName','addCustPhone','addCustDue'].forEach(id => { const el = $(id); if (el) el.value = ''; });
@@ -1365,7 +1318,7 @@ window.addCustomer = async () => {
   showLoader(false);
 };
 
-/* ═══════════════════ EXPENSES ═══════════════════ */
+/* EXPENSES */
 window.renderExpenses = (exp) => {
   const tbody = $('expenseTableBody');
   if (!tbody) return;
@@ -1374,7 +1327,7 @@ window.renderExpenses = (exp) => {
   const fragment = document.createDocumentFragment();
   let total = 0;
   exp.slice().reverse().forEach(e => {
-    total += parseFloat(e.amount || 0);
+    total += toNum(e.amount);
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td><strong>${escapeHtml(e.title)}</strong></td>
@@ -1402,7 +1355,7 @@ window.renderExpenseChart = (exp) => {
   for (let i = 6; i >= 0; i--) {
     const d = new Date(); d.setDate(d.getDate() - i);
     const ds = d.toISOString().split('T')[0];
-    last7.push({ label: ds.slice(5), amount: exp.filter(e => e.date === ds).reduce((s, e) => s + parseFloat(e.amount || 0), 0) });
+    last7.push({ label: ds.slice(5), amount: exp.filter(e => e.date === ds).reduce((s, e) => s + toNum(e.amount), 0) });
   }
   if (AppState.charts.expense) AppState.charts.expense.destroy();
   AppState.charts.expense = new Chart(ctx, {
@@ -1412,23 +1365,23 @@ window.renderExpenseChart = (exp) => {
   });
   const today = new Date().toISOString().split('T')[0];
   const tm = today.slice(0, 7);
-  setText('todayExpense', '৳' + formatMoney(exp.filter(e => e.date === today).reduce((s, e) => s + parseFloat(e.amount || 0), 0)));
-  setText('monthExpense', '৳' + formatMoney(exp.filter(e => e.date && e.date.startsWith(tm)).reduce((s, e) => s + parseFloat(e.amount || 0), 0)));
-  setText('totalExpenseQuick', '৳' + formatMoney(exp.reduce((s, e) => s + parseFloat(e.amount || 0), 0)));
+  setText('todayExpense', '৳' + formatMoney(exp.filter(e => e.date === today).reduce((s, e) => s + toNum(e.amount), 0)));
+  setText('monthExpense', '৳' + formatMoney(exp.filter(e => e.date && e.date.startsWith(tm)).reduce((s, e) => s + toNum(e.amount), 0)));
+  setText('totalExpenseQuick', '৳' + formatMoney(exp.reduce((s, e) => s + toNum(e.amount), 0)));
 };
 
 window.addExpense = async () => {
   const tt = $('addExpDesc').value.trim();
   const a = $('addExpAmt').value;
   if (!tt || !a) { showToast('warning', t('description')); return; }
-  if (parseFloat(a) <= 0) { showToast('error', t('amount')); return; }
+  if (toNum(a) <= 0) { showToast('error', t('amount')); return; }
   showLoader(true);
   try {
     const uid = AppState.impersonatingUser || AppState.currentUser.uid;
     const r = push(ref(db, 'users/' + uid + '/expenses'));
     const now = new Date();
     await set(r, { id: r.key, title: tt, amount: a, date: now.toISOString().split('T')[0], time: getTimeBn(now), createdAt: now.toISOString() });
-    logActivity('নতুন খরচ', tt, parseFloat(a));
+    logActivity('নতুন খরচ', tt, toNum(a));
     bootstrap.Modal.getInstance($('addExpenseModal')).hide();
     showToast('success', t('new_expense'), `${tt} - ৳${a}`);
     ['addExpDesc','addExpAmt'].forEach(id => { const el = $(id); if (el) el.value = ''; });
@@ -1436,12 +1389,12 @@ window.addExpense = async () => {
   showLoader(false);
 };
 
-/* ═══════════════════ DASHBOARD ═══════════════════ */
+/* DASHBOARD */
 window.renderDashboard = (sales) => {
   const today = new Date().toISOString().split('T')[0];
-  setText('totalSales', formatMoney(sales.reduce((s, i) => s + parseFloat(i.totalAmount || 0), 0)));
-  setText('todaySales', formatMoney(sales.filter(i => i.date === today).reduce((s, i) => s + parseFloat(i.totalAmount || 0), 0)));
-  setText('totalDue', formatMoney(sales.reduce((s, i) => s + parseFloat(i.due || 0), 0)));
+  setText('totalSales', formatMoney(sales.reduce((s, i) => s + toNum(i.totalAmount), 0)));
+  setText('todaySales', formatMoney(sales.filter(i => i.date === today).reduce((s, i) => s + toNum(i.totalAmount), 0)));
+  setText('totalDue', formatMoney(sales.reduce((s, i) => s + toNum(i.due), 0)));
   setText('repDue', $('totalDue')?.textContent || '0');
   setText('todayTxCount', sales.filter(i => i.date === today).length);
   updateChartPeriod(7);
@@ -1458,7 +1411,7 @@ window.updateChartPeriod = (days, btn) => {
     const d = new Date(); d.setDate(d.getDate() - i);
     const ds = d.toISOString().split('T')[0];
     labels.push(ds.slice(5));
-    data.push(AppState.allSalesCache.filter(s => s.date === ds).reduce((sum, s) => sum + parseFloat(s.totalAmount || 0), 0));
+    data.push(AppState.allSalesCache.filter(s => s.date === ds).reduce((sum, s) => sum + toNum(s.totalAmount), 0));
   }
   if (AppState.charts.sales) AppState.charts.sales.destroy();
   const ctx = $('salesChart')?.getContext('2d');
@@ -1484,7 +1437,7 @@ window.renderInvoices = (sales) => {
     div.innerHTML = `<div class="card-premium p-3">
       <div class="d-flex justify-content-between align-items-start mb-2">
         <div><div class="fw-bold text-primary">${escapeHtml(s.invoiceNo)}</div><small class="text-muted">${escapeHtml(s.date)}</small></div>
-        <span class="tag ${parseFloat(s.due) > 0 ? 'tag-warning' : 'tag-success'}">${parseFloat(s.due) > 0 ? t('due_status') : t('paid_status')}</span>
+        <span class="tag ${toNum(s.due) > 0 ? 'tag-warning' : 'tag-success'}">${toNum(s.due) > 0 ? t('due_status') : t('paid_status')}</span>
       </div>
       <div class="mb-2"><small class="text-muted">${t('customer')}:</small> <strong>${escapeHtml(s.customerName || '—')}</strong></div>
       <div class="d-flex justify-content-between align-items-center">
@@ -1502,10 +1455,10 @@ window.renderInvoices = (sales) => {
 window.filterInvoices = () => renderInvoices(AppState.allSalesCache);
 
 window.updateTotalExpense = (exp) => {
-  const totalExpense = exp.reduce((s, i) => s + parseFloat(i.amount || 0), 0);
+  const totalExpense = exp.reduce((s, i) => s + toNum(i.amount), 0);
   setText('totalExpense', formatMoney(totalExpense));
   setText('repExpense', formatMoney(totalExpense));
-  const ts = parseMoney($('totalSales')?.textContent);
+  const ts = toNum($('totalSales')?.textContent);
   const net = ts - totalExpense;
   setText('repProfit', formatMoney(net));
   setText('netProfitQuick', '৳' + formatMoney(net));
@@ -1526,7 +1479,7 @@ window.updateCustomerDue = () => {
   const s = $('customerSelect');
   if (!s) return;
   if (s.selectedIndex > 0) {
-    const due = parseFloat(s.options[s.selectedIndex].getAttribute('data-due')) || 0;
+    const due = toNum(s.options[s.selectedIndex].getAttribute('data-due'));
     AppState.currentCustomerDue = due;
     AppState.currentCustomerId = s.value;
     setHtml('customerDueBadge', `<i class="fas fa-circle-exclamation me-1"></i>${t('due')}: ৳${formatMoney(due)}`);
@@ -1538,7 +1491,6 @@ window.updateCustomerDue = () => {
   calculateCartTotal();
 };
 
-/* ⭐ SELECT PRODUCT FROM SEARCH RESULTS */
 window.selectProduct = (id) => {
   AppState.lastSelectedProductId = id;
   const item = AppState.inventory.find(i => i.id === id);
@@ -1556,21 +1508,34 @@ window.selectFirstProductMatch = () => {
   if (matches.length > 0) selectProduct(matches[0].id);
 };
 
-/* ⭐ UPDATE POS PREVIEW */
+/* ⭐ POS PREVIEW — Always accurate */
 window.updatePosPreview = () => {
   const preview = $('posPreview');
+  const addBtn = $('addToCartBtn');
   if (!preview) return;
-  if (!AppState.lastSelectedProductId) { preview.style.display = 'none'; return; }
+  if (!AppState.lastSelectedProductId) {
+    preview.style.display = 'none';
+    if (addBtn) addBtn.disabled = true;
+    return;
+  }
   const p = AppState.inventory.find(i => i.id === AppState.lastSelectedProductId);
-  if (!p) { preview.style.display = 'none'; return; }
-  const qty = parseInt($('productQty').value) || 1;
-  const price = parseFloat(p.sellPrice) || 0;
+  if (!p) {
+    preview.style.display = 'none';
+    if (addBtn) addBtn.disabled = true;
+    return;
+  }
+  const qty = Math.max(1, parseInt($('productQty').value) || 1);
+  const price = toNum(p.sellPrice);
+  const stock = parseInt(p.qty) || 0;
+
   preview.style.display = 'block';
   setText('posPreviewName', p.name);
-  setText('posPreviewPrice', price);
+  setText('posPreviewPrice', formatMoney(price));
   setText('posPreviewQty', qty);
   setText('posPreviewTotal', formatMoney(price * qty));
-  setText('posPreviewStock', p.qty);
+  setText('posPreviewStock', stock);
+
+  if (addBtn) addBtn.disabled = stock <= 0;
 };
 
 function updateQuickStats() {
@@ -1586,7 +1551,7 @@ function updateQuickStats() {
 
 function updateNotifDot() {
   const ls = AppState.inventory.filter(i => parseInt(i.qty) <= LOW_STOCK_THRESHOLD);
-  const dc = AppState.customers.filter(c => parseFloat(c.due) > 0);
+  const dc = AppState.customers.filter(c => toNum(c.due) > 0);
   const dot = $('notifDot');
   if (dot) dot.style.display = (ls.length + dc.length) > 0 ? 'block' : 'none';
 }
@@ -1622,24 +1587,26 @@ window.renderRecentTransactions = (sales) => {
   l.appendChild(fragment);
 };
 
-/* ═══════════════════ ⭐ CART — PROFESSIONAL & ACCURATE ═══════════════════ */
+/* ⭐⭐⭐ CART — FIXED CALCULATION ⭐⭐⭐ */
 window.addToCartFromSearch = () => {
   const id = AppState.lastSelectedProductId;
   if (!id) { showToast('warning', t('product')); return; }
   const item = AppState.inventory.find(i => i.id === id);
   if (!item) { showToast('error', t('product')); return; }
 
-  const qty = parseInt($('productQty').value) || 1;
-  if (qty <= 0) { showToast('error', t('quantity')); return; }
-  if (parseInt(item.qty) < qty) { showToast('error', t('stock'), `${t('available_stock')}: ${item.qty}`); return; }
+  const qty = Math.max(1, parseInt($('productQty').value) || 1);
+  const stock = parseInt(item.qty) || 0;
+
+  if (stock <= 0) { showToast('error', currentLang === 'bn' ? 'স্টক নেই' : 'Out of stock', item.name); return; }
+  if (stock < qty) { showToast('error', t('stock'), `${t('available_stock')}: ${stock}`); return; }
 
   const idx = AppState.cart.findIndex(i => i.id === id);
   if (idx > -1) {
     const newQty = AppState.cart[idx].qty + qty;
-    if (newQty > parseInt(item.qty)) { showToast('error', t('stock'), `${t('available_stock')}: ${item.qty}`); return; }
+    if (newQty > stock) { showToast('error', t('stock'), `${t('available_stock')}: ${stock}`); return; }
     AppState.cart[idx].qty = newQty;
   } else {
-    AppState.cart.push({ id: item.id, name: item.name, price: parseFloat(item.sellPrice), qty });
+    AppState.cart.push({ id: item.id, name: item.name, price: toNum(item.sellPrice), qty });
   }
 
   renderCart();
@@ -1648,6 +1615,7 @@ window.addToCartFromSearch = () => {
   $('productSearchResults').innerHTML = '';
   $('productQty').value = '1';
   $('posPreview').style.display = 'none';
+  $('addToCartBtn').disabled = true;
   showToast('success', t('add_to_cart'), `${item.name} × ${qty}`);
 };
 
@@ -1674,8 +1642,8 @@ window.renderCart = () => {
     setText('cartSubtotal', '0.00');
     setText('cartDiscount', '0.00');
     setText('cartTotal', '0.00');
-    setText('changeAmount', '৳0.00');
-    setText('duePreview', '৳0.00');
+    setText('changeAmount', '0.00');
+    setText('duePreview', '0.00');
     setText('btnCompleteTotal', '0.00');
     const btn = $('completeSaleBtn'); if (btn) btn.disabled = true;
     return;
@@ -1703,57 +1671,77 @@ window.renderCart = () => {
   calculateCartTotal();
 };
 
-/* ⭐ CRITICAL: ACCURATE CART CALCULATION */
+/* ⭐⭐⭐⭐ CRITICAL FIX: CALCULATE CART TOTAL ⭐⭐⭐⭐ */
 window.calculateCartTotal = () => {
-  const subtotal = parseMoney($('cartSubtotal')?.textContent);
-  const discount = Math.max(0, parseFloat($('discountInput')?.value) || 0);
+  // 1. Read subtotal from DOM text (already formatted)
+  const subtotalText = $('cartSubtotal')?.textContent || '0';
+  const subtotal = toNum(subtotalText);
+
+  // 2. Read discount from input
+  const discount = Math.max(0, toNum($('discountInput')?.value));
+
+  // 3. Calculate total (never negative)
   const total = Math.max(0, subtotal - discount);
-  const paid = Math.max(0, parseFloat($('paidAmount')?.value) || 0);
+
+  // 4. Read paid amount from input
+  const paid = Math.max(0, toNum($('paidAmount')?.value));
+
+  // 5. Calculate change (paid - total, never negative)
   const change = Math.max(0, paid - total);
+
+  // 6. Calculate due (total - paid, never negative)
   const due = Math.max(0, total - paid);
 
+  // 7. Update all display fields
   setText('cartDiscount', formatMoney(discount));
   setText('cartTotal', formatMoney(total));
-  setText('changeAmount', '৳' + formatMoney(change));
-  setText('duePreview', '৳' + formatMoney(due));
+  setText('changeAmount', formatMoney(change));
+  setText('duePreview', formatMoney(due));
   setText('btnCompleteTotal', formatMoney(total));
 
+  // 8. Enable/disable complete button
   const btn = $('completeSaleBtn');
   if (btn) btn.disabled = AppState.cart.length === 0;
 
+  // 9. Update stepper
   const s1 = $('step1'), s2 = $('step2');
   if (s1) s1.classList.toggle('done', AppState.cart.length > 0);
   if (s2) s2.classList.toggle('active', AppState.cart.length > 0);
 };
 
+/* ⭐ QUICK PAY — Sets paid amount precisely */
 window.quickPay = (type) => {
   const el = $('paidAmount');
   if (!el) return;
-  if (type === 'cartTotal') {
-    el.value = parseMoney($('cartTotal').textContent);
+  if (type === 'exact') {
+    // Set exact total
+    const total = toNum($('cartTotal')?.textContent);
+    el.value = total.toFixed(2);
   } else {
-    el.value = (parseFloat(el.value) || 0) + type;
+    // Add to existing
+    const cur = toNum(el.value);
+    el.value = (cur + type).toFixed(2);
   }
   calculateCartTotal();
 };
 
-/* ⭐ CRITICAL: COMPLETE SALE — Accurate accounting */
+/* ⭐⭐⭐ COMPLETE SALE — PROPER VALIDATION & SAVING ⭐⭐⭐ */
 window.completeSale = async () => {
   if (AppState.cart.length === 0) { showToast('warning', t('cart')); return; }
 
   const s = $('customerSelect');
   const cId = s.value;
-  const cDue = parseFloat(s.options[s.selectedIndex]?.getAttribute('data-due')) || 0;
-  const paid = Math.max(0, parseFloat($('paidAmount').value) || 0);
-  const discount = Math.max(0, parseFloat($('discountInput').value) || 0);
-  const subtotal = parseMoney($('cartSubtotal').textContent);
+  const cDue = toNum(s.options[s.selectedIndex]?.getAttribute('data-due'));
+  const paid = Math.max(0, toNum($('paidAmount').value));
+  const discount = Math.max(0, toNum($('discountInput').value));
+  const subtotal = toNum($('cartSubtotal').textContent);
   const total = Math.max(0, subtotal - discount);
   const due = Math.max(0, total - paid);
 
-  // Validate
+  // Validations
   if (due > 0 && !cId) { showToast('warning', t('customer')); return; }
 
-  // Validate stock again
+  // Verify stock
   for (const item of AppState.cart) {
     const inv = AppState.inventory.find(i => i.id === item.id);
     if (!inv || parseInt(inv.qty) < item.qty) {
@@ -1778,7 +1766,6 @@ window.completeSale = async () => {
     const now = new Date();
     const invoiceNo = 'INV-' + Date.now().toString().slice(-6);
 
-    // Save sale record
     await set(r, {
       id: r.key,
       invoiceNo,
@@ -1796,12 +1783,10 @@ window.completeSale = async () => {
       createdAt: now.toISOString()
     });
 
-    // Update customer due
     if (due > 0 && cId) {
       await update(ref(db, 'users/' + uid + '/customers/' + cId), { due: cDue + due });
     }
 
-    // Reduce stock
     for (const item of AppState.cart) {
       const inv = AppState.inventory.find(i => i.id === item.id);
       if (inv) {
@@ -1810,10 +1795,7 @@ window.completeSale = async () => {
       }
     }
 
-    logActivity('বিক্রয়', `${cName} - ${AppState.cart.length} ${currentLang === 'bn' ? 'পণ্য' : 'items'}`, total, {
-      customerName: cName,
-      invoiceNo
-    });
+    logActivity('বিক্রয়', `${cName} - ${AppState.cart.length} ${currentLang === 'bn' ? 'পণ্য' : 'items'}`, total, { customerName: cName, invoiceNo });
 
     // Reset
     AppState.cart = [];
@@ -1822,6 +1804,9 @@ window.completeSale = async () => {
     $('discountInput').value = '0';
     AppState.lastSelectedProductId = null;
     $('posPreview').style.display = 'none';
+    $('addToCartBtn').disabled = true;
+    $('productSearch').value = '';
+    $('productQty').value = '1';
 
     showToast('success', t('complete_sale'), `৳${formatMoney(total)}`);
   } catch (e) {
@@ -1831,7 +1816,7 @@ window.completeSale = async () => {
   showLoader(false);
 };
 
-/* ═══════════════════ SALES LIST ═══════════════════ */
+/* SALES LIST */
 window.renderSalesList = (sales) => {
   const tbody = $('salesTableBody');
   if (!tbody) return;
@@ -1840,7 +1825,7 @@ window.renderSalesList = (sales) => {
   const fragment = document.createDocumentFragment();
   sales.slice().reverse().forEach(s => {
     const d = s.date ? new Date(s.date) : new Date();
-    const cls = parseFloat(s.due) > 0 ? 'text-danger' : 'text-success';
+    const cls = toNum(s.due) > 0 ? 'text-danger' : 'text-success';
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td><strong>${escapeHtml(s.invoiceNo || 'N/A')}</strong></td>
@@ -1859,9 +1844,9 @@ window.renderSalesList = (sales) => {
   tbody.innerHTML = ''; tbody.appendChild(fragment);
   const footer = $('salesTableFooter');
   if (footer) {
-    const totalAmount = sales.reduce((s, x) => s + parseFloat(x.totalAmount || 0), 0);
-    const totalPaid = sales.reduce((s, x) => s + parseFloat(x.paid || 0), 0);
-    const totalDue = sales.reduce((s, x) => s + parseFloat(x.due || 0), 0);
+    const totalAmount = sales.reduce((s, x) => s + toNum(x.totalAmount), 0);
+    const totalPaid = sales.reduce((s, x) => s + toNum(x.paid), 0);
+    const totalDue = sales.reduce((s, x) => s + toNum(x.due), 0);
     footer.innerHTML = `
       <div class="table-footer-stat"><small>${t('sales_list')}</small><strong>${sales.length}</strong></div>
       <div class="table-footer-stat"><small>${t('total')}</small><strong class="text-primary">৳${formatMoney(totalAmount)}</strong></div>
@@ -1879,8 +1864,8 @@ window.filterSalesList = () => {
   if (q) sales = sales.filter(s => (s.invoiceNo || '').toLowerCase().includes(q) || (s.customerName || '').toLowerCase().includes(q));
   if (from) sales = sales.filter(s => s.date >= from);
   if (to) sales = sales.filter(s => s.date <= to);
-  if (st === 'paid') sales = sales.filter(s => parseFloat(s.due) <= 0);
-  if (st === 'due') sales = sales.filter(s => parseFloat(s.due) > 0);
+  if (st === 'paid') sales = sales.filter(s => toNum(s.due) <= 0);
+  if (st === 'due') sales = sales.filter(s => toNum(s.due) > 0);
   renderSalesList(sales);
 };
 
@@ -1945,7 +1930,7 @@ window.exportMasterList = () => {
 
 window.exportAllData = () => {
   const backup = {
-    exportedAt: new Date().toISOString(), version: '11.0',
+    exportedAt: new Date().toISOString(), version: '12.0',
     user: { email: AppState.currentUser.email, uid: AppState.currentUser.uid, fullName: AppState.currentUserFullName },
     inventory: AppState.inventory, customers: AppState.customers,
     sales: AppState.allSalesCache, expenses: AppState.allExpensesCache,
@@ -2004,7 +1989,7 @@ window.deleteItem = async (col, id) => {
   showLoader(false);
 };
 
-/* ═══════════════════ ANALYTICS & REPORTS ═══════════════════ */
+/* ANALYTICS & REPORTS */
 function renderAnalytics(sales) {
   const pc = {};
   sales.forEach(s => { (s.name ? s.name.split(', ') : []).forEach(n => { pc[n] = (pc[n] || 0) + 1; }); });
@@ -2018,8 +2003,8 @@ function renderAnalytics(sales) {
       options: { responsive: true, maintainAspectRatio: false }
     });
   }
-  const paid = sales.reduce((s, i) => s + parseFloat(i.paid || 0), 0);
-  const due = sales.reduce((s, i) => s + parseFloat(i.due || 0), 0);
+  const paid = sales.reduce((s, i) => s + toNum(i.paid), 0);
+  const due = sales.reduce((s, i) => s + toNum(i.due), 0);
   if (AppState.charts.payment) AppState.charts.payment.destroy();
   const pc2 = $('paymentChart')?.getContext('2d');
   if (pc2) {
@@ -2033,8 +2018,8 @@ function renderAnalytics(sales) {
 
 function renderReports(sales) {
   const exp = AppState.allExpensesCache;
-  const ts = sales.reduce((s, i) => s + parseFloat(i.totalAmount || 0), 0);
-  const te = exp.reduce((s, e) => s + parseFloat(e.amount || 0), 0);
+  const ts = sales.reduce((s, i) => s + toNum(i.totalAmount), 0);
+  const te = exp.reduce((s, e) => s + toNum(e.amount), 0);
   setText('repSales', formatMoney(ts));
   setText('repExpense', formatMoney(te));
   setText('repProfit', formatMoney(ts - te));
@@ -2047,7 +2032,7 @@ function renderReports(sales) {
   setText('repTotalSalesCount', sales.length);
 
   const months = {};
-  sales.forEach(s => { const m = s.date?.slice(0, 7); if (m) months[m] = (months[m] || 0) + parseFloat(s.totalAmount || 0); });
+  sales.forEach(s => { const m = s.date?.slice(0, 7); if (m) months[m] = (months[m] || 0) + toNum(s.totalAmount); });
   const ml = Object.keys(months).sort().slice(-6);
   if (AppState.charts.monthly) AppState.charts.monthly.destroy();
   const mc = $('monthlyReportChart')?.getContext('2d');
@@ -2059,7 +2044,7 @@ function renderReports(sales) {
     });
   }
   const em = {};
-  exp.forEach(e => { const m = e.date?.slice(0, 7); if (m) em[m] = (em[m] || 0) + parseFloat(e.amount || 0); });
+  exp.forEach(e => { const m = e.date?.slice(0, 7); if (m) em[m] = (em[m] || 0) + toNum(e.amount); });
   if (AppState.charts.profit) AppState.charts.profit.destroy();
   const pc = $('profitChart')?.getContext('2d');
   if (pc) {
@@ -2077,7 +2062,7 @@ function renderReports(sales) {
   }
 }
 
-/* ═══════════════════ MASTER LIST ═══════════════════ */
+/* MASTER LIST */
 window.renderMasterList = () => {
   const type = $('masterDataType')?.value || 'all';
   const q = ($('masterSearchFilter')?.value || '').toLowerCase();
@@ -2124,7 +2109,7 @@ window.renderMasterList = () => {
   tb.innerHTML = ''; tb.appendChild(fragment);
 };
 
-/* ═══════════════════ PROFILE ═══════════════════ */
+/* PROFILE */
 function renderProfile() {
   const data = AppState.currentUserData || {};
   const user = AppState.currentUser;
@@ -2197,31 +2182,9 @@ function loadLoginHistory() {
     const data = snap.val() ? Object.values(snap.val()) : [];
     data.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
     AppState.loginHistory = data;
-    renderLoginHistory();
   }));
 }
 
-function renderLoginHistory() {
-  const el = $('loginHistoryList'), modalEl = $('loginHistoryModalContent');
-  const html = AppState.loginHistory.length === 0
-    ? `<div class="text-center text-muted py-3"><i class="fas fa-clock-rotate-left fa-2x mb-2"></i><p>0</p></div>`
-    : AppState.loginHistory.slice(0, 20).map(h => `
-        <div class="login-history-item" style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--border-light);">
-          <div class="lh-icon" style="width:36px;height:36px;border-radius:50%;background:var(--primary-soft);color:var(--primary);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fas fa-right-to-bracket"></i></div>
-          <div style="flex:1;">
-            <div style="font-weight:700;font-size:0.88rem;">${escapeHtml(h.action || 'Login')}</div>
-            <div style="display:flex;gap:12px;font-size:0.72rem;color:var(--text-muted);flex-wrap:wrap;margin-top:4px;">
-              <span><i class="fas fa-calendar"></i> ${escapeHtml(h.date)} ${escapeHtml(h.time)}</span>
-              <span><i class="fas fa-globe"></i> ${escapeHtml(h.ip || '—')}</span>
-              <span><i class="fas fa-desktop"></i> ${escapeHtml(h.device || '—')}</span>
-            </div>
-          </div>
-        </div>`).join('');
-  if (el) el.innerHTML = html;
-  if (modalEl) modalEl.innerHTML = html;
-}
-
-/* USER DROPDOWN */
 window.toggleUserDropdown = (e) => {
   e.stopPropagation();
   document.getElementById('userDropdown')?.classList.toggle('show');
@@ -2232,7 +2195,7 @@ document.addEventListener('click', (e) => {
   if (dd && !dd.contains(e.target) && !e.target.closest('.user-menu-btn')) dd.classList.remove('show');
 });
 
-/* ═══════════════════ ADMIN PANEL ═══════════════════ */
+/* ADMIN PANEL */
 function loadAllUsers() {
   if (!AppState.currentUser) return;
   AppState.unsubscribers.push(onValue(ref(db, 'users'), (snap) => {
@@ -2308,8 +2271,8 @@ window.renderAdminUsersListPro = () => {
   list.appendChild(fragment);
 };
 window.renderAdminUsersList = renderAdminUsersListPro;
-
 window.selectAdminUser = (uid) => selectAdminUserPro(uid);
+
 function selectAdminUserPro(uid) {
   const user = AppState.allUsersCache.find(u => u.uid === uid);
   if (!user) return;
@@ -2357,8 +2320,8 @@ function loadUserStatsPro(uid) {
   onValue(ref(db, 'users/' + uid + '/inventory'), (snap) => {
     const data = snap.val() ? Object.values(snap.val()) : [];
     setText('adStatProducts', data.length);
-    const stockValue = data.reduce((s, x) => s + (parseFloat(x.buyPrice || 0) * parseInt(x.qty || 0)), 0);
-    const potential = data.reduce((s, x) => s + ((parseFloat(x.sellPrice || 0) - parseFloat(x.buyPrice || 0)) * parseInt(x.qty || 0)), 0);
+    const stockValue = data.reduce((s, x) => s + (toNum(x.buyPrice) * parseInt(x.qty || 0)), 0);
+    const potential = data.reduce((s, x) => s + ((toNum(x.sellPrice) - toNum(x.buyPrice)) * parseInt(x.qty || 0)), 0);
     setText('adMoneyStockValue', '৳' + formatMoney(stockValue));
     setText('adMoneyPotential', '৳' + formatMoney(potential));
   }, { onlyOnce: true });
@@ -2366,22 +2329,22 @@ function loadUserStatsPro(uid) {
   onValue(ref(db, 'users/' + uid + '/customers'), (snap) => {
     const data = snap.val() ? Object.values(snap.val()) : [];
     setText('adStatCustomers', data.length);
-    const custDue = data.reduce((s, x) => s + parseFloat(x.due || 0), 0);
+    const custDue = data.reduce((s, x) => s + toNum(x.due), 0);
     setText('adMoneyCustDue', '৳' + formatMoney(custDue));
   }, { onlyOnce: true });
 
   onValue(ref(db, 'users/' + uid + '/sales'), (snap) => {
     const data = snap.val() ? Object.values(snap.val()) : [];
     setText('adStatSales', data.length);
-    const totalSales = data.reduce((s, x) => s + parseFloat(x.totalAmount || 0), 0);
-    const totalPaid = data.reduce((s, x) => s + parseFloat(x.paid || 0), 0);
-    const totalDue = data.reduce((s, x) => s + parseFloat(x.due || 0), 0);
+    const totalSales = data.reduce((s, x) => s + toNum(x.totalAmount), 0);
+    const totalPaid = data.reduce((s, x) => s + toNum(x.paid), 0);
+    const totalDue = data.reduce((s, x) => s + toNum(x.due), 0);
     setText('adMoneySales', '৳' + formatMoney(totalSales));
     setText('adMoneyPaid', '৳' + formatMoney(totalPaid));
     setText('adMoneyDue', '৳' + formatMoney(totalDue));
 
     setTimeout(() => {
-      const te = parseMoney($('adMoneyExpense')?.textContent);
+      const te = toNum($('adMoneyExpense')?.textContent);
       setText('adMoneyProfit', '৳' + formatMoney(totalSales - te));
     }, 200);
   }, { onlyOnce: true });
@@ -2389,11 +2352,11 @@ function loadUserStatsPro(uid) {
   onValue(ref(db, 'users/' + uid + '/expenses'), (snap) => {
     const data = snap.val() ? Object.values(snap.val()) : [];
     setText('adStatExpenses', data.length);
-    const totalExp = data.reduce((s, x) => s + parseFloat(x.amount || 0), 0);
+    const totalExp = data.reduce((s, x) => s + toNum(x.amount), 0);
     setText('adMoneyExpense', '৳' + formatMoney(totalExp));
 
     setTimeout(() => {
-      const ts = parseMoney($('adMoneySales')?.textContent);
+      const ts = toNum($('adMoneySales')?.textContent);
       setText('adMoneyProfit', '৳' + formatMoney(ts - totalExp));
     }, 200);
   }, { onlyOnce: true });
@@ -2415,29 +2378,23 @@ window.switchAdminTab = (tab, el) => {
   $('admin-tab-' + tab)?.classList.add('active');
 };
 
-/* ⭐⭐ CRITICAL: IMPERSONATE USER ⭐⭐ */
+/* ⭐ IMPERSONATE */
 window.impersonateUser = async () => {
   if (!AppState.selectedAdminUser) { showToast('warning', t('select_user')); return; }
-
   const user = AppState.selectedAdminUser;
   if (user.uid === AppState.currentUser.uid) {
     showToast('warning', currentLang === 'bn' ? 'আপনি নিজেই এই ইউজার' : 'This is you');
     return;
   }
-
   const ok = await showConfirm(
     t('impersonate_btn'),
-    currentLang === 'bn'
-      ? `${user.fullName || user.email} এর আইডিতে প্রবেশ করবেন। আপনি তার সব কাজ করতে পারবেন।`
-      : `Login as ${user.fullName || user.email}. You can do all their tasks.`,
+    currentLang === 'bn' ? `${user.fullName || user.email} এর আইডিতে প্রবেশ করবেন। আপনি তার সব কাজ করতে পারবেন।` : `Login as ${user.fullName || user.email}. You can do all their tasks.`,
     { type: 'warning', okText: t('enter') }
   );
   if (!ok) return;
 
   showLoader(true, currentLang === 'bn' ? 'প্রবেশ করা হচ্ছে...' : 'Entering...');
-
   AppState.impersonatingUser = user.uid;
-
   setTimeout(() => {
     onAuthStateChanged_reload();
     showToast('success', t('admin_mode'), user.fullName || user.email);
@@ -2482,7 +2439,6 @@ async function onAuthStateChanged_reload() {
   setText('dropdownEmail', email);
   setText('dropdownRole', AppState.currentUserRole);
 
-  // ⭐ CRITICAL: When impersonating, KEEP admin panel visible (original user's role = admin)
   const originalUserSnap = await get(ref(db, 'users/' + user.uid));
   const originalRole = originalUserSnap.exists() ? (originalUserSnap.val().role || 'Staff') : 'Staff';
   const showAdmin = (originalRole === 'Admin') || (AppState.currentUserRole === 'Admin');
@@ -2509,6 +2465,7 @@ async function onAuthStateChanged_reload() {
   AppState.customers = [];
   AppState.allSalesCache = [];
   AppState.allExpensesCache = [];
+  renderCart();
 
   initApp();
   renderProfile();
@@ -2516,7 +2473,6 @@ async function onAuthStateChanged_reload() {
   showLoader(false);
 }
 
-/* ADMIN: View Data */
 window.adminViewUserData = () => {
   if (!AppState.selectedAdminUser) { showToast('warning', t('select_user')); return; }
   setText('viewDataUserName', AppState.selectedAdminUser.fullName || AppState.selectedAdminUser.email);
@@ -2557,7 +2513,7 @@ window.adminLoginHistory = async () => {
   history.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
   const html = history.length === 0
     ? '<div class="empty-state"><i class="fas fa-clock-rotate-left"></i><h5>0</h5></div>'
-    : history.map(h => `<div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #e2e8f0;"><div style="width:36px;height:36px;border-radius:50%;background:#e0e7ff;color:#6366f1;display:flex;align-items:center;justify-content:center;"><i class="fas fa-right-to-bracket"></i></div><div style="flex:1;"><div style="font-weight:700;font-size:0.88rem;">${escapeHtml(h.action || 'Login')}</div><div style="display:flex;gap:12px;font-size:0.72rem;color:#64748b;flex-wrap:wrap;margin-top:4px;"><span><i class="fas fa-calendar"></i> ${escapeHtml(h.date)} ${escapeHtml(h.time)}</span><span><i class="fas fa-globe"></i> ${escapeHtml(h.ip || '—')}</span></div></div></div>`).join('');
+    : history.map(h => `<div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #e2e8f0;"><div style="width:36px;height:36px;border-radius:50%;background:#e0e7ff;color:#6366f1;display:flex;align-items:center;justify-content:center;"><i class="fas fa-right-to-bracket"></i></div><div style="flex:1;"><div style="font-weight:700;font-size:0.88rem;">${escapeHtml(h.action || 'Login')}</div><div style="display:flex;gap:12px;font-size:0.72rem;color:#64748b;flex-wrap:wrap;margin-top:4px;"><span><i class="fas fa-calendar"></i> ${escapeHtml(h.date)} ${escapeHtml(h.time)}</span></div></div></div>`).join('');
   Swal.fire({ title: AppState.selectedAdminUser.fullName || AppState.selectedAdminUser.email, html: `<div style="max-height:400px;overflow-y:auto;text-align:left;">${html}</div>`, width: 600, confirmButtonText: 'OK' });
 };
 
@@ -2643,11 +2599,8 @@ window.confirmAdminBlock = async () => {
   showLoader(true);
   try {
     await update(ref(db, 'users/' + AppState.selectedAdminUser.uid), {
-      status: 'Blocked',
-      blockUntil,
-      blockReason: reason,
-      blockedAt: new Date().toISOString(),
-      blockedBy: AppState.currentUser.uid
+      status: 'Blocked', blockUntil, blockReason: reason,
+      blockedAt: new Date().toISOString(), blockedBy: AppState.currentUser.uid
     });
     showToast('success', t('block'));
     bootstrap.Modal.getInstance($('adminBlockModal')).hide();
@@ -2688,24 +2641,14 @@ window.adminResetUserData = async () => {
 window.adminDeleteUserCompletely = async () => {
   if (!AppState.selectedAdminUser) { showToast('warning', t('select_user')); return; }
   const targetUser = AppState.selectedAdminUser;
-  if (targetUser.uid === AppState.currentUser.uid) { showToast('warning', currentLang === 'bn' ? 'নিজেকে ডিলিট করা যাবে না' : 'Cannot delete self'); return; }
-
-  const ok = await showConfirm(
-    t('delete_user'),
-    currentLang === 'bn' ? `${targetUser.fullName || targetUser.email} এর সব ডেটা স্থায়ীভাবে মুছে যাবে!` : `All data of ${targetUser.fullName || targetUser.email} will be permanently deleted!`,
-    { type: 'danger', danger: true, okText: t('delete') }
-  );
+  if (targetUser.uid === AppState.currentUser.uid) { showToast('warning'); return; }
+  const ok = await showConfirm(t('delete_user'), currentLang === 'bn' ? `${targetUser.fullName || targetUser.email} এর সব ডেটা স্থায়ীভাবে মুছে যাবে!` : `All data will be permanently deleted!`, { type: 'danger', danger: true, okText: t('delete') });
   if (!ok) return;
-
   showLoader(true);
   try {
     await remove(ref(db, 'users/' + targetUser.uid));
     clearUserSelection();
-    await Swal.fire({
-      icon: 'success', title: '✓',
-      html: `<div style="text-align:left;"><p><strong>${targetUser.fullName || targetUser.email}</strong></p><p class="text-muted small">${currentLang === 'bn' ? 'Firebase থেকে সব ডেটা মুছে ফেলা হয়েছে।' : 'All data removed from Firebase.'}</p></div>`,
-      confirmButtonText: 'OK'
-    });
+    await Swal.fire({ icon: 'success', title: '✓', html: `<div style="text-align:left;"><p><strong>${targetUser.fullName || targetUser.email}</strong></p><p class="text-muted small">${currentLang === 'bn' ? 'সব ডেটা মুছে ফেলা হয়েছে।' : 'All data deleted.'}</p></div>`, confirmButtonText: 'OK' });
   } catch (e) { showToast('error', 'Delete Failed', e.message); }
   showLoader(false);
 };
@@ -2775,7 +2718,7 @@ window.confirmAdminCreateUser = async () => {
   }
 };
 
-/* ═══════════════════ NAVIGATION ═══════════════════ */
+/* NAV */
 window.toggleSidebar = () => {
   $('sidebar')?.classList.toggle('show');
   $('overlay')?.classList.toggle('show');
@@ -2801,15 +2744,17 @@ window.showSection = (sec) => {
   if (sec === 'expenses' || sec === 'expenses-list') $('expensesSubmenu')?.classList.add('show');
 
   if (sec === 'activity-log') { renderActivityLogAdvanced(); updateActivityStats(); }
-  if (sec === 'profile') { renderProfile(); renderLoginHistory(); }
+  if (sec === 'profile') { renderProfile(); }
   if (sec === 'admin') renderAdminUsersListPro();
+  if (sec === 'sales') {
+    setTimeout(() => { updatePosPreview(); calculateCartTotal(); }, 100);
+  }
   closeSidebar();
 };
 
-/* NOTIFICATIONS */
 window.showNotifications = () => {
   const ls = AppState.inventory.filter(i => parseInt(i.qty) <= LOW_STOCK_THRESHOLD);
-  const dc = AppState.customers.filter(c => parseFloat(c.due) > 0);
+  const dc = AppState.customers.filter(c => toNum(c.due) > 0);
   Swal.fire({
     title: '🔔',
     html: `<div class="text-start">
@@ -2882,9 +2827,7 @@ window.calcAction = (action) => {
       calcState.operator = action;
       calcState.waitingForOperand = true;
       break;
-    case 'equals':
-      if (calcState.operator !== null) { performCalc(); calcState.operator = null; calcState.previous = null; calcState.waitingForOperand = true; }
-      break;
+    case 'equals': if (calcState.operator !== null) { performCalc(); calcState.operator = null; calcState.previous = null; calcState.waitingForOperand = true; } break;
   }
   updateCalcDisplay();
 };
@@ -2900,16 +2843,15 @@ function performCalc() {
   calcState.current = String(result);
 }
 function updateCalcDisplay() { const input = $('calcInput'); if (input) input.value = calcState.current; }
-window.switchCalcMode = () => {};
 
-/* ⭐⭐⭐ COMMAND PALETTE — ULTRA PRO ⭐⭐⭐ */
+/* COMMAND PALETTE */
 (function initCommandPalette() {
   const overlay = document.createElement('div');
   overlay.className = 'command-palette-overlay';
   overlay.id = 'commandPaletteOverlay';
   overlay.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,0.75);backdrop-filter:blur(12px);display:none;align-items:flex-start;justify-content:center;padding-top:8vh;z-index:99998;';
   overlay.innerHTML = `
-    <div style="width:100%;max-width:680px;background:var(--bg-card);border-radius:20px;box-shadow:0 32px 80px rgba(0,0,0,0.4);overflow:hidden;border:1px solid var(--border);animation:slideDown 0.3s;">
+    <div style="width:100%;max-width:680px;background:var(--bg-card);border-radius:20px;box-shadow:0 32px 80px rgba(0,0,0,0.4);overflow:hidden;border:1px solid var(--border);">
       <div style="display:flex;align-items:center;gap:12px;padding:18px 24px;border-bottom:1px solid var(--border);">
         <i class="fas fa-magnifying-glass" style="color:var(--primary);font-size:1.2rem;"></i>
         <input type="text" id="cmdInput" placeholder="Search commands, products, customers, invoices..." style="flex:1;border:none;background:transparent;color:var(--text);font-size:1.05rem;outline:none;font-weight:500;">
@@ -2920,7 +2862,6 @@ window.switchCalcMode = () => {};
         <span><kbd style="padding:2px 6px;background:var(--bg-card);border:1px solid var(--border);border-radius:4px;">↑↓</kbd> Navigate</span>
         <span><kbd style="padding:2px 6px;background:var(--bg-card);border:1px solid var(--border);border-radius:4px;">Enter</kbd> Select</span>
         <span><kbd style="padding:2px 6px;background:var(--bg-card);border:1px solid var(--border);border-radius:4px;">Esc</kbd> Close</span>
-        <span><kbd style="padding:2px 6px;background:var(--bg-card);border:1px solid var(--border);border-radius:4px;">Ctrl+K</kbd> Open</span>
       </div>
     </div>`;
   document.body.appendChild(overlay);
@@ -2959,7 +2900,6 @@ window.switchCalcMode = () => {};
       ]}
     ];
 
-    // Add recent products
     if (AppState.inventory.length > 0) {
       commands.push({
         section: currentLang === 'bn' ? 'পণ্য' : 'Products',
@@ -2971,8 +2911,6 @@ window.switchCalcMode = () => {};
         }))
       });
     }
-
-    // Add customers
     if (AppState.customers.length > 0) {
       commands.push({
         section: currentLang === 'bn' ? 'কাস্টমার' : 'Customers',
@@ -2980,12 +2918,10 @@ window.switchCalcMode = () => {};
           title: c.name,
           sub: `${c.phone || '—'} • ${t('due')}: ৳${c.due || 0}`,
           icon: 'fas fa-user',
-          action: () => { showSection('customers'); }
+          action: () => showSection('customers')
         }))
       });
     }
-
-    // Add recent invoices
     if (AppState.allSalesCache.length > 0) {
       commands.push({
         section: currentLang === 'bn' ? 'ইনভয়েস' : 'Invoices',
@@ -2993,11 +2929,10 @@ window.switchCalcMode = () => {};
           title: s.invoiceNo,
           sub: `${s.customerName || '—'} • ৳${s.totalAmount}`,
           icon: 'fas fa-file-invoice',
-          action: () => { showSection('sales-list'); }
+          action: () => showSection('sales-list')
         }))
       });
     }
-
     return commands;
   }
 
@@ -3014,7 +2949,6 @@ window.switchCalcMode = () => {};
       }
     });
 
-    // Filter admin-only if not admin
     const isAdmin = AppState.currentUserRole === 'Admin' || AppState.impersonatingUser;
     const finalItems = allItems.filter(item => !item.data?.adminOnly || isAdmin);
 
@@ -3035,7 +2969,6 @@ window.switchCalcMode = () => {};
         results.appendChild(sec);
       } else {
         const div = document.createElement('div');
-        div.className = 'command-palette-item';
         div.style.cssText = `display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:12px;cursor:pointer;font-size:0.9rem;${idx === activeIndex ? 'background:var(--primary-soft);color:var(--primary);' : ''}`;
         div.dataset.index = idx;
         div.innerHTML = `
@@ -3081,7 +3014,7 @@ window.switchCalcMode = () => {};
   });
 })();
 
-/* ⭐ QUICK SEARCH ENGINE (Dashboard) */
+/* QUICK SEARCH */
 window.quickSearch = debounce((e) => {
   const q = e.target.value.toLowerCase().trim();
   const results = $('quickSearchResults');
@@ -3091,50 +3024,23 @@ window.quickSearch = debounce((e) => {
 
   const items = [];
 
-  // Products
   AppState.inventory.filter(p => p.name.toLowerCase().includes(q)).slice(0, 5).forEach(p => {
-    items.push({
-      section: 'পণ্য / Products',
-      title: p.name,
-      sub: `৳${p.sellPrice} • ${t('stock')}: ${p.qty}`,
-      icon: 'fas fa-box',
-      action: () => { showSection('sales'); setTimeout(() => selectProduct(p.id), 200); }
-    });
+    items.push({ section: 'পণ্য / Products', title: p.name, sub: `৳${p.sellPrice} • ${t('stock')}: ${p.qty}`, icon: 'fas fa-box', action: () => { showSection('sales'); setTimeout(() => selectProduct(p.id), 200); } });
   });
-
-  // Customers
   AppState.customers.filter(c => c.name.toLowerCase().includes(q) || (c.phone || '').includes(q)).slice(0, 5).forEach(c => {
-    items.push({
-      section: 'কাস্টমার / Customers',
-      title: c.name,
-      sub: `${c.phone || '—'} • ${t('due')}: ৳${c.due || 0}`,
-      icon: 'fas fa-user',
-      action: () => showSection('customers')
-    });
+    items.push({ section: 'কাস্টমার / Customers', title: c.name, sub: `${c.phone || '—'} • ${t('due')}: ৳${c.due || 0}`, icon: 'fas fa-user', action: () => showSection('customers') });
   });
-
-  // Sales
   AppState.allSalesCache.filter(s => (s.invoiceNo || '').toLowerCase().includes(q) || (s.customerName || '').toLowerCase().includes(q)).slice(0, 5).forEach(s => {
-    items.push({
-      section: 'ইনভয়েস / Invoices',
-      title: s.invoiceNo,
-      sub: `${s.customerName || '—'} • ৳${s.totalAmount}`,
-      icon: 'fas fa-file-invoice',
-      action: () => showSection('sales-list')
-    });
+    items.push({ section: 'ইনভয়েস / Invoices', title: s.invoiceNo, sub: `${s.customerName || '—'} • ৳${s.totalAmount}`, icon: 'fas fa-file-invoice', action: () => showSection('sales-list') });
   });
 
-  // Static commands
   const staticMatches = [
-    { kw: ['dashboard', 'ড্যাশবোর্ড', 'dash'], title: t('dashboard'), icon: 'fas fa-chart-line', action: () => showSection('dashboard'), section: 'পেজ / Pages' },
+    { kw: ['dashboard', 'ড্যাশবোর্ড'], title: t('dashboard'), icon: 'fas fa-chart-line', action: () => showSection('dashboard'), section: 'পেজ / Pages' },
     { kw: ['sales', 'বিক্রয়'], title: t('new_sale'), icon: 'fas fa-cart-plus', action: () => showSection('sales'), section: 'পেজ / Pages' },
     { kw: ['settings', 'সেটিংস'], title: t('settings'), icon: 'fas fa-gear', action: () => showSection('settings'), section: 'পেজ / Pages' },
-    { kw: ['report', 'রিপোর্ট'], title: t('reports'), icon: 'fas fa-chart-pie', action: () => showSection('reports'), section: 'পেজ / Pages' },
-    { kw: ['expense', 'খরচ'], title: t('expenses'), icon: 'fas fa-hand-holding-dollar', action: () => showSection('expenses'), section: 'পেজ / Pages' }
+    { kw: ['report', 'রিপোর্ট'], title: t('reports'), icon: 'fas fa-chart-pie', action: () => showSection('reports'), section: 'পেজ / Pages' }
   ];
-  staticMatches.forEach(m => {
-    if (m.kw.some(k => k.includes(q) || q.includes(k))) items.push(m);
-  });
+  staticMatches.forEach(m => { if (m.kw.some(k => k.includes(q) || q.includes(k))) items.push(m); });
 
   if (items.length === 0) {
     results.innerHTML = `<div style="padding:20px;text-align:center;color:var(--text-muted);"><i class="fas fa-magnifying-glass" style="font-size:1.5rem;opacity:0.3;margin-bottom:8px;display:block;"></i>${currentLang === 'bn' ? 'কিছু পাওয়া যায়নি' : 'Nothing found'}</div>`;
@@ -3142,18 +3048,8 @@ window.quickSearch = debounce((e) => {
     let html = '';
     let lastSection = '';
     items.forEach((item, idx) => {
-      if (item.section !== lastSection) {
-        html += `<div class="qsr-section">${item.section}</div>`;
-        lastSection = item.section;
-      }
-      html += `<div class="qsr-item" onclick="quickSearchClick(${idx})">
-        <div class="qsr-item-icon"><i class="${item.icon}"></i></div>
-        <div class="qsr-item-content">
-          <div class="qsr-item-title">${escapeHtml(item.title)}</div>
-          ${item.sub ? `<div class="qsr-item-sub">${escapeHtml(item.sub)}</div>` : ''}
-        </div>
-        <i class="fas fa-arrow-right qsr-item-arrow"></i>
-      </div>`;
+      if (item.section !== lastSection) { html += `<div class="qsr-section">${item.section}</div>`; lastSection = item.section; }
+      html += `<div class="qsr-item" onclick="quickSearchClick(${idx})"><div class="qsr-item-icon"><i class="${item.icon}"></i></div><div class="qsr-item-content"><div class="qsr-item-title">${escapeHtml(item.title)}</div>${item.sub ? `<div class="qsr-item-sub">${escapeHtml(item.sub)}</div>` : ''}</div><i class="fas fa-arrow-right qsr-item-arrow"></i></div>`;
     });
     results.innerHTML = html;
     window._quickSearchItems = items;
@@ -3185,13 +3081,10 @@ window.quickSearchAction = (action) => {
   else if (action === 'activity-log') showSection('activity-log');
 };
 
-// Hide quick search on click outside
 document.addEventListener('click', (e) => {
   const qs = $('quickSearchResults');
   const qi = $('quickSearchInput');
-  if (qs && qi && !qs.contains(e.target) && e.target !== qi) {
-    qs.style.display = 'none';
-  }
+  if (qs && qi && !qs.contains(e.target) && e.target !== qi) qs.style.display = 'none';
 });
 
 /* FAB */
@@ -3216,20 +3109,10 @@ document.addEventListener('DOMContentLoaded', () => {
   if (qty) qty.addEventListener('input', updatePosPreview);
 });
 
-/* AUTO LOGOUT */
-let idleTimer;
-['mousemove', 'keypress', 'click', 'scroll', 'touchstart'].forEach(evt => {
-  document.addEventListener(evt, () => {
-    clearTimeout(idleTimer);
-    if (AppState.userSettings.autoLogout && AppState.currentUser) {
-      idleTimer = setTimeout(() => logout(), 30 * 60 * 1000);
-    }
-  }, { passive: true });
-});
-
 window.addEventListener('beforeunload', () => {
   AppState.unsubscribers.forEach(unsub => { try { unsub(); } catch (e) {} });
 });
 
-console.log('%c🚀 HesabKhata Enterprise Pro v11.0', 'color:#6366f1;font-size:16px;font-weight:bold;');
-console.log('%c✓ Fixed POS accounting • Pro Admin Impersonation • Ultra Command Palette', 'color:#10b981;font-size:12px;');
+console.log('%c🚀 HesabKhata Enterprise Pro v12.0', 'color:#6366f1;font-size:16px;font-weight:bold;');
+console.log('%c✓ FIXED: POS calculation • Accurate Total & Due • Professional POS UI', 'color:#10b981;font-size:12px;');
+     
