@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
   <meta name="theme-color" content="#6366f1">
-  <title>HesabKhata Enterprise Pro v12.0</title>
+  <title>HesabKhata Enterprise Pro v13.0</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -137,7 +137,7 @@
       </div>
     </div>
   </div>
-  <div class="auth-footer">© 2025 HesabKhata Enterprise Pro v12.0</div>
+  <div class="auth-footer">© 2025 HesabKhata Enterprise Pro v13.0</div>
 </div>
 
 <!-- ══════════════ MAIN APP ══════════════ -->
@@ -217,7 +217,7 @@
   <aside class="sidebar" id="sidebar">
     <div class="brand-head">
       <i class="fas fa-store-alt"></i>
-      <div><span>HesabKhata</span><small>Enterprise v12.0</small></div>
+      <div><span>HesabKhata</span><small>Enterprise v13.0</small></div>
     </div>
     <nav class="nav-menu">
       <div class="section-label" data-i18n="nav_main">প্রধান</div>
@@ -342,183 +342,125 @@
         <div class="col-md-6"><div class="card-premium p-4"><div class="d-flex justify-content-between align-items-center mb-3"><h6 class="fw-bold mb-0"><i class="fas fa-triangle-exclamation text-warning me-2"></i><span data-i18n="stock_alerts">স্টক সতর্কতা</span></h6><span class="tag tag-warning" id="lowStockBadge">0</span></div><ul id="lowStockList" class="list-group list-group-flush"></ul></div></div>
         <div class="col-md-6"><div class="card-premium p-4"><div class="d-flex justify-content-between align-items-center mb-3"><h6 class="fw-bold mb-0"><i class="fas fa-clock text-primary me-2"></i><span data-i18n="recent_transactions">সাম্প্রতিক লেনদেন</span></h6><button class="btn-soft-sm btn-outline-premium" onclick="showSection('sales-list')"><span data-i18n="view_all">সব</span></button></div><ul id="recentTransactions" class="list-group list-group-flush"></ul></div></div>
       </div>
-
-      <div class="row g-4 mt-2">
-        <div class="col-12">
-          <div class="search-engine-panel">
-            <div class="search-engine-header">
-              <div class="search-engine-icon"><i class="fas fa-terminal"></i></div>
-              <div>
-                <h5 class="mb-0" data-i18n="quick_search">দ্রুত সার্চ ইঞ্জিন</h5>
-                <small data-i18n="quick_search_sub">সব কিছু এক জায়গায় খুঁজুন — <kbd>Ctrl+K</kbd> চাপুন বা নিচে লিখুন</small>
-              </div>
-              <span class="tag tag-primary ms-auto">Ctrl+K</span>
-            </div>
-            <div class="search-engine-input">
-              <i class="fas fa-magnifying-glass"></i>
-              <input type="text" id="quickSearchInput" placeholder="🔍 পণ্য, কাস্টমার, ইনভয়েস, সেটিংস... সব কিছু খুঁজুন" oninput="quickSearch(event)" onfocus="showQuickSearchResults()">
-              <span class="kbd-hint">ESC</span>
-            </div>
-            <div class="quick-search-results" id="quickSearchResults" style="display:none;"></div>
-            <div class="quick-suggestions">
-              <button class="quick-suggestion" onclick="quickSearchAction('sales')"><i class="fas fa-cart-plus"></i> নতুন বিক্রয়</button>
-              <button class="quick-suggestion" onclick="quickSearchAction('inventory')"><i class="fas fa-box"></i> পণ্য যোগ</button>
-              <button class="quick-suggestion" onclick="quickSearchAction('customers')"><i class="fas fa-user-plus"></i> কাস্টমার যোগ</button>
-              <button class="quick-suggestion" onclick="quickSearchAction('expenses')"><i class="fas fa-receipt"></i> খরচ যোগ</button>
-              <button class="quick-suggestion" onclick="quickSearchAction('reports')"><i class="fas fa-chart-pie"></i> রিপোর্ট</button>
-              <button class="quick-suggestion" onclick="quickSearchAction('activity-log')"><i class="fas fa-clock-rotate-left"></i> অ্যাক্টিভিটি</button>
-            </div>
-          </div>
-        </div>
-      </div>
     </section>
 
-    <!-- ⭐⭐⭐ POS — COMPLETELY REDESIGNED WITH FIXED CALCULATION ⭐⭐⭐ -->
+    <!-- ⭐⭐⭐ ULTRA COMPACT POS — Single Page, Everything Visible ⭐⭐⭐ -->
     <section id="sales-section" class="section" style="display:none;">
-      <div class="stepper">
-        <div class="step-item active" id="step1"><div class="step-num">1</div><div class="step-label" data-i18n="step_product">পণ্য নির্বাচন</div></div>
-        <div class="step-item" id="step2"><div class="step-num">2</div><div class="step-label" data-i18n="step_customer">কাস্টমার</div></div>
-        <div class="step-item" id="step3"><div class="step-num">3</div><div class="step-label" data-i18n="step_payment">পেমেন্ট</div></div>
-      </div>
-
-      <div class="row g-4">
-        <!-- LEFT: Product Selection -->
-        <div class="col-lg-5">
-          <div class="card-premium p-4 pos-panel">
-            <div class="pos-panel-header">
-              <div class="pos-panel-icon"><i class="fas fa-magnifying-glass"></i></div>
-              <div>
-                <h6 class="mb-0" data-i18n="search_add_product">পণ্য খুঁজুন</h6>
-                <small class="text-muted" data-i18n="pos_search_sub">নাম বা বারকোড দিয়ে</small>
-              </div>
-            </div>
-
-            <div class="pos-search-row">
-              <div class="pos-search-input">
-                <i class="fas fa-search"></i>
-                <input type="text" id="productSearch" placeholder="🔍 পণ্যের নাম লিখুন..." onkeydown="if(event.key==='Enter'){event.preventDefault();selectFirstProductMatch();}">
-              </div>
-              <button class="pos-icon-btn" onclick="openBarcodeScanner()" title="Barcode Scan"><i class="fas fa-barcode"></i></button>
-            </div>
-            <div id="productSearchResults" class="pos-search-results"></div>
-
-            <div class="pos-field-group">
-              <label class="pos-label"><i class="fas fa-sort-numeric-up me-2"></i><span data-i18n="quantity">পরিমাণ</span></label>
-              <div class="pos-qty-control">
-                <button type="button" class="pos-qty-btn minus" onclick="changeQty(-1)"><i class="fas fa-minus"></i></button>
-                <input type="number" id="productQty" class="pos-qty-field" value="1" min="1" oninput="updatePosPreview()">
-                <button type="button" class="pos-qty-btn plus" onclick="changeQty(1)"><i class="fas fa-plus"></i></button>
-              </div>
-            </div>
-
-            <button class="pos-add-btn" onclick="addToCartFromSearch()" id="addToCartBtn" disabled>
-              <i class="fas fa-cart-plus"></i>
-              <span data-i18n="add_to_cart">কার্টে যোগ করুন</span>
-            </button>
-
-            <div class="pos-preview" id="posPreview" style="display:none;">
-              <div class="pos-preview-header">
-                <i class="fas fa-circle-check"></i>
-                <span data-i18n="selected_product">নির্বাচিত পণ্য</span>
-              </div>
-              <div class="pos-preview-body">
-                <strong id="posPreviewName">—</strong>
-                <div class="pos-preview-row">
-                  <span>৳<span id="posPreviewPrice">0</span> × <span id="posPreviewQty">1</span></span>
-                  <strong>৳<span id="posPreviewTotal">0</span></strong>
-                </div>
-                <small class="text-muted"><i class="fas fa-boxes-stacked me-1"></i><span data-i18n="available_stock">স্টক</span>: <span id="posPreviewStock">0</span></small>
-              </div>
-            </div>
-
-            <div class="pos-divider"></div>
-
-            <div class="pos-panel-header">
-              <div class="pos-panel-icon info"><i class="fas fa-user"></i></div>
-              <div>
-                <h6 class="mb-0" data-i18n="customer_select">কাস্টমার</h6>
-                <small class="text-muted" data-i18n="pos_customer_sub">ঐচ্ছিক</small>
-              </div>
-            </div>
-            <select id="customerSelect" class="pos-customer-select" onchange="updateCustomerDue()"></select>
-            <div class="pos-customer-footer">
-              <span class="pos-customer-badge" id="customerDueBadge"><i class="fas fa-circle-check me-1"></i><span data-i18n="cash_sale">নগদ বিক্রয়</span></span>
-              <button type="button" class="pos-new-cust-btn" onclick="openAddCustomerQuick()"><i class="fas fa-user-plus"></i> <span data-i18n="new">নতুন</span></button>
-            </div>
+      <div class="pos-wrapper">
+        <!-- PRODUCT SEARCH BAR -->
+        <div class="pos-top-bar">
+          <div class="pos-search-main">
+            <i class="fas fa-search"></i>
+            <input type="text" id="productSearch" placeholder="🔍 পণ্য খুঁজুন বা বারকোড স্ক্যান করুন..." autocomplete="off">
+            <button class="pos-barcode-btn" onclick="openBarcodeScanner()" title="Scan"><i class="fas fa-barcode"></i></button>
           </div>
+          <div id="productSearchResults" class="pos-dropdown"></div>
         </div>
 
-        <!-- RIGHT: Cart & Payment -->
-        <div class="col-lg-7">
-          <div class="card-premium pos-panel">
+        <div class="pos-layout">
+          <!-- LEFT: CART LIST -->
+          <div class="pos-cart-panel">
             <div class="pos-cart-header">
               <div class="pos-cart-title">
                 <i class="fas fa-shopping-basket"></i>
-                <h5 class="mb-0" data-i18n="cart">কার্ট</h5>
-                <span class="pos-cart-count" id="cartCountBadge">0</span>
+                <span data-i18n="cart_items">কার্ট</span>
+                <span class="pos-badge" id="cartCountBadge">0</span>
               </div>
-              <button class="pos-clear-btn" onclick="clearCart()"><i class="fas fa-trash"></i> <span data-i18n="clear">ক্লিয়ার</span></button>
+              <button class="pos-clear-all" onclick="clearCart()"><i class="fas fa-trash"></i></button>
             </div>
-
             <div id="cartItemsList" class="pos-cart-items"></div>
+          </div>
 
-            <!-- ⭐ FIXED: Summary with clear hierarchy -->
-            <div class="pos-summary-panel">
-              <div class="pos-summary-item">
-                <span><i class="fas fa-list me-2 text-muted"></i><span data-i18n="subtotal">সাবটোটাল</span></span>
-                <strong>৳ <span id="cartSubtotal">0.00</span></strong>
+          <!-- RIGHT: SUMMARY + PAYMENT -->
+          <div class="pos-summary-panel">
+            <!-- Customer -->
+            <div class="pos-customer-row">
+              <label class="pos-mini-label"><i class="fas fa-user"></i> <span data-i18n="customer">কাস্টমার</span></label>
+              <div class="pos-customer-input">
+                <select id="customerSelect" onchange="updateCustomerDue()">
+                  <option value="">নগদ বিক্রয় (Cash)</option>
+                </select>
+                <button class="pos-add-cust" onclick="openAddCustomerQuick()" title="Add Customer"><i class="fas fa-plus"></i></button>
               </div>
-              <div class="pos-summary-item discount">
-                <span><i class="fas fa-percent me-2"></i><span data-i18n="discount">ডিসকাউন্ট</span></span>
-                <strong>- ৳ <span id="cartDiscount">0.00</span></strong>
+              <div class="pos-customer-due" id="customerDueBadge"><i class="fas fa-circle-check"></i> নগদ বিক্রয়</div>
+            </div>
+
+            <!-- Qty selector -->
+            <div class="pos-qty-row">
+              <label class="pos-mini-label"><i class="fas fa-cubes"></i> <span data-i18n="quantity">পরিমাণ</span></label>
+              <div class="pos-qty-group">
+                <button type="button" onclick="changeQty(-1)"><i class="fas fa-minus"></i></button>
+                <input type="number" id="productQty" value="1" min="1" oninput="updatePosPreview()">
+                <button type="button" onclick="changeQty(1)"><i class="fas fa-plus"></i></button>
               </div>
-              <div class="pos-summary-divider"></div>
-              <div class="pos-summary-item total">
-                <span><i class="fas fa-money-bill-wave me-2"></i><span data-i18n="grand_total">সর্বমোট</span></span>
-                <strong>৳ <span id="cartTotal">0.00</span></strong>
+              <button class="pos-add-btn-inline" id="addToCartBtn" onclick="addToCartFromSearch()" disabled>
+                <i class="fas fa-cart-plus"></i> <span data-i18n="add">যোগ করুন</span>
+              </button>
+            </div>
+
+            <!-- Selected product preview -->
+            <div class="pos-selected-product" id="posPreview" style="display:none;">
+              <div class="psp-head">
+                <i class="fas fa-circle-check"></i>
+                <span id="posPreviewName">—</span>
+              </div>
+              <div class="psp-body">
+                <span>৳<span id="posPreviewPrice">0</span> × <span id="posPreviewQty">1</span></span>
+                <strong>৳<span id="posPreviewTotal">0</span></strong>
+              </div>
+              <div class="psp-stock"><i class="fas fa-boxes-stacked"></i> স্টক: <span id="posPreviewStock">0</span></div>
+            </div>
+
+            <!-- Summary -->
+            <div class="pos-summary-box">
+              <div class="pos-line"><span><i class="fas fa-list"></i> <span data-i18n="subtotal">সাবটোটাল</span></span><strong>৳ <span id="cartSubtotal">0.00</span></strong></div>
+              <div class="pos-line discount"><span><i class="fas fa-percent"></i> <span data-i18n="discount">ডিসকাউন্ট</span></span><strong>- ৳ <span id="cartDiscount">0.00</span></strong></div>
+              <div class="pos-line total"><span><i class="fas fa-money-bill-wave"></i> <span data-i18n="grand_total">মোট</span></span><strong>৳ <span id="cartTotal">0.00</span></strong></div>
+            </div>
+
+            <!-- Payment Inputs - Compact -->
+            <div class="pos-pay-row">
+              <div class="pos-pay-col">
+                <label class="pos-mini-label"><i class="fas fa-hand-holding-dollar text-success"></i> <span data-i18n="paid_amount">প্রাপ্ত টাকা</span></label>
+                <div class="pos-money-field">
+                  <span>৳</span>
+                  <input type="number" id="paidAmount" min="0" placeholder="0" oninput="calculateCartTotal()">
+                </div>
+              </div>
+              <div class="pos-pay-col">
+                <label class="pos-mini-label"><i class="fas fa-tag text-danger"></i> <span data-i18n="discount">ডিসকাউন্ট</span></label>
+                <div class="pos-money-field">
+                  <span>৳</span>
+                  <input type="number" id="discountInput" value="0" min="0" oninput="calculateCartTotal()">
+                </div>
               </div>
             </div>
 
-            <!-- Payment Row -->
-            <div class="pos-payment-row">
-              <div class="pos-payment-col">
-                <label class="pos-label"><i class="fas fa-hand-holding-dollar me-1"></i> <span data-i18n="paid_amount">প্রাপ্ত টাকা</span></label>
-                <div class="pos-money-input">
-                  <span class="pos-money-prefix">৳</span>
-                  <input type="number" id="paidAmount" min="0" placeholder="0.00" oninput="calculateCartTotal()">
-                </div>
-                <div class="pos-quick-pay">
-                  <button type="button" onclick="quickPay('exact')" data-i18n="exact">সঠিক</button>
-                  <button type="button" onclick="quickPay(100)">100</button>
-                  <button type="button" onclick="quickPay(500)">500</button>
-                  <button type="button" onclick="quickPay(1000)">1000</button>
-                </div>
-              </div>
-              <div class="pos-payment-col">
-                <label class="pos-label"><i class="fas fa-percent me-1"></i> <span data-i18n="discount">ডিসকাউন্ট</span></label>
-                <div class="pos-money-input">
-                  <span class="pos-money-prefix">৳</span>
-                  <input type="number" id="discountInput" value="0" min="0" placeholder="0" oninput="calculateCartTotal()">
-                </div>
-              </div>
+            <!-- Quick Pay -->
+            <div class="pos-quick-pay">
+              <button type="button" onclick="quickPay('exact')" data-i18n="exact">সঠিক</button>
+              <button type="button" onclick="quickPay(50)">50</button>
+              <button type="button" onclick="quickPay(100)">100</button>
+              <button type="button" onclick="quickPay(500)">500</button>
+              <button type="button" onclick="quickPay(1000)">1000</button>
             </div>
 
             <!-- Status Grid -->
-            <div class="pos-status-grid">
+            <div class="pos-status-row">
               <div class="pos-status-box change">
-                <div class="pos-status-label"><i class="fas fa-rotate-left"></i> <span data-i18n="change">পরিবর্তন</span></div>
-                <div class="pos-status-value">৳ <span id="changeAmount">0.00</span></div>
+                <small data-i18n="change">পরিবর্তন</small>
+                <strong>৳ <span id="changeAmount">0.00</span></strong>
               </div>
               <div class="pos-status-box due">
-                <div class="pos-status-label"><i class="fas fa-circle-exclamation"></i> <span data-i18n="will_due">বাকি থাকবে</span></div>
-                <div class="pos-status-value">৳ <span id="duePreview">0.00</span></div>
+                <small data-i18n="will_due">বাকি</small>
+                <strong>৳ <span id="duePreview">0.00</span></strong>
               </div>
             </div>
 
-            <button class="pos-complete-btn" onclick="completeSale()" id="completeSaleBtn" disabled>
+            <button class="pos-submit-btn" onclick="completeSale()" id="completeSaleBtn" disabled>
               <i class="fas fa-check-circle"></i>
-              <span class="pcb-label" data-i18n="complete_sale">বিক্রয় সম্পন্ন করুন</span>
-              <span class="pcb-total">৳ <span id="btnCompleteTotal">0.00</span></span>
+              <span data-i18n="complete_sale">বিক্রয় সম্পন্ন করুন</span>
+              <span class="pos-submit-total">৳<span id="btnCompleteTotal">0.00</span></span>
             </button>
           </div>
         </div>
@@ -771,7 +713,7 @@
       </div>
     </section>
 
-    <!-- ADMIN PANEL -->
+    <!-- ⭐⭐⭐ ULTRA PROFESSIONAL ADMIN PANEL ⭐⭐⭐ -->
     <section id="admin-section" class="section" style="display:none;">
       <div class="admin-hero">
         <div class="admin-hero-icon"><i class="fas fa-shield-halved"></i></div>
@@ -781,6 +723,7 @@
         </div>
       </div>
 
+      <!-- GLOBAL STATS -->
       <div class="row g-3 mb-4">
         <div class="col-md-3 col-6"><div class="admin-global-stat"><div class="admin-stat-icon bg-primary-soft"><i class="fas fa-users"></i></div><div><small data-i18n="total_users">মোট ইউজার</small><h4 id="adminTotalUsers">0</h4></div></div></div>
         <div class="col-md-3 col-6"><div class="admin-global-stat"><div class="admin-stat-icon bg-success-soft"><i class="fas fa-user-check"></i></div><div><small data-i18n="active_users">সক্রিয়</small><h4 class="text-success" id="adminActiveUsers">0</h4></div></div></div>
@@ -789,6 +732,7 @@
       </div>
 
       <div class="admin-panel-pro">
+        <!-- USER LIST -->
         <div class="admin-user-list">
           <div class="admin-panel-header">
             <h5 class="mb-0"><i class="fas fa-users-cog me-2"></i><span data-i18n="all_users">সকল ইউজার</span></h5>
@@ -806,6 +750,7 @@
           <div class="admin-users-scroll" id="adminUsersListPro"></div>
         </div>
 
+        <!-- USER DETAILS -->
         <div class="admin-user-details">
           <div class="admin-empty-state" id="adminEmptyState">
             <i class="fas fa-user-handshake"></i>
@@ -854,11 +799,12 @@
                   <div class="col-6"><div class="admin-stat-mini bg-danger-soft"><small data-i18n="expenses">খরচ</small><h4 id="adStatExpenses">0</h4><i class="fas fa-receipt"></i></div></div>
                 </div>
 
+                <!-- ⭐ FULL IMPERSONATION CARD -->
                 <div class="admin-impersonate-card">
                   <div class="admin-impersonate-icon"><i class="fas fa-user-secret"></i></div>
                   <div class="admin-impersonate-content">
                     <strong data-i18n="impersonate_btn">এই ইউজারের আইডিতে প্রবেশ করুন</strong>
-                    <small data-i18n="impersonate_desc">তার সব কাজ করতে পারবেন — বিক্রয়, পণ্য, কাস্টমার, খরচ সব</small>
+                    <small data-i18n="impersonate_desc">তার সব কাজ করতে পারবেন — বিক্রয়, পণ্য, কাস্টমার, খরচ, রিপোর্ট সব</small>
                   </div>
                   <button class="btn-admin-primary" onclick="impersonateUser()"><i class="fas fa-sign-in-alt"></i> <span data-i18n="enter">প্রবেশ</span></button>
                 </div>
@@ -1058,9 +1004,7 @@
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header"><h5 class="fw-bold mb-0"><i class="fas fa-key text-warning me-2"></i><span data-i18n="change_password">পাসওয়ার্ড</span></h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
-      <div class="modal-body">
-        <div class="mb-3"><label class="form-label">Email</label><input type="email" id="pwdEmail" class="form-control" readonly style="background:var(--bg-body);"></div>
-      </div>
+      <div class="modal-body"><div class="mb-3"><label class="form-label">Email</label><input type="email" id="pwdEmail" class="form-control" readonly style="background:var(--bg-body);"></div></div>
       <div class="modal-footer"><button class="btn btn-outline-secondary" data-bs-dismiss="modal" data-i18n="cancel">বাতিল</button><button class="btn btn-warning-soft" onclick="sendPasswordReset()"><i class="fas fa-paper-plane"></i> <span data-i18n="send_reset">পাঠান</span></button></div>
     </div>
   </div>
@@ -1075,7 +1019,6 @@
   </div>
 </div>
 
-<!-- Add Product Modal -->
 <div class="modal fade" id="addProductModal" tabindex="-1">
   <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content">
