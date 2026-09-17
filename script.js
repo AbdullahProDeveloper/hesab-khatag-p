@@ -1,6 +1,5 @@
 /* ═══════════════════════════════════════════════════════════
-   HesabKhata Enterprise Pro v13.0 — Ultimate Professional Edition
-   Complete JavaScript File
+   HesabKhata Enterprise Pro v14.0 — Complete Professional Script
    ═══════════════════════════════════════════════════════════ */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -56,14 +55,6 @@ const TRANSLATIONS = {
     sales_trend: 'সেলস ট্রেন্ড', days_7: '৭ দিন', days_30: '৩০ দিন', days_90: '৯০ দিন',
     quick_summary: 'দ্রুত সারাংশ', stock_alert: 'স্টক সতর্কতা', detailed_reports: 'বিস্তারিত রিপোর্ট',
     stock_alerts: 'স্টক সতর্কতা', recent_transactions: 'সাম্প্রতিক লেনদেন', view_all: 'সব',
-    step_product: 'পণ্য নির্বাচন', step_customer: 'কাস্টমার', step_payment: 'পেমেন্ট',
-    search_add_product: 'পণ্য খুঁজুন', pos_search_sub: 'নাম বা বারকোড দিয়ে', pos_customer_sub: 'ঐচ্ছিক',
-    quantity: 'পরিমাণ', add: 'যোগ', add_to_cart: 'কার্টে যোগ করুন',
-    selected_product: 'নির্বাচিত পণ্য', available_stock: 'স্টক',
-    customer_select: 'কাস্টমার', cash_sale: 'নগদ বিক্রয়', new: 'নতুন',
-    cart: 'কার্ট', cart_items: 'কার্ট', clear: 'ক্লিয়ার', subtotal: 'সাবটোটাল', discount: 'ডিসকাউন্ট', grand_total: 'সর্বমোট',
-    paid_amount: 'প্রাপ্ত টাকা', change: 'পরিবর্তন', will_due: 'বাকি থাকবে', complete_sale: 'বিক্রয় সম্পন্ন করুন',
-    exact: 'সঠিক',
     export: 'এক্সপোর্ট', reset: 'রিসেট', all_status: 'সব', paid_status: 'পরিশোধিত', due_status: 'বাকি',
     invoice: 'ইনভয়েস', customer: 'কাস্টমার', products_col: 'পণ্য', total: 'মোট', paid: 'পরিশোধিত', due: 'বাকি',
     date_time: 'তারিখ', action: 'অ্যাকশন', search: 'খুঁজুন',
@@ -82,11 +73,9 @@ const TRANSLATIONS = {
     personal_info: 'ব্যক্তিগত তথ্য', role: 'রোল', system_info: 'সিস্টেম',
     device: 'ডিভাইস', last_login: 'লগইন', account_status: 'স্ট্যাটাস',
     theme: 'থিম', appearance: 'অ্যাপিয়ারেন্স', data: 'ডেটা', security: 'সিকিউরিটি',
-    color_select: 'রঙ', c_indigo: 'ইন্ডিগো', c_blue: 'নীল', c_emerald: 'সবুজ', c_rose: 'গোলাপি', c_amber: 'সোনালী', c_purple: 'বেগুনি',
-    dark_mode: 'ডার্ক মোড', light: 'লাইট', dark: 'ডার্ক', auto: 'অটো',
+    color_select: 'রঙ', dark_mode: 'ডার্ক মোড', light: 'লাইট', dark: 'ডার্ক', auto: 'অটো',
     data_mgmt: 'ডেটা', export_all: 'সব এক্সপোর্ট', csv_export: 'CSV এক্সপোর্ট', import_data: 'ইমপোর্ট',
     download: 'ডাউনলোড', upload: 'আপলোড',
-    save_history: 'লগইন হিস্ট্রি', auto_logout: 'অটো লগ আউট',
     change_password: 'পাসওয়ার্ড পরিবর্তন', reset_link_msg: 'ইমেইলে রিসেট লিংক পাঠানো হবে।',
     admin_control: 'অ্যাডমিন কন্ট্রোল প্যানেল', admin_control_sub: 'সম্পূর্ণ সিস্টেম নিয়ন্ত্রণ',
     total_users: 'মোট ইউজার', active_users: 'সক্রিয়', blocked_users: 'ব্লকড', total_shops: 'মোট দোকান',
@@ -97,17 +86,13 @@ const TRANSLATIONS = {
     potential_profit: 'সম্ভাব্য লাভ',
     view_all_data: 'সব ডেটা দেখুন', view_all_data_sub: 'বিক্রয়, পণ্য, কাস্টমার, খরচ',
     login_history_sub: 'IP, ডিভাইস, সময়',
-    impersonate_btn: 'এই ইউজারের আইডিতে প্রবেশ করুন', impersonate_desc: 'তার সব কাজ করতে পারবেন — বিক্রয়, পণ্য, কাস্টমার, খরচ সব',
+    impersonate_btn: 'এই ইউজারের আইডিতে প্রবেশ করুন', impersonate_desc: 'তার সব কাজ করতে পারবেন',
     enter: 'প্রবেশ',
-    save_profile: 'সংরক্ষণ করুন',
-    security_actions: 'সিকিউরিটি', reset_pwd: 'পাসওয়ার্ড রিসেট', reset_pwd_sub: 'ইমেইলে লিংক',
-    send: 'পাঠান', force_logout: 'সেশন টার্মিনেট', force_logout_sub: 'জোরপূর্বক লগ আউট',
-    terminate: 'টার্মিনেট', block_user: 'সাময়িক ব্লক', block_user_sub: 'নির্দিষ্ট সময়ের জন্য',
-    block: 'ব্লক', unblock_user: 'আনব্লক', unblock_user_sub: 'সক্রিয় করুন', unblock: 'আনব্লক',
-    danger_zone: 'ডেঞ্জার জোন', danger_zone_sub: 'ফেরানো যাবে না',
-    reset_data: 'ডেটা রিসেট', reset_data_sub: 'পণ্য, কাস্টমার, বিক্রয়, খরচ মুছুন',
-    delete_user: 'সম্পূর্ণ ইউজার ডিলিট', delete_user_sub: 'Firebase থেকে সব মুছে যাবে',
-    all_users: 'সকল ইউজার', new_user: 'নতুন', all_roles: 'সব রোল',
+    save_profile: 'সংরক্ষণ করুন', send: 'পাঠান', terminate: 'টার্মিনেট',
+    block: 'ব্লক', unblock: 'আনব্লক',
+    danger_zone: 'ডেঞ্জার জোন', reset_data: 'ডেটা রিসেট',
+    delete_user: 'সম্পূর্ণ ইউজার ডিলিট',
+    all_users: 'সকল ইউজার', new_user: 'নতুন',
     block_duration: 'সময়কাল', block_reason: 'কারণ', unblock_at: 'আনব্লক হবে',
     create: 'তৈরি', user_data: 'ইউজারের ডেটা', save: 'সংরক্ষণ', update: 'আপডেট', delete: 'ডিলিট',
     add_product: 'নতুন পণ্য', barcode_optional: 'বারকোড',
@@ -121,9 +106,7 @@ const TRANSLATIONS = {
     add_expense: 'নতুন খরচ', quick_select: 'দ্রুত',
     quick_add_customer: 'দ্রুত কাস্টমার', product: 'পণ্য',
     barcode_scanner: 'বারকোড', basic: 'সাধারণ', cancel: 'বাতিল', offline_msg: 'আপনি অফলাইনে',
-    admin_mode: 'অ্যাডমিন মোড:', working_as: 'আপনি কাজ করছেন', as_user: 'হিসেবে', exit: 'প্রস্থান',
-    quick_search: 'দ্রুত সার্চ ইঞ্জিন', quick_search_sub: 'সব কিছু এক জায়গায় খুঁজুন',
-    search_placeholder: '🔍 পণ্য, কাস্টমার, ইনভয়েস, সেটিংস... সব কিছু খুঁজুন'
+    admin_mode: 'অ্যাডমিন মোড:', working_as: 'আপনি কাজ করছেন', as_user: 'হিসেবে', exit: 'প্রস্থান'
   },
   en: {
     brand_tagline: "Bangladesh's Best Business Management Solution",
@@ -154,14 +137,6 @@ const TRANSLATIONS = {
     sales_trend: 'Sales Trend', days_7: '7 Days', days_30: '30 Days', days_90: '90 Days',
     quick_summary: 'Quick Summary', stock_alert: 'Stock Alert', detailed_reports: 'Detailed Reports',
     stock_alerts: 'Stock Alerts', recent_transactions: 'Recent Transactions', view_all: 'All',
-    step_product: 'Select Product', step_customer: 'Customer', step_payment: 'Payment',
-    search_add_product: 'Search Products', pos_search_sub: 'By name or barcode', pos_customer_sub: 'Optional',
-    quantity: 'Quantity', add: 'Add', add_to_cart: 'Add to Cart',
-    selected_product: 'Selected Product', available_stock: 'Available Stock',
-    customer_select: 'Customer', cash_sale: 'Cash Sale', new: 'New',
-    cart: 'Cart', cart_items: 'Cart', clear: 'Clear', subtotal: 'Subtotal', discount: 'Discount', grand_total: 'Grand Total',
-    paid_amount: 'Paid Amount', change: 'Change', will_due: 'Will Due', complete_sale: 'Complete Sale',
-    exact: 'Exact',
     export: 'Export', reset: 'Reset', all_status: 'All', paid_status: 'Paid', due_status: 'Due',
     invoice: 'Invoice', customer: 'Customer', products_col: 'Products', total: 'Total', paid: 'Paid', due: 'Due',
     date_time: 'Date', action: 'Action', search: 'Search',
@@ -180,11 +155,9 @@ const TRANSLATIONS = {
     personal_info: 'Personal Info', role: 'Role', system_info: 'System',
     device: 'Device', last_login: 'Last Login', account_status: 'Status',
     theme: 'Theme', appearance: 'Appearance', data: 'Data', security: 'Security',
-    color_select: 'Color', c_indigo: 'Indigo', c_blue: 'Blue', c_emerald: 'Emerald', c_rose: 'Rose', c_amber: 'Amber', c_purple: 'Purple',
-    dark_mode: 'Dark Mode', light: 'Light', dark: 'Dark', auto: 'Auto',
+    color_select: 'Color', dark_mode: 'Dark Mode', light: 'Light', dark: 'Dark', auto: 'Auto',
     data_mgmt: 'Data', export_all: 'Export All', csv_export: 'CSV Export', import_data: 'Import',
     download: 'Download', upload: 'Upload',
-    save_history: 'Login History', auto_logout: 'Auto Logout',
     change_password: 'Change Password', reset_link_msg: 'Reset link will be sent to email.',
     admin_control: 'Admin Control Panel', admin_control_sub: 'Complete system control',
     total_users: 'Total Users', active_users: 'Active', blocked_users: 'Blocked', total_shops: 'Total Shops',
@@ -195,17 +168,13 @@ const TRANSLATIONS = {
     potential_profit: 'Potential Profit',
     view_all_data: 'View All Data', view_all_data_sub: 'Sales, Products, Customers, Expenses',
     login_history_sub: 'IP, Device, Time',
-    impersonate_btn: 'Login as This User', impersonate_desc: 'Do all their tasks — sales, products, customers, expenses all',
+    impersonate_btn: 'Login as This User', impersonate_desc: 'Do all their tasks',
     enter: 'Enter',
-    save_profile: 'Save Profile',
-    security_actions: 'Security', reset_pwd: 'Reset Password', reset_pwd_sub: 'Send link to email',
-    send: 'Send', force_logout: 'Force Logout', force_logout_sub: 'Force logout user',
-    terminate: 'Terminate', block_user: 'Temporary Block', block_user_sub: 'Block for specific duration',
-    block: 'Block', unblock_user: 'Unblock', unblock_user_sub: 'Reactivate user', unblock: 'Unblock',
-    danger_zone: 'Danger Zone', danger_zone_sub: 'Cannot be undone',
-    reset_data: 'Reset Data', reset_data_sub: 'Delete all products, customers, sales, expenses',
-    delete_user: 'Delete User Completely', delete_user_sub: 'All data will be deleted from Firebase',
-    all_users: 'All Users', new_user: 'New', all_roles: 'All Roles',
+    save_profile: 'Save Profile', send: 'Send', terminate: 'Terminate',
+    block: 'Block', unblock: 'Unblock',
+    danger_zone: 'Danger Zone', reset_data: 'Reset Data',
+    delete_user: 'Delete User Completely',
+    all_users: 'All Users', new_user: 'New',
     block_duration: 'Duration', block_reason: 'Reason', unblock_at: 'Unblock at',
     create: 'Create', user_data: 'User Data', save: 'Save', update: 'Update', delete: 'Delete',
     add_product: 'New Product', barcode_optional: 'Barcode',
@@ -219,9 +188,7 @@ const TRANSLATIONS = {
     add_expense: 'New Expense', quick_select: 'Quick',
     quick_add_customer: 'Quick Add', product: 'Product',
     barcode_scanner: 'Barcode', basic: 'Basic', cancel: 'Cancel', offline_msg: 'You are offline',
-    admin_mode: 'Admin Mode:', working_as: 'You are working as', as_user: 'as', exit: 'Exit',
-    quick_search: 'Quick Search Engine', quick_search_sub: 'Search everything in one place',
-    search_placeholder: '🔍 Products, Customers, Invoices, Settings... search everything'
+    admin_mode: 'Admin Mode:', working_as: 'You are working as', as_user: 'as', exit: 'Exit'
   }
 };
 
@@ -246,9 +213,6 @@ window.switchLanguage = (lang) => {
   const codeEl = document.getElementById('currentLangCode');
   if (codeEl) codeEl.textContent = lang.toUpperCase();
   document.querySelectorAll('.lang-btn, .lang-option').forEach(btn => btn.classList.toggle('active', btn.dataset.lang === lang));
-
-  const qsi = document.getElementById('quickSearchInput');
-  if (qsi) qsi.placeholder = t('search_placeholder');
 
   closeLangDropdown();
 
@@ -290,8 +254,7 @@ const AppState = {
   unsubscribers: [],
   userSettings: {}, currentIP: '—',
   impersonatingUser: null, selectedAdminUser: null,
-  adminFilter: 'all', barcodeReader: null,
-  quickSearchIndex: 0
+  adminFilter: 'all', barcodeReader: null
 };
 
 Object.keys(AppState).forEach(key => {
@@ -339,7 +302,7 @@ window.formatDateBn = (dateStr) => {
   catch (e) { return dateStr; }
 };
 
-/* ⭐ CRITICAL: Money handling — always returns number */
+/* ⭐ CRITICAL: Money handling */
 function toNum(v) {
   if (v === null || v === undefined || v === '') return 0;
   const n = parseFloat(String(v).replace(/[^\d.-]/g, ''));
@@ -352,13 +315,6 @@ function formatMoney(n) {
   return num.toLocaleString(currentLang === 'bn' ? 'bn-BD' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 window.formatMoney = formatMoney;
-
-function readMoney(elOrId) {
-  const el = typeof elOrId === 'string' ? $(elOrId) : elOrId;
-  if (!el) return 0;
-  return toNum(el.value !== undefined ? el.value : el.textContent);
-}
-window.readMoney = readMoney;
 
 /* ═══════════════════ LOADER & TOAST ═══════════════════ */
 window.showLoader = (show, text = null) => {
@@ -430,7 +386,7 @@ window.showConfirm = (title, text, options = {}) => {
     if (!modalEl) { resolve(confirm(`${title}\n${text}`)); return; }
     const modal = new bootstrap.Modal(modalEl);
     const iconEl = $('confirmIcon'), okBtn = $('confirmOk'), cancelBtn = $('confirmCancel');
-    setText('confirmTitle', title || (currentLang === 'bn' ? 'নিশ্চিত করুন' : 'Confirm'));
+    setText('confirmTitle', title || 'নিশ্চিত করুন');
     setText('confirmText', text || '');
     const type = options.type || 'question';
     const iconMap = {
@@ -443,8 +399,8 @@ window.showConfirm = (title, text, options = {}) => {
     iconEl.innerHTML = `<i class="${style.icon}"></i>`;
     iconEl.style.background = style.bg;
     iconEl.style.color = style.color;
-    okBtn.textContent = options.okText || (currentLang === 'bn' ? 'হ্যাঁ' : 'Yes');
-    cancelBtn.textContent = options.cancelText || (currentLang === 'bn' ? 'বাতিল' : 'Cancel');
+    okBtn.textContent = options.okText || 'হ্যাঁ';
+    cancelBtn.textContent = options.cancelText || 'বাতিল';
     okBtn.style.background = options.danger ? 'linear-gradient(135deg,var(--danger),#dc2626)' : 'linear-gradient(135deg,var(--primary),var(--primary-dark))';
     const handleOk = () => { cleanup(); resolve(true); modal.hide(); };
     const handleCancel = () => { cleanup(); resolve(false); modal.hide(); };
@@ -455,7 +411,7 @@ window.showConfirm = (title, text, options = {}) => {
   });
 };
 
-/* ═══════════════════ ACTIVITY LOG ═══════════════════ */
+/* ═══════════════════ ACTIVITY ═══════════════════ */
 window.logActivity = (action, details, amount = null, extraData = {}) => {
   const now = new Date();
   const entry = {
@@ -563,15 +519,16 @@ window.exportActivityLog = () => {
     c += `${a.date},${a.time},"${(a.action || '').replace(/"/g, '""')}","${(a.details || '').replace(/"/g, '""')}",${a.amount || 0}\n`;
   });
   downloadFile(c, `activity-log-${new Date().toISOString().split('T')[0]}.csv`);
-  showToast('success', t('export'));
+  showToast('success', 'এক্সপোর্ট হয়েছে');
 };
 
 window.clearActivityLog = async () => {
-  const ok = await showConfirm(t('clear'), '?', { type: 'danger', danger: true });
+  const ok = await showConfirm('লগ ক্লিয়ার করবেন?', 'সব অ্যাক্টিভিটি লগ মুছে যাবে।', { type: 'danger', danger: true });
   if (!ok) return;
   AppState.activityLog = [];
   try { localStorage.removeItem('hk_activity_' + (AppState.currentUser?.uid || 'guest')); } catch (e) {}
   renderActivityLog(); renderActivityLogAdvanced(); updateActivityStats();
+  showToast('success', 'লগ ক্লিয়ার হয়েছে');
 };
 
 /* ═══════════════════ FILE DOWNLOAD ═══════════════════ */
@@ -632,8 +589,6 @@ window.setThemeMode = (mode, el) => {
   saveUserSettings();
 };
 
-window.saveSetting = (key, v) => { AppState.userSettings[key] = v; saveUserSettings(); };
-
 window.switchSettingsTab = (tab, el) => {
   document.querySelectorAll('.settings-tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.settings-content').forEach(t => t.classList.remove('active'));
@@ -652,18 +607,17 @@ window.checkPasswordStrength = () => {
   if (p.match(/[A-Z]+/)) s++;
   if (p.match(/[0-9]+/)) s++;
   if (p.match(/[$@#&!]+/)) s++;
-  if (p.length === 0) { bar.style.width = '0%'; bar.className = 'password-strength-bar'; txt.textContent = t('password_hint'); }
-  else if (s <= 2) { bar.style.width = '20%'; bar.className = 'password-strength-bar strength-weak'; txt.textContent = currentLang === 'bn' ? 'দুর্বল' : 'Weak'; }
-  else if (s === 3) { bar.style.width = '40%'; bar.className = 'password-strength-bar strength-fair'; txt.textContent = currentLang === 'bn' ? 'মাঝারি' : 'Fair'; }
-  else if (s === 4) { bar.style.width = '70%'; bar.className = 'password-strength-bar strength-good'; txt.textContent = currentLang === 'bn' ? 'ভালো' : 'Good'; }
-  else { bar.style.width = '100%'; bar.className = 'password-strength-bar strength-strong'; txt.textContent = currentLang === 'bn' ? 'শক্তিশালী' : 'Strong'; }
+  if (p.length === 0) { bar.style.width = '0%'; bar.className = 'password-strength-bar'; txt.textContent = 'পাসওয়ার্ড দিন'; }
+  else if (s <= 2) { bar.style.width = '20%'; bar.className = 'password-strength-bar strength-weak'; txt.textContent = 'দুর্বল'; }
+  else if (s === 3) { bar.style.width = '40%'; bar.className = 'password-strength-bar strength-fair'; txt.textContent = 'মাঝারি'; }
+  else if (s === 4) { bar.style.width = '70%'; bar.className = 'password-strength-bar strength-good'; txt.textContent = 'ভালো'; }
+  else { bar.style.width = '100%'; bar.className = 'password-strength-bar strength-strong'; txt.textContent = 'শক্তিশালী'; }
 };
 
-/* ═══════════════════ AUTH NAVIGATION ═══════════════════ */
+/* ═══════════════════ AUTH NAV ═══════════════════ */
 window.showLogin = () => { $('loginForm').style.display = 'block'; $('registerForm').style.display = 'none'; $('forgotForm').style.display = 'none'; };
 window.showRegister = () => { $('loginForm').style.display = 'none'; $('registerForm').style.display = 'block'; $('forgotForm').style.display = 'none'; };
 window.showForgotPassword = () => { $('loginForm').style.display = 'none'; $('registerForm').style.display = 'none'; $('forgotForm').style.display = 'block'; };
-
 window.togglePassword = (id, btn) => {
   const i = $(id);
   if (!i) return;
@@ -671,17 +625,17 @@ window.togglePassword = (id, btn) => {
   else { i.type = 'password'; btn.innerHTML = '<i class="fas fa-eye"></i>'; }
 };
 
-/* ═══════════════════ LOGIN (With Block Check) ═══════════════════ */
+/* ═══════════════════ LOGIN ═══════════════════ */
 window.login = async () => {
   const email = $('loginEmail').value.trim();
   const pass = $('loginPassword').value;
-  if (!email || !pass) { showToast('warning', t('login_btn')); return; }
-  if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) { showToast('error', t('email')); return; }
+  if (!email || !pass) { showToast('warning', 'সতর্কতা', 'সব ঘর পূরণ করুন'); return; }
+  if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) { showToast('error', 'ভুল ইমেইল', 'সঠিক ইমেইল দিন'); return; }
 
   const btn = $('loginBtn');
   btn.disabled = true;
-  btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>' + t('login_btn');
-  showLoader(true, currentLang === 'bn' ? 'যাচাই করা হচ্ছে...' : 'Verifying...');
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>লগইন হচ্ছে...';
+  showLoader(true, 'যাচাই করা হচ্ছে...');
 
   try {
     let foundUser = null, foundUid = null;
@@ -700,15 +654,15 @@ window.login = async () => {
       if (status === 'Blocked') {
         const blockUntil = foundUser.blockUntil ? new Date(foundUser.blockUntil) : null;
         if (!blockUntil || blockUntil > new Date()) {
-          const untilText = blockUntil ? getDateBn(blockUntil) + ' ' + getTimeBn(blockUntil) : (currentLang === 'bn' ? 'চিরতরে' : 'Forever');
+          const untilText = blockUntil ? getDateBn(blockUntil) + ' ' + getTimeBn(blockUntil) : 'চিরতরে';
           showLoader(false); btn.disabled = false;
-          btn.innerHTML = '<i class="fas fa-right-to-bracket me-2"></i>' + t('login_btn');
+          btn.innerHTML = '<i class="fas fa-right-to-bracket me-2"></i>নিরাপদ লগইন';
           await Swal.fire({
             icon: 'error',
-            title: currentLang === 'bn' ? 'অ্যাকাউন্ট ব্লক' : 'Account Blocked',
+            title: 'অ্যাকাউন্ট ব্লক',
             html: `<div style="text-align:left;font-size:0.9rem;">
-              <p><strong>${currentLang === 'bn' ? 'কারণ' : 'Reason'}:</strong> ${escapeHtml(foundUser.blockReason || 'Admin')}</p>
-              <p><strong>${t('unblock_at')}:</strong> ${escapeHtml(untilText)}</p>
+              <p><strong>কারণ:</strong> ${escapeHtml(foundUser.blockReason || 'Admin')}</p>
+              <p><strong>আনব্লক হবে:</strong> ${escapeHtml(untilText)}</p>
             </div>`,
             confirmButtonText: 'OK'
           });
@@ -719,18 +673,18 @@ window.login = async () => {
       }
       if (status === 'Suspended') {
         showLoader(false); btn.disabled = false;
-        btn.innerHTML = '<i class="fas fa-right-to-bracket me-2"></i>' + t('login_btn');
-        await Swal.fire({ icon: 'error', title: 'Suspended', text: currentLang === 'bn' ? 'অ্যাডমিনের সাথে যোগাযোগ করুন।' : 'Contact admin.', confirmButtonText: 'OK' });
+        btn.innerHTML = '<i class="fas fa-right-to-bracket me-2"></i>নিরাপদ লগইন';
+        await Swal.fire({ icon: 'error', title: 'Suspended', text: 'অ্যাডমিনের সাথে যোগাযোগ করুন।', confirmButtonText: 'OK' });
         return;
       }
     }
 
     await signInWithEmailAndPassword(auth, email, pass);
-    showToast('success', t('welcome_back'));
+    showToast('success', 'লগইন সফল!');
   } catch (e) {
-    showToast('error', t('login_btn'), getFirebaseErrorMessage(e.code));
+    showToast('error', 'লগইন ব্যর্থ', getFirebaseErrorMessage(e.code));
     showLoader(false); btn.disabled = false;
-    btn.innerHTML = '<i class="fas fa-right-to-bracket me-2"></i>' + t('login_btn');
+    btn.innerHTML = '<i class="fas fa-right-to-bracket me-2"></i>নিরাপদ লগইন';
   }
 };
 
@@ -744,20 +698,19 @@ window.register = async () => {
   const pass = $('regPassword').value;
   const cp = $('regConfirmPassword').value;
   const terms = $('termsCheck').checked;
-  if (!name || !email || !phone || !shopName || !address || !pass || !cp) { showToast('warning', t('register_btn')); return; }
-  if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) { showToast('error', t('email')); return; }
-  if (!phone.match(/^01[3-9]\d{8}$/)) { showToast('error', t('phone')); return; }
-  if (pass.length < 6) { showToast('error', t('password')); return; }
-  if (pass !== cp) { showToast('error', t('confirm_password')); return; }
-  if (!terms) { showToast('warning', t('terms_agree')); return; }
+  if (!name || !email || !phone || !shopName || !address || !pass || !cp) { showToast('warning', 'সতর্কতা', 'সব ঘর পূরণ করুন'); return; }
+  if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) { showToast('error', 'ভুল ইমেইল'); return; }
+  if (!phone.match(/^01[3-9]\d{8}$/)) { showToast('error', 'ভুল মোবাইল', '01XXXXXXXXX'); return; }
+  if (pass.length < 6) { showToast('error', 'দুর্বল পাসওয়ার্ড', 'কমপক্ষে ৬ অক্ষর'); return; }
+  if (pass !== cp) { showToast('error', 'পাসওয়ার্ড মিলছে না'); return; }
+  if (!terms) { showToast('warning', 'শর্তাবলী মেনে নিন'); return; }
 
   const btn = $('registerBtn');
   btn.disabled = true;
-  btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>' + t('register_btn');
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>রেজিস্ট্রেশন...';
   showLoader(true);
 
   try {
-    const device = getDeviceInfo();
     const uc = await createUserWithEmailAndPassword(auth, email, pass);
     const user = uc.user;
     const now = new Date();
@@ -765,48 +718,39 @@ window.register = async () => {
       uid: user.uid, fullName: name, email, phone, shopName, address,
       role: 'Staff', status: 'Active',
       createdAt: now.toISOString(),
-      registrationDevice: device.device,
       settings: DEFAULT_SETTINGS
     });
     const histRef = push(ref(db, 'users/' + user.uid + '/loginHistory'));
-    await set(histRef, { id: histRef.key, date: now.toISOString().split('T')[0], time: getTimeBn(now), timestamp: now.getTime(), device: device.device, action: 'Registration' });
-    showToast('success', t('register_btn'));
+    await set(histRef, { id: histRef.key, date: now.toISOString().split('T')[0], time: getTimeBn(now), timestamp: now.getTime(), action: 'Registration' });
+    showToast('success', 'রেজিস্ট্রেশন সফল!');
     ['regName','regEmail','regPhone','regShopName','regAddress','regPassword','regConfirmPassword'].forEach(id => { const el = $(id); if (el) el.value = ''; });
     $('termsCheck').checked = false;
   } catch (e) {
-    showToast('error', t('register_btn'), getFirebaseErrorMessage(e.code));
+    showToast('error', 'রেজিস্ট্রেশন ব্যর্থ', getFirebaseErrorMessage(e.code));
     showLoader(false); btn.disabled = false;
-    btn.innerHTML = '<i class="fas fa-rocket me-2"></i>' + t('register_btn');
+    btn.innerHTML = '<i class="fas fa-rocket me-2"></i>রেজিস্টার করুন';
   }
 };
 
 window.resetPassword = async () => {
   const email = $('resetEmail').value.trim();
-  if (!email) { showToast('warning', t('email')); return; }
+  if (!email) { showToast('warning', 'ইমেইল দিন'); return; }
   const btn = $('resetBtn');
   btn.disabled = true;
   try {
     await sendPasswordResetEmail(auth, email);
-    showToast('success', t('send_reset'), email);
+    showToast('success', 'রিসেট লিংক পাঠানো হয়েছে', email);
     $('resetEmail').value = '';
     setTimeout(showLogin, 1500);
-  } catch (e) { showToast('error', t('send_reset'), getFirebaseErrorMessage(e.code)); }
+  } catch (e) { showToast('error', 'ব্যর্থ', getFirebaseErrorMessage(e.code)); }
   btn.disabled = false;
 };
 
 window.logout = async () => {
-  const ok = await showConfirm(t('logout'), '?');
+  const ok = await showConfirm('লগ আউট করবেন?', '');
   if (!ok) return;
-  try { await signOut(auth); showToast('info', t('logout')); } catch (e) {}
+  try { await signOut(auth); showToast('info', 'লগ আউট'); } catch (e) {}
 };
-
-function getDeviceInfo() {
-  const ua = navigator.userAgent;
-  let device = 'Desktop';
-  if (/Mobile/i.test(ua)) device = 'Mobile';
-  else if (/Tablet|iPad/i.test(ua)) device = 'Tablet';
-  return { device };
-}
 
 /* ═══════════════════ AUTH STATE ═══════════════════ */
 onAuthStateChanged(auth, async (user) => {
@@ -823,14 +767,13 @@ onAuthStateChanged(auth, async (user) => {
     showLogin();
     showLoader(false);
     const btn = $('loginBtn');
-    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-right-to-bracket me-2"></i>' + t('login_btn'); }
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-right-to-bracket me-2"></i>নিরাপদ লগইন'; }
     return;
   }
 
   AppState.currentUser = user;
   showLoader(true);
 
-  const device = getDeviceInfo();
   let data = null;
   try {
     const snap = await get(ref(db, 'users/' + user.uid));
@@ -852,7 +795,7 @@ onAuthStateChanged(auth, async (user) => {
     if (!blockUntil || blockUntil > new Date()) {
       await signOut(auth);
       showLoader(false);
-      await Swal.fire({ icon: 'error', title: currentLang === 'bn' ? 'অ্যাকাউন্ট ব্লক' : 'Account Blocked', confirmButtonText: 'OK' });
+      await Swal.fire({ icon: 'error', title: 'অ্যাকাউন্ট ব্লক', confirmButtonText: 'OK' });
       return;
     }
   }
@@ -879,8 +822,8 @@ onAuthStateChanged(auth, async (user) => {
     (async () => {
       try {
         const now = new Date();
-        const loginEntry = { date: now.toISOString().split('T')[0], time: getTimeBn(now), timestamp: now.getTime(), device: device.device, action: 'Login' };
-        await update(ref(db, 'users/' + user.uid), { lastLogin: loginEntry, lastDevice: device.device });
+        const loginEntry = { date: now.toISOString().split('T')[0], time: getTimeBn(now), timestamp: now.getTime(), action: 'Login' };
+        await update(ref(db, 'users/' + user.uid), { lastLogin: loginEntry });
         const histRef = push(ref(db, 'users/' + user.uid + '/loginHistory'));
         await set(histRef, { id: histRef.key, ...loginEntry });
       } catch (e) {}
@@ -934,7 +877,7 @@ onAuthStateChanged(auth, async (user) => {
 
   try { showSection('dashboard'); } catch (e) {}
   showLoader(false);
-  setTimeout(() => { try { showToast('success', t('welcome'), activeData.fullName || 'User'); } catch (e) {} }, 300);
+  setTimeout(() => { try { showToast('success', 'স্বাগতম', activeData.fullName || 'User'); } catch (e) {} }, 300);
 });
 
 /* ═══════════════════ INIT APP ═══════════════════ */
@@ -977,15 +920,28 @@ function initApp() {
         const matches = AppState.inventory.filter(i => i.name.toLowerCase().includes(q) && parseInt(i.qty) > 0);
         matches.slice(0, 8).forEach(item => {
           res.innerHTML += `<button onclick="selectProduct('${item.id}')">
-            <span><strong>${escapeHtml(item.name)}</strong> <small style="color:var(--text-muted)">(${t('stock')}: ${item.qty})</small></span>
+            <span><strong>${escapeHtml(item.name)}</strong> <small style="color:var(--text-muted)">(${item.qty})</small></span>
             <b style="color:var(--primary)">৳${item.sellPrice}</b>
           </button>`;
         });
         if (matches.length === 0) {
-          res.innerHTML = `<div style="text-align:center;padding:16px;color:var(--text-muted);font-size:0.85rem;"><i class="fas fa-search me-2"></i>${currentLang === 'bn' ? 'কোনো পণ্য পাওয়া যায়নি' : 'No products found'}</div>`;
+          res.innerHTML = `<div style="text-align:center;padding:16px;color:var(--text-muted);font-size:0.85rem;"><i class="fas fa-search me-2"></i>কোনো পণ্য পাওয়া যায়নি</div>`;
         }
       }
     }, 250));
+
+    ps.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        if (AppState.lastSelectedProductId) {
+          addToCartFromSearch();
+        } else {
+          const q = ps.value.toLowerCase();
+          const matches = AppState.inventory.filter(i => i.name.toLowerCase().includes(q) && parseInt(i.qty) > 0);
+          if (matches.length > 0) selectProduct(matches[0].id);
+        }
+      }
+    });
   }
 
   ['addProdQty','addProdBuyPrice','addProdSellPrice'].forEach(id => {
@@ -1012,7 +968,7 @@ window.previewPayDue = () => {
   const curDue = toNum($('payCurrentDue').value);
   const remaining = Math.max(0, curDue - amount);
   setText('payRemainingDue', '৳' + formatMoney(remaining));
-  setHtml('payStatus', remaining <= 0 ? `<span class="tag tag-success">${currentLang === 'bn' ? 'সম্পূর্ণ' : 'Full'}</span>` : `<span class="tag tag-warning">${currentLang === 'bn' ? 'আংশিক' : 'Partial'}</span>`);
+  setHtml('payStatus', remaining <= 0 ? `<span class="tag tag-success">সম্পূর্ণ</span>` : `<span class="tag tag-warning">আংশিক</span>`);
 };
 
 window.quickExpense = (desc) => { const el = $('addExpDesc'); if (el) el.value = desc; };
@@ -1031,15 +987,15 @@ window.renderProductCards = () => {
   const c = $('productCardsContainer');
   if (!c) return;
   const f = getFilteredInventory();
-  setText('inventoryCardCount', `${f.length} ${t('products')}`);
+  setText('inventoryCardCount', `${f.length} টি`);
   if (f.length === 0) {
-    c.innerHTML = `<div class="col-12"><div class="empty-state"><i class="fas fa-boxes"></i><h5>0</h5><button class="btn btn-gradient" data-bs-toggle="modal" data-bs-target="#addProductModal"><i class="fas fa-plus"></i>${t('new_product')}</button></div></div>`;
+    c.innerHTML = `<div class="col-12"><div class="empty-state"><i class="fas fa-boxes"></i><h5>0</h5></div></div>`;
     return;
   }
   const fragment = document.createDocumentFragment();
   f.forEach(p => {
     const low = parseInt(p.qty) <= LOW_STOCK_THRESHOLD;
-    const badge = low ? `<span class="badge-stock low"><i class="fas fa-circle-exclamation"></i>${t('low_stock')}</span>` : `<span class="badge-stock ok"><i class="fas fa-circle-check"></i>${t('stock_ok')}</span>`;
+    const badge = low ? `<span class="badge-stock low"><i class="fas fa-circle-exclamation"></i>স্টক কম</span>` : `<span class="badge-stock ok"><i class="fas fa-circle-check"></i>স্টক আছে</span>`;
     const div = document.createElement('div');
     div.className = 'col-xl-3 col-md-4 col-sm-6';
     div.innerHTML = `<div class="product-card">
@@ -1047,7 +1003,7 @@ window.renderProductCards = () => {
       <div class="product-name">${escapeHtml(p.name)}</div>
       <div class="product-price">৳${p.sellPrice}</div>
       ${badge}
-      <span class="ms-1 small text-muted">${t('stock')}: ${p.qty}</span>
+      <span class="ms-1 small text-muted">স্টক: ${p.qty}</span>
       <div class="product-actions mt-2">
         <button class="action-btn edit" onclick="editProduct('${p.id}')"><i class="fas fa-pen"></i></button>
         <button class="action-btn sell" onclick="sellProduct('${p.id}')"><i class="fas fa-cart-plus"></i></button>
@@ -1064,7 +1020,7 @@ window.renderInventoryTable = () => {
   const tbody = $('inventoryTableBody');
   if (!tbody) return;
   const f = [...AppState.inventory];
-  setText('inventoryTableCount', `${f.length} ${t('products')}`);
+  setText('inventoryTableCount', `${f.length} টি`);
   if (f.length === 0) { tbody.innerHTML = `<tr><td colspan="9" class="text-center text-muted py-4">0</td></tr>`; return; }
   const fragment = document.createDocumentFragment();
   let totalStock = 0, totalProfit = 0, lowCount = 0;
@@ -1074,7 +1030,7 @@ window.renderInventoryTable = () => {
     totalStock += parseInt(p.qty);
     totalProfit += tp;
     if (parseInt(p.qty) <= LOW_STOCK_THRESHOLD) lowCount++;
-    const badge = parseInt(p.qty) <= LOW_STOCK_THRESHOLD ? `<span class="tag tag-danger">${t('low_stock')}</span>` : `<span class="tag tag-success">${t('stock_ok')}</span>`;
+    const badge = parseInt(p.qty) <= LOW_STOCK_THRESHOLD ? `<span class="tag tag-danger">স্টক কম</span>` : `<span class="tag tag-success">স্টক আছে</span>`;
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td>${i + 1}</td>
@@ -1096,10 +1052,10 @@ window.renderInventoryTable = () => {
   const footer = $('inventoryTableFooter');
   if (footer) {
     footer.innerHTML = `
-      <div class="table-footer-stat"><small>${t('total_products')}</small><strong>${f.length}</strong></div>
-      <div class="table-footer-stat"><small>${t('stock')}</small><strong>${totalStock}</strong></div>
-      <div class="table-footer-stat"><small>${t('total_profit')}</small><strong class="text-success">৳${formatMoney(totalProfit)}</strong></div>
-      <div class="table-footer-stat"><small>${t('low_stock')}</small><strong class="text-danger">${lowCount}</strong></div>`;
+      <div class="table-footer-stat"><small>মোট পণ্য</small><strong>${f.length}</strong></div>
+      <div class="table-footer-stat"><small>মোট স্টক</small><strong>${totalStock}</strong></div>
+      <div class="table-footer-stat"><small>মোট লাভ</small><strong class="text-success">৳${formatMoney(totalProfit)}</strong></div>
+      <div class="table-footer-stat"><small>স্টক কম</small><strong class="text-danger">${lowCount}</strong></div>`;
   }
 };
 
@@ -1133,28 +1089,28 @@ window.updateInventory = async () => {
   const qty = $('editProdQty').value;
   const buy = $('editProdBuyPrice').value;
   const sell = $('editProdSellPrice').value;
-  if (!name || qty === '' || buy === '' || sell === '') { showToast('warning', t('product_name')); return; }
+  if (!name || qty === '' || buy === '' || sell === '') { showToast('warning', 'সব ঘর পূরণ করুন'); return; }
   showLoader(true);
   try {
     const uid = AppState.impersonatingUser || AppState.currentUser.uid;
     await update(ref(db, 'users/' + uid + '/inventory/' + AppState.editingProductId), { name, qty, buyPrice: buy, sellPrice: sell });
-    showToast('success', t('update'), name);
+    showToast('success', 'পণ্য আপডেট হয়েছে', name);
     bootstrap.Modal.getInstance($('editProductModal')).hide();
-  } catch (e) { showToast('error', e.message); }
+  } catch (e) { showToast('error', 'ব্যর্থ', e.message); }
   showLoader(false);
 };
 
 window.sellProduct = (id) => {
   const p = AppState.inventory.find(i => i.id === id);
   if (!p) return;
-  if (parseInt(p.qty) <= 0) { showToast('error', currentLang === 'bn' ? 'স্টক নেই' : 'Out of stock', p.name); return; }
+  if (parseInt(p.qty) <= 0) { showToast('error', 'স্টক নেই', p.name); return; }
   showSection('sales');
   AppState.lastSelectedProductId = id;
   $('productSearch').value = p.name;
   $('productSearchResults').innerHTML = '';
   $('productQty').value = '1';
   updatePosPreview();
-  showToast('info', t('selected_product'), p.name);
+  showToast('info', 'পণ্য নির্বাচিত', p.name);
 };
 
 window.purchaseProductModal = (id) => {
@@ -1173,8 +1129,8 @@ window.purchaseProduct = async () => {
   const name = $('purchaseProdName').value;
   const qty = parseInt($('purchaseQty').value);
   const price = toNum($('purchasePrice').value);
-  if (!qty || qty <= 0) { showToast('error', t('purchase_qty')); return; }
-  if (!price || price < 0) { showToast('error', t('purchase_price')); return; }
+  if (!qty || qty <= 0) { showToast('error', 'ভুল পরিমাণ'); return; }
+  if (!price || price < 0) { showToast('error', 'ভুল মূল্য'); return; }
   const p = AppState.inventory.find(i => i.name === name);
   if (!p) return;
   showLoader(true);
@@ -1183,9 +1139,9 @@ window.purchaseProduct = async () => {
     const newQty = parseInt(p.qty) + qty;
     await update(ref(db, 'users/' + uid + '/inventory/' + p.id), { qty: newQty, buyPrice: price });
     logActivity('পণ্য ক্রয়', `${name} - ${qty} × ৳${price}`, qty * price);
-    showToast('success', t('complete_purchase'), `${t('new_stock')}: ${newQty}`);
+    showToast('success', 'ক্রয় সম্পন্ন', `নতুন স্টক: ${newQty}`);
     bootstrap.Modal.getInstance($('purchaseProductModal')).hide();
-  } catch (e) { showToast('error', e.message); }
+  } catch (e) { showToast('error', 'ব্যর্থ', e.message); }
   showLoader(false);
 };
 
@@ -1195,8 +1151,8 @@ window.addInventory = async () => {
   const b = $('addProdBuyPrice').value;
   const s = $('addProdSellPrice').value;
   const barcode = $('addProdBarcode')?.value.trim() || '';
-  if (!n || q === '' || b === '' || s === '') { showToast('warning', t('product_name')); return; }
-  if (toNum(q) < 0 || toNum(b) < 0 || toNum(s) < 0) { showToast('error', t('product_name')); return; }
+  if (!n || q === '' || b === '' || s === '') { showToast('warning', 'সব ঘর পূরণ করুন'); return; }
+  if (toNum(q) < 0 || toNum(b) < 0 || toNum(s) < 0) { showToast('error', 'নেগেটিভ মান নয়'); return; }
   showLoader(true);
   try {
     const uid = AppState.impersonatingUser || AppState.currentUser.uid;
@@ -1204,10 +1160,10 @@ window.addInventory = async () => {
     await set(r, { id: r.key, name: n, qty: q, buyPrice: b, sellPrice: s, barcode, createdAt: new Date().toISOString() });
     logActivity('নতুন পণ্য', `${n} (${q})`);
     bootstrap.Modal.getInstance($('addProductModal')).hide();
-    showToast('success', t('new_product'), n);
+    showToast('success', 'পণ্য যোগ হয়েছে', n);
     ['addProdName','addProdQty','addProdBuyPrice','addProdSellPrice','addProdBarcode'].forEach(id => { const el = $(id); if (el) el.value = ''; });
     updateAddProdLive();
-  } catch (e) { showToast('error', e.message); }
+  } catch (e) { showToast('error', 'ব্যর্থ', e.message); }
   showLoader(false);
 };
 
@@ -1216,15 +1172,15 @@ window.renderCustomerCards = () => {
   const c = $('customerCardsContainer');
   if (!c) return;
   const f = getFilteredCustomers();
-  setText('customerCount', `${f.length} ${t('customers')}`);
+  setText('customerCount', `${f.length} জন`);
   if (f.length === 0) {
-    c.innerHTML = `<div class="col-12"><div class="empty-state"><i class="fas fa-users"></i><h5>0</h5><button class="btn btn-gradient" data-bs-toggle="modal" data-bs-target="#addCustomerModal"><i class="fas fa-plus"></i>${t('new_customer')}</button></div></div>`;
+    c.innerHTML = `<div class="col-12"><div class="empty-state"><i class="fas fa-users"></i><h5>0</h5></div></div>`;
     return;
   }
   const fragment = document.createDocumentFragment();
   f.forEach(cust => {
     const hasDue = toNum(cust.due) > 0;
-    const badge = hasDue ? `<span class="badge-stock low"><i class="fas fa-circle-exclamation"></i>${t('due')}: ৳${cust.due}</span>` : `<span class="badge-stock ok"><i class="fas fa-circle-check"></i>${t('no_due')}</span>`;
+    const badge = hasDue ? `<span class="badge-stock low"><i class="fas fa-circle-exclamation"></i>বাকি: ৳${cust.due}</span>` : `<span class="badge-stock ok"><i class="fas fa-circle-check"></i>বাকি নেই</span>`;
     const div = document.createElement('div');
     div.className = 'col-xl-3 col-md-4 col-sm-6';
     div.innerHTML = `<div class="customer-card">
@@ -1269,14 +1225,14 @@ window.updateCustomer = async () => {
   if (!AppState.editingCustomerId) return;
   const name = $('editCustName').value.trim();
   const phone = $('editCustPhone').value.trim();
-  if (!name) { showToast('warning', t('name')); return; }
+  if (!name) { showToast('warning', 'নাম দিন'); return; }
   showLoader(true);
   try {
     const uid = AppState.impersonatingUser || AppState.currentUser.uid;
     await update(ref(db, 'users/' + uid + '/customers/' + AppState.editingCustomerId), { name, phone });
-    showToast('success', t('update'), name);
+    showToast('success', 'আপডেট হয়েছে', name);
     bootstrap.Modal.getInstance($('editCustomerModal')).hide();
-  } catch (e) { showToast('error', e.message); }
+  } catch (e) { showToast('error', 'ব্যর্থ', e.message); }
   showLoader(false);
 };
 
@@ -1303,24 +1259,24 @@ window.makePayment = async () => {
   if (!AppState.payingCustomerId) return;
   const amount = toNum($('payAmount').value);
   const c = AppState.customers.find(i => i.id === AppState.payingCustomerId);
-  if (!amount || amount <= 0) { showToast('error', t('pay_amount')); return; }
-  if (amount > toNum(c.due)) { showToast('warning', t('pay_amount')); return; }
+  if (!amount || amount <= 0) { showToast('error', 'ভুল পরিমাণ'); return; }
+  if (amount > toNum(c.due)) { showToast('warning', 'বেশি পরিমাণ'); return; }
   const newDue = Math.max(0, toNum(c.due) - amount);
   showLoader(true);
   try {
     const uid = AppState.impersonatingUser || AppState.currentUser.uid;
     await update(ref(db, 'users/' + uid + '/customers/' + AppState.payingCustomerId), { due: newDue });
     logActivity('বাকি পরিশোধ', `${c.name} - ৳${amount}`, amount);
-    showToast('success', t('complete_payment'), '৳' + newDue);
+    showToast('success', 'পরিশোধ সম্পন্ন', `বাকি: ৳${newDue}`);
     bootstrap.Modal.getInstance($('payDueModal')).hide();
-  } catch (e) { showToast('error', e.message); }
+  } catch (e) { showToast('error', 'ব্যর্থ', e.message); }
   showLoader(false);
 };
 
 window.quickAddCustomer = async () => {
   const name = $('quickCustName').value.trim();
   const phone = $('quickCustPhone').value.trim();
-  if (!name || !phone) { showToast('warning', t('name')); return; }
+  if (!name || !phone) { showToast('warning', 'সব ঘর পূরণ করুন'); return; }
   showLoader(true);
   try {
     const uid = AppState.impersonatingUser || AppState.currentUser.uid;
@@ -1330,16 +1286,16 @@ window.quickAddCustomer = async () => {
     showLoader(false);
     bootstrap.Modal.getInstance($('quickAddCustomerModal')).hide();
     $('quickCustName').value = ''; $('quickCustPhone').value = '';
-    showToast('success', t('new_customer'), name);
+    showToast('success', 'কাস্টমার যোগ হয়েছে', name);
     setTimeout(() => { $('customerSelect').value = r.key; updateCustomerDue(); }, 400);
-  } catch (e) { showLoader(false); showToast('error', e.message); }
+  } catch (e) { showLoader(false); showToast('error', 'ব্যর্থ', e.message); }
 };
 
 window.addCustomer = async () => {
   const n = $('addCustName').value.trim();
   const p = $('addCustPhone').value.trim();
   const d = $('addCustDue').value || 0;
-  if (!n || !p) { showToast('warning', t('name')); return; }
+  if (!n || !p) { showToast('warning', 'সব ঘর পূরণ করুন'); return; }
   showLoader(true);
   try {
     const uid = AppState.impersonatingUser || AppState.currentUser.uid;
@@ -1347,9 +1303,9 @@ window.addCustomer = async () => {
     await set(r, { id: r.key, name: n, phone: p, due: toNum(d), createdAt: new Date().toISOString() });
     logActivity('নতুন কাস্টমার', `${n} - ${p}`, toNum(d));
     bootstrap.Modal.getInstance($('addCustomerModal')).hide();
-    showToast('success', t('new_customer'), n);
+    showToast('success', 'কাস্টমার যোগ হয়েছে', n);
     ['addCustName','addCustPhone','addCustDue'].forEach(id => { const el = $(id); if (el) el.value = ''; });
-  } catch (e) { showToast('error', e.message); }
+  } catch (e) { showToast('error', 'ব্যর্থ', e.message); }
   showLoader(false);
 };
 
@@ -1357,7 +1313,7 @@ window.addCustomer = async () => {
 window.renderExpenses = (exp) => {
   const tbody = $('expenseTableBody');
   if (!tbody) return;
-  setText('expenseCount', `${exp.length} ${t('expenses')}`);
+  setText('expenseCount', `${exp.length} টি`);
   if (exp.length === 0) { tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-4">0</td></tr>`; return; }
   const fragment = document.createDocumentFragment();
   let total = 0;
@@ -1377,9 +1333,9 @@ window.renderExpenses = (exp) => {
   if (footer) {
     const avg = exp.length ? total / exp.length : 0;
     footer.innerHTML = `
-      <div class="table-footer-stat"><small>${t('total_expense')}</small><strong>${exp.length}</strong></div>
-      <div class="table-footer-stat"><small>${t('amount')}</small><strong class="text-danger">৳${formatMoney(total)}</strong></div>
-      <div class="table-footer-stat"><small>${t('avg_sale')}</small><strong>৳${formatMoney(avg)}</strong></div>`;
+      <div class="table-footer-stat"><small>মোট খরচ</small><strong>${exp.length}</strong></div>
+      <div class="table-footer-stat"><small>মোট টাকা</small><strong class="text-danger">৳${formatMoney(total)}</strong></div>
+      <div class="table-footer-stat"><small>গড়</small><strong>৳${formatMoney(avg)}</strong></div>`;
   }
 };
 
@@ -1408,8 +1364,8 @@ window.renderExpenseChart = (exp) => {
 window.addExpense = async () => {
   const tt = $('addExpDesc').value.trim();
   const a = $('addExpAmt').value;
-  if (!tt || !a) { showToast('warning', t('description')); return; }
-  if (toNum(a) <= 0) { showToast('error', t('amount')); return; }
+  if (!tt || !a) { showToast('warning', 'সব ঘর পূরণ করুন'); return; }
+  if (toNum(a) <= 0) { showToast('error', 'ভুল পরিমাণ'); return; }
   showLoader(true);
   try {
     const uid = AppState.impersonatingUser || AppState.currentUser.uid;
@@ -1418,9 +1374,9 @@ window.addExpense = async () => {
     await set(r, { id: r.key, title: tt, amount: a, date: now.toISOString().split('T')[0], time: getTimeBn(now), createdAt: now.toISOString() });
     logActivity('নতুন খরচ', tt, toNum(a));
     bootstrap.Modal.getInstance($('addExpenseModal')).hide();
-    showToast('success', t('new_expense'), `${tt} - ৳${a}`);
+    showToast('success', 'খরচ যোগ হয়েছে', `${tt} - ৳${a}`);
     ['addExpDesc','addExpAmt'].forEach(id => { const el = $(id); if (el) el.value = ''; });
-  } catch (e) { showToast('error', e.message); }
+  } catch (e) { showToast('error', 'ব্যর্থ', e.message); }
   showLoader(false);
 };
 
@@ -1472,11 +1428,11 @@ window.renderInvoices = (sales) => {
     div.innerHTML = `<div class="card-premium p-3">
       <div class="d-flex justify-content-between align-items-start mb-2">
         <div><div class="fw-bold text-primary">${escapeHtml(s.invoiceNo)}</div><small class="text-muted">${escapeHtml(s.date)}</small></div>
-        <span class="tag ${toNum(s.due) > 0 ? 'tag-warning' : 'tag-success'}">${toNum(s.due) > 0 ? t('due_status') : t('paid_status')}</span>
+        <span class="tag ${toNum(s.due) > 0 ? 'tag-warning' : 'tag-success'}">${toNum(s.due) > 0 ? 'বাকি' : 'পরিশোধিত'}</span>
       </div>
-      <div class="mb-2"><small class="text-muted">${t('customer')}:</small> <strong>${escapeHtml(s.customerName || '—')}</strong></div>
+      <div class="mb-2"><small class="text-muted">কাস্টমার:</small> <strong>${escapeHtml(s.customerName || '—')}</strong></div>
       <div class="d-flex justify-content-between align-items-center">
-        <div><small class="text-muted">${t('total')}</small><div class="fw-bold text-primary">৳${s.totalAmount}</div></div>
+        <div><small class="text-muted">মোট</small><div class="fw-bold text-primary">৳${s.totalAmount}</div></div>
         <div class="d-flex gap-1">
           <button class="btn btn-sm btn-outline-primary" onclick="printInvoice('${s.id}')"><i class="fas fa-print"></i></button>
           <button class="btn btn-sm btn-outline-success" onclick="downloadInvoice('${s.id}')"><i class="fas fa-download"></i></button>
@@ -1504,7 +1460,7 @@ window.renderCustomerSelect = () => {
   const s = $('customerSelect');
   if (!s) return;
   const curVal = s.value;
-  s.innerHTML = `<option value="">${currentLang === 'bn' ? 'নগদ বিক্রয় (Cash)' : 'Cash Sale'}</option>`;
+  s.innerHTML = `<option value="">নগদ বিক্রয় (Cash)</option>`;
   AppState.customers.forEach(c => { s.innerHTML += `<option value="${c.id}" data-due="${c.due || 0}">${escapeHtml(c.name)} (৳${c.due || 0})</option>`; });
   if (curVal) s.value = curVal;
   updateCustomerDue();
@@ -1513,19 +1469,18 @@ window.renderCustomerSelect = () => {
 window.updateCustomerDue = () => {
   const s = $('customerSelect');
   if (!s) return;
+  const badge = $('customerDueBadge');
   if (s.selectedIndex > 0) {
     const due = toNum(s.options[s.selectedIndex].getAttribute('data-due'));
     AppState.currentCustomerDue = due;
     AppState.currentCustomerId = s.value;
-    setHtml('customerDueBadge', `<i class="fas fa-circle-exclamation"></i> ${t('due')}: ৳${formatMoney(due)}`);
-    const badge = $('customerDueBadge');
-    if (badge) { badge.style.color = 'var(--danger)'; }
+    setHtml('customerDueBadge', `<i class="fas fa-circle-exclamation"></i> বাকি: ৳${formatMoney(due)}`);
+    if (badge) badge.style.color = 'var(--danger)';
   } else {
     AppState.currentCustomerDue = 0;
     AppState.currentCustomerId = null;
-    setHtml('customerDueBadge', `<i class="fas fa-circle-check"></i> ${t('cash_sale')}`);
-    const badge = $('customerDueBadge');
-    if (badge) { badge.style.color = 'var(--success)'; }
+    setHtml('customerDueBadge', `<i class="fas fa-circle-check"></i> নগদ বিক্রয়`);
+    if (badge) badge.style.color = 'var(--success)';
   }
   calculateCartTotal();
 };
@@ -1537,20 +1492,15 @@ window.selectProduct = (id) => {
     $('productSearch').value = item.name;
     $('productSearchResults').innerHTML = '';
     updatePosPreview();
-    showToast('info', t('selected_product'), item.name);
+    showToast('info', 'পণ্য নির্বাচিত', item.name);
   }
-};
-
-window.selectFirstProductMatch = () => {
-  const q = $('productSearch').value.toLowerCase();
-  const matches = AppState.inventory.filter(i => i.name.toLowerCase().includes(q) && parseInt(i.qty) > 0);
-  if (matches.length > 0) selectProduct(matches[0].id);
 };
 
 window.updatePosPreview = () => {
   const preview = $('posPreview');
   const addBtn = $('addToCartBtn');
   if (!preview) return;
+
   if (!AppState.lastSelectedProductId) {
     preview.style.display = 'none';
     if (addBtn) addBtn.disabled = true;
@@ -1566,7 +1516,7 @@ window.updatePosPreview = () => {
   const price = toNum(p.sellPrice);
   const stock = parseInt(p.qty) || 0;
 
-  preview.style.display = 'block';
+  preview.style.display = 'flex';
   setText('posPreviewName', p.name);
   setText('posPreviewPrice', formatMoney(price));
   setText('posPreviewQty', qty);
@@ -1599,7 +1549,7 @@ window.renderLowStock = () => {
   if (!l) return;
   l.innerHTML = '';
   const lowItems = AppState.inventory.filter(i => parseInt(i.qty) <= LOW_STOCK_THRESHOLD);
-  if (lowItems.length === 0) { l.innerHTML = `<li class="list-group-item text-muted px-0">✓</li>`; return; }
+  if (lowItems.length === 0) { l.innerHTML = `<li class="list-group-item text-muted px-0">✓ কোনো সতর্কতা নেই</li>`; return; }
   const fragment = document.createDocumentFragment();
   lowItems.forEach(i => {
     const li = document.createElement('li');
@@ -1614,7 +1564,7 @@ window.renderRecentTransactions = (sales) => {
   const l = $('recentTransactions');
   if (!l) return;
   l.innerHTML = '';
-  if (sales.length === 0) { l.innerHTML = `<li class="list-group-item text-muted px-0">0</li>`; return; }
+  if (sales.length === 0) { l.innerHTML = `<li class="list-group-item text-muted px-0">কোনো লেনদেন নেই</li>`; return; }
   const fragment = document.createDocumentFragment();
   sales.slice().reverse().slice(0, 5).forEach(s => {
     const li = document.createElement('li');
@@ -1625,47 +1575,50 @@ window.renderRecentTransactions = (sales) => {
   l.appendChild(fragment);
 };
 
-/* ═══════════════════ ⭐⭐⭐ POS CART — FIXED CALCULATION ⭐⭐⭐ ═══════════════════ */
+/* ═══════════════════ POS CART ═══════════════════ */
 window.addToCartFromSearch = () => {
   const id = AppState.lastSelectedProductId;
-  if (!id) { showToast('warning', t('product')); return; }
+  if (!id) { showToast('warning', 'পণ্য নির্বাচন করুন'); return; }
   const item = AppState.inventory.find(i => i.id === id);
-  if (!item) { showToast('error', t('product')); return; }
+  if (!item) { showToast('error', 'পণ্য পাওয়া যায়নি'); return; }
 
   const qty = Math.max(1, parseInt($('productQty').value) || 1);
   const stock = parseInt(item.qty) || 0;
 
-  if (stock <= 0) { showToast('error', currentLang === 'bn' ? 'স্টক নেই' : 'Out of stock', item.name); return; }
-  if (stock < qty) { showToast('error', t('stock'), `${t('available_stock')}: ${stock}`); return; }
+  if (stock <= 0) { showToast('error', 'স্টক নেই', item.name); return; }
+  if (stock < qty) { showToast('error', 'স্টক কম', `স্টক: ${stock}`); return; }
 
   const idx = AppState.cart.findIndex(i => i.id === id);
   if (idx > -1) {
     const newQty = AppState.cart[idx].qty + qty;
-    if (newQty > stock) { showToast('error', t('stock'), `${t('available_stock')}: ${stock}`); return; }
+    if (newQty > stock) { showToast('error', 'স্টক কম', `স্টক: ${stock}`); return; }
     AppState.cart[idx].qty = newQty;
   } else {
     AppState.cart.push({ id: item.id, name: item.name, price: toNum(item.sellPrice), qty });
   }
 
   renderCart();
+
   AppState.lastSelectedProductId = null;
   $('productSearch').value = '';
   $('productSearchResults').innerHTML = '';
   $('productQty').value = '1';
   $('posPreview').style.display = 'none';
   $('addToCartBtn').disabled = true;
-  showToast('success', t('add_to_cart'), `${item.name} × ${qty}`);
+  $('productSearch').focus();
+
+  showToast('success', 'কার্টে যোগ হয়েছে', `${item.name} × ${qty}`);
 };
 
 window.removeFromCart = (i) => { AppState.cart.splice(i, 1); renderCart(); };
 
 window.clearCart = async () => {
   if (AppState.cart.length === 0) return;
-  const ok = await showConfirm(t('clear'), t('cart') + '?', { type: 'warning' });
+  const ok = await showConfirm('কার্ট খালি করবেন?', '');
   if (ok) {
     AppState.cart = [];
     renderCart();
-    showToast('info', t('clear'));
+    showToast('info', 'কার্ট খালি');
   }
 };
 
@@ -1680,7 +1633,7 @@ window.renderCart = () => {
     setText('cartDiscount', '0.00');
     setText('cartTotal', '0.00');
     setText('changeAmount', '0.00');
-    setText('duePreview', '0.00');
+    setText('dueAmount', '0.00');
     setText('btnCompleteTotal', '0.00');
     const btn = $('completeSaleBtn'); if (btn) btn.disabled = true;
     return;
@@ -1692,14 +1645,14 @@ window.renderCart = () => {
     const tot = item.price * item.qty;
     subtotal += tot;
     const div = document.createElement('div');
-    div.className = 'pos-cart-row';
+    div.className = 'fp-cart-row';
     div.innerHTML = `
-      <div class="pos-cart-row-info">
+      <div class="fp-cart-row-info">
         <strong>${escapeHtml(item.name)}</strong>
         <small>৳${formatMoney(item.price)} × ${item.qty}</small>
       </div>
-      <div class="pos-cart-row-total">৳${formatMoney(tot)}</div>
-      <button class="pos-cart-row-del" onclick="removeFromCart(${i})"><i class="fas fa-times"></i></button>
+      <div class="fp-cart-row-price">৳${formatMoney(tot)}</div>
+      <button class="fp-cart-row-del" onclick="removeFromCart(${i})"><i class="fas fa-times"></i></button>
     `;
     fragment.appendChild(div);
   });
@@ -1708,40 +1661,25 @@ window.renderCart = () => {
   calculateCartTotal();
 };
 
-/* ⭐⭐⭐ CRITICAL FIX: ACCURATE CART CALCULATION ⭐⭐⭐ */
+/* ⭐⭐⭐ CRITICAL FIX: ACCURATE CALCULATION ⭐⭐⭐ */
 window.calculateCartTotal = () => {
-  // 1. Read subtotal from DOM
-  const subtotalText = $('cartSubtotal')?.textContent || '0';
-  const subtotal = toNum(subtotalText);
-
-  // 2. Read discount (never negative)
+  const subtotal = toNum($('cartSubtotal')?.textContent);
   const discount = Math.max(0, toNum($('discountInput')?.value));
-
-  // 3. Total = subtotal - discount (never negative)
   const total = Math.max(0, subtotal - discount);
-
-  // 4. Read paid amount (never negative)
   const paid = Math.max(0, toNum($('paidAmount')?.value));
-
-  // 5. Change = paid - total (never negative)
   const change = Math.max(0, paid - total);
-
-  // 6. Due = total - paid (never negative)
   const due = Math.max(0, total - paid);
 
-  // 7. Update display
   setText('cartDiscount', formatMoney(discount));
   setText('cartTotal', formatMoney(total));
   setText('changeAmount', formatMoney(change));
-  setText('duePreview', formatMoney(due));
+  setText('dueAmount', formatMoney(due));
   setText('btnCompleteTotal', formatMoney(total));
 
-  // 8. Toggle button state
   const btn = $('completeSaleBtn');
   if (btn) btn.disabled = AppState.cart.length === 0;
 };
 
-/* ⭐ QUICK PAY */
 window.quickPay = (type) => {
   const el = $('paidAmount');
   if (!el) return;
@@ -1755,9 +1693,8 @@ window.quickPay = (type) => {
   calculateCartTotal();
 };
 
-/* ⭐⭐⭐ COMPLETE SALE ⭐⭐⭐ */
 window.completeSale = async () => {
-  if (AppState.cart.length === 0) { showToast('warning', t('cart')); return; }
+  if (AppState.cart.length === 0) { showToast('warning', 'কার্ট খালি'); return; }
 
   const s = $('customerSelect');
   const cId = s.value;
@@ -1768,22 +1705,22 @@ window.completeSale = async () => {
   const total = Math.max(0, subtotal - discount);
   const due = Math.max(0, total - paid);
 
-  if (due > 0 && !cId) { showToast('warning', t('customer')); return; }
+  if (due > 0 && !cId) { showToast('warning', 'বাকিতে বিক্রি করতে কাস্টমার নির্বাচন করুন'); return; }
 
   for (const item of AppState.cart) {
     const inv = AppState.inventory.find(i => i.id === item.id);
     if (!inv || parseInt(inv.qty) < item.qty) {
-      showToast('error', t('stock'), `${item.name}: ${inv?.qty || 0}`);
+      showToast('error', 'স্টক কম', `${item.name}: ${inv?.qty || 0}`);
       return;
     }
   }
 
-  const cName = cId ? (s.options[s.selectedIndex]?.text.split('(')[0].trim() || '—') : (currentLang === 'bn' ? 'সাধারণ কাস্টমার' : 'General Customer');
+  const cName = cId ? (s.options[s.selectedIndex]?.text.split('(')[0].trim() || '—') : 'সাধারণ কাস্টমার';
 
   const ok = await showConfirm(
-    t('complete_sale'),
-    `${t('total')}: ৳${formatMoney(total)} | ${t('paid')}: ৳${formatMoney(paid)} | ${t('due')}: ৳${formatMoney(due)}`,
-    { type: 'success', okText: t('complete_sale') }
+    'বিক্রয় সম্পন্ন?',
+    `মোট: ৳${formatMoney(total)} | পরিশোধিত: ৳${formatMoney(paid)} | বাকি: ৳${formatMoney(due)}`,
+    { type: 'success', okText: 'সম্পন্ন' }
   );
   if (!ok) return;
 
@@ -1823,7 +1760,7 @@ window.completeSale = async () => {
       }
     }
 
-    logActivity('বিক্রয়', `${cName} - ${AppState.cart.length} ${currentLang === 'bn' ? 'পণ্য' : 'items'}`, total, { customerName: cName, invoiceNo });
+    logActivity('বিক্রয়', `${cName} - ${AppState.cart.length} পণ্য`, total, { customerName: cName, invoiceNo });
 
     AppState.cart = [];
     renderCart();
@@ -1834,11 +1771,12 @@ window.completeSale = async () => {
     $('addToCartBtn').disabled = true;
     $('productSearch').value = '';
     $('productQty').value = '1';
+    $('productSearch').focus();
 
-    showToast('success', t('complete_sale'), `৳${formatMoney(total)}`);
+    showToast('success', 'বিক্রয় সম্পন্ন!', `৳${formatMoney(total)}`);
   } catch (e) {
     console.error('Sale error:', e);
-    showToast('error', t('complete_sale'), e.message);
+    showToast('error', 'ব্যর্থ', e.message);
   }
   showLoader(false);
 };
@@ -1847,7 +1785,7 @@ window.completeSale = async () => {
 window.renderSalesList = (sales) => {
   const tbody = $('salesTableBody');
   if (!tbody) return;
-  setText('salesListCount', `${sales.length} ${t('sales')}`);
+  setText('salesListCount', `${sales.length} টি`);
   if (sales.length === 0) { tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted py-4">0</td></tr>`; return; }
   const fragment = document.createDocumentFragment();
   sales.slice().reverse().forEach(s => {
@@ -1875,10 +1813,10 @@ window.renderSalesList = (sales) => {
     const totalPaid = sales.reduce((s, x) => s + toNum(x.paid), 0);
     const totalDue = sales.reduce((s, x) => s + toNum(x.due), 0);
     footer.innerHTML = `
-      <div class="table-footer-stat"><small>${t('sales_list')}</small><strong>${sales.length}</strong></div>
-      <div class="table-footer-stat"><small>${t('total')}</small><strong class="text-primary">৳${formatMoney(totalAmount)}</strong></div>
-      <div class="table-footer-stat"><small>${t('paid')}</small><strong class="text-success">৳${formatMoney(totalPaid)}</strong></div>
-      <div class="table-footer-stat"><small>${t('due')}</small><strong class="text-danger">৳${formatMoney(totalDue)}</strong></div>`;
+      <div class="table-footer-stat"><small>মোট বিক্রয়</small><strong>${sales.length}</strong></div>
+      <div class="table-footer-stat"><small>মোট টাকা</small><strong class="text-primary">৳${formatMoney(totalAmount)}</strong></div>
+      <div class="table-footer-stat"><small>পরিশোধিত</small><strong class="text-success">৳${formatMoney(totalPaid)}</strong></div>
+      <div class="table-footer-stat"><small>বাকি</small><strong class="text-danger">৳${formatMoney(totalDue)}</strong></div>`;
   }
 };
 
@@ -1921,7 +1859,7 @@ window.downloadInvoice = (id) => {
   if (!s) return;
   const c = `Invoice: ${s.invoiceNo}\nDate: ${s.date}\nCustomer: ${s.customerName}\nTotal: ৳${s.totalAmount}\nPaid: ৳${s.paid}\nDue: ৳${s.due}`;
   downloadFile(c, `Invoice-${s.invoiceNo}.txt`, 'text/plain');
-  showToast('success', t('download'));
+  showToast('success', 'ডাউনলোড হয়েছে');
 };
 
 /* ═══════════════════ EXPORTS ═══════════════════ */
@@ -1929,7 +1867,7 @@ window.exportSales = () => {
   let c = 'Invoice,Customer,Products,Total,Paid,Due,Date\n';
   AppState.allSalesCache.forEach(s => { c += `${s.invoiceNo},${s.customerName},"${s.name}",${s.totalAmount},${s.paid},${s.due},${s.date}\n`; });
   downloadFile(c, 'sales.csv');
-  showToast('success', t('export'));
+  showToast('success', 'এক্সপোর্ট হয়েছে');
 };
 
 window.exportMasterList = () => {
@@ -1952,19 +1890,19 @@ window.exportMasterList = () => {
     AppState.allExpensesCache.forEach(e => { c += `${e.title},${e.amount},${e.date}\n`; });
   }
   downloadFile(c, 'master-list.csv');
-  showToast('success', t('export'));
+  showToast('success', 'এক্সপোর্ট হয়েছে');
 };
 
 window.exportAllData = () => {
   const backup = {
-    exportedAt: new Date().toISOString(), version: '13.0',
+    exportedAt: new Date().toISOString(), version: '14.0',
     user: { email: AppState.currentUser.email, uid: AppState.currentUser.uid, fullName: AppState.currentUserFullName },
     inventory: AppState.inventory, customers: AppState.customers,
     sales: AppState.allSalesCache, expenses: AppState.allExpensesCache,
     settings: AppState.userSettings
   };
   downloadFile(JSON.stringify(backup, null, 2), `hesabkhata-backup-${new Date().toISOString().split('T')[0]}.json`, 'application/json');
-  showToast('success', t('export_all'));
+  showToast('success', 'ব্যাকআপ ডাউনলোড হয়েছে');
 };
 
 window.exportAllCSV = () => {
@@ -1978,7 +1916,7 @@ window.exportAllCSV = () => {
   c += '\n=== EXPENSES ===\n';
   AppState.allExpensesCache.forEach(e => { c += `${e.title},${e.amount},${e.date}\n`; });
   downloadFile(c, `hesabkhata-full-${new Date().toISOString().split('T')[0]}.csv`);
-  showToast('success', t('csv_export'));
+  showToast('success', 'CSV ডাউনলোড হয়েছে');
 };
 
 window.importData = (e) => {
@@ -1988,7 +1926,7 @@ window.importData = (e) => {
   reader.onload = async (ev) => {
     try {
       const data = JSON.parse(ev.target.result);
-      const ok = await showConfirm(t('import_data'), '?', { type: 'warning' });
+      const ok = await showConfirm('ডেটা পুনরুদ্ধার?', 'বর্তমান ডেটা রিপ্লেস হবে।');
       if (!ok) return;
       showLoader(true);
       const uid = AppState.impersonatingUser || AppState.currentUser.uid;
@@ -1996,8 +1934,8 @@ window.importData = (e) => {
       if (data.customers) for (const item of data.customers) await set(ref(db, 'users/' + uid + '/customers/' + item.id), item);
       if (data.sales) for (const item of data.sales) await set(ref(db, 'users/' + uid + '/sales/' + item.id), item);
       if (data.expenses) for (const item of data.expenses) await set(ref(db, 'users/' + uid + '/expenses/' + item.id), item);
-      showToast('success', t('import_data'));
-    } catch (err) { showToast('error', 'Error'); }
+      showToast('success', 'ডেটা পুনরুদ্ধার সফল');
+    } catch (err) { showToast('error', 'ব্যর্থ', 'ফাইল সঠিক নয়'); }
     showLoader(false);
     e.target.value = '';
   };
@@ -2005,14 +1943,14 @@ window.importData = (e) => {
 };
 
 window.deleteItem = async (col, id) => {
-  const ok = await showConfirm(t('delete'), '?', { type: 'danger', danger: true });
+  const ok = await showConfirm('মুছবেন?', 'এই আইটেমটি মুছে ফেলা হবে।', { type: 'danger', danger: true });
   if (!ok) return;
   showLoader(true);
   try {
     const uid = AppState.impersonatingUser || AppState.currentUser.uid;
     await remove(ref(db, 'users/' + uid + '/' + col + '/' + id));
-    showToast('success', t('delete'));
-  } catch (e) { showToast('error', e.message); }
+    showToast('success', 'মুছে ফেলা হয়েছে');
+  } catch (e) { showToast('error', 'ব্যর্থ', e.message); }
   showLoader(false);
 };
 
@@ -2037,7 +1975,7 @@ function renderAnalytics(sales) {
   if (pc2) {
     AppState.charts.payment = new Chart(pc2, {
       type: 'pie',
-      data: { labels: [t('paid'), t('due')], datasets: [{ data: [paid, due], backgroundColor: ['#10b981','#ef4444'], borderWidth: 2 }] },
+      data: { labels: ['পরিশোধিত','বাকি'], datasets: [{ data: [paid, due], backgroundColor: ['#10b981','#ef4444'], borderWidth: 2 }] },
       options: { responsive: true, maintainAspectRatio: false }
     });
   }
@@ -2080,8 +2018,8 @@ function renderReports(sales) {
       data: {
         labels: ml,
         datasets: [
-          { label: t('total_income'), data: ml.map(m => months[m] || 0), borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.1)', fill: true, tension: 0.4 },
-          { label: t('total_expense'), data: ml.map(m => em[m] || 0), borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.1)', fill: true, tension: 0.4 }
+          { label: 'আয়', data: ml.map(m => months[m] || 0), borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.1)', fill: true, tension: 0.4 },
+          { label: 'খরচ', data: ml.map(m => em[m] || 0), borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.1)', fill: true, tension: 0.4 }
         ]
       },
       options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
@@ -2099,32 +2037,32 @@ window.renderMasterList = () => {
   if (type === 'all' || type === 'sales') {
     AppState.allSalesCache.forEach(s => {
       if (q && !(s.invoiceNo || '').toLowerCase().includes(q)) return;
-      rows.push([`<span class="tag tag-primary">${t('sales')}</span>`, s.invoiceNo, s.customerName, '৳' + s.totalAmount, s.date, s.time || '—']);
+      rows.push([`<span class="tag tag-primary">বিক্রয়</span>`, s.invoiceNo, s.customerName, '৳' + s.totalAmount, s.date, s.time || '—']);
     });
   }
   if (type === 'all' || type === 'inventory') {
     AppState.inventory.forEach(p => {
       if (q && !p.name.toLowerCase().includes(q)) return;
-      rows.push([`<span class="tag tag-success">${t('products')}</span>`, p.name, p.qty, '৳' + p.buyPrice, '৳' + p.sellPrice, '—']);
+      rows.push([`<span class="tag tag-success">পণ্য</span>`, p.name, p.qty, '৳' + p.buyPrice, '৳' + p.sellPrice, '—']);
     });
   }
   if (type === 'all' || type === 'customers') {
     AppState.customers.forEach(c => {
       if (q && !c.name.toLowerCase().includes(q)) return;
-      rows.push([`<span class="tag tag-info">${t('customers')}</span>`, c.name, c.phone, '৳' + (c.due || 0), '—', '—']);
+      rows.push([`<span class="tag tag-info">কাস্টমার</span>`, c.name, c.phone, '৳' + (c.due || 0), '—', '—']);
     });
   }
   if (type === 'all' || type === 'expenses') {
     AppState.allExpensesCache.forEach(e => {
       if (q && !e.title.toLowerCase().includes(q)) return;
-      rows.push([`<span class="tag tag-danger">${t('expenses')}</span>`, e.title, '৳' + e.amount, e.date, e.time || '—', '']);
+      rows.push([`<span class="tag tag-danger">খরচ</span>`, e.title, '৳' + e.amount, e.date, e.time || '—', '']);
     });
   }
-  if (type === 'all') headers = [t('action'), t('description'), t('name'), t('amount'), t('date'), t('time')];
-  else if (type === 'sales') headers = [t('action'), t('invoice'), t('customer'), t('total'), t('date'), t('time')];
-  else if (type === 'inventory') headers = [t('action'), t('product'), t('stock'), t('buy_price'), t('sell_price'), t('time')];
-  else if (type === 'customers') headers = [t('action'), t('name'), t('phone'), t('due'), t('date'), t('time')];
-  else if (type === 'expenses') headers = [t('action'), t('description'), t('amount'), t('date'), t('time'), ''];
+  if (type === 'all') headers = ['টাইপ','বিবরণ','নাম/নম্বর','পরিমাণ','তারিখ','সময়'];
+  else if (type === 'sales') headers = ['টাইপ','ইনভয়েস','কাস্টমার','মোট','তারিখ','সময়'];
+  else if (type === 'inventory') headers = ['টাইপ','পণ্য','স্টক','ক্রয়','বিক্রয়','সময়'];
+  else if (type === 'customers') headers = ['টাইপ','নাম','ফোন','বাকি','তারিখ','সময়'];
+  else if (type === 'expenses') headers = ['টাইপ','বিবরণ','টাকা','তারিখ','সময়',''];
   th.innerHTML = `<tr>${headers.map(h => `<th>${escapeHtml(h)}</th>`).join('')}</tr>`;
   if (rows.length === 0) { tb.innerHTML = `<tr><td colspan="${headers.length}" class="text-center text-muted py-4">0</td></tr>`; return; }
   const fragment = document.createDocumentFragment();
@@ -2152,7 +2090,7 @@ function renderProfile() {
   setText('infoPhone', data.phone || '—');
   setText('infoShopName', data.shopName || '—');
   setText('infoAddress', data.address || '—');
-  setText('infoIp', data.lastIp || AppState.currentIP || '—');
+  setText('infoIp', data.lastIp || '—');
   setText('infoDevice', data.lastDevice || '—');
   setText('infoLastLogin', data.lastLogin ? `${data.lastLogin.date} • ${data.lastLogin.time}` : '—');
 }
@@ -2179,7 +2117,7 @@ window.saveProfile = async () => {
   const phone = $('editProfilePhone').value.trim();
   const shopName = $('editProfileShopName').value.trim();
   const address = $('editProfileAddress').value.trim();
-  if (!name) { showToast('warning', t('full_name')); return; }
+  if (!name) { showToast('warning', 'নাম দিন'); return; }
   showLoader(true);
   try {
     const uid = AppState.impersonatingUser || AppState.currentUser.uid;
@@ -2188,18 +2126,18 @@ window.saveProfile = async () => {
     AppState.currentUserFullName = name;
     ['userName','welcomeName','dropdownName'].forEach(id => setText(id, name));
     renderProfile();
-    showToast('success', t('save_profile'));
+    showToast('success', 'প্রোফাইল আপডেট হয়েছে');
     bootstrap.Modal.getInstance($('editProfileModal')).hide();
-  } catch (e) { showToast('error', e.message); }
+  } catch (e) { showToast('error', 'ব্যর্থ', e.message); }
   showLoader(false);
 };
 
 window.sendPasswordReset = async () => {
   try {
     await sendPasswordResetEmail(auth, AppState.currentUser.email);
-    showToast('success', t('send_reset'), AppState.currentUser.email);
+    showToast('success', 'রিসেট লিংক পাঠানো হয়েছে');
     bootstrap.Modal.getInstance($('changePasswordModal')).hide();
-  } catch (e) { showToast('error', e.message); }
+  } catch (e) { showToast('error', 'ব্যর্থ', e.message); }
 };
 
 function loadLoginHistory() {
@@ -2396,8 +2334,6 @@ window.clearUserSelection = () => {
   renderAdminUsersListPro();
 };
 
-window.refreshUserList = () => { showToast('success', t('refresh')); };
-
 window.switchAdminTab = (tab, el) => {
   document.querySelectorAll('.admin-tab-pro').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.admin-tab-content-pro').forEach(t => t.classList.remove('active'));
@@ -2405,28 +2341,26 @@ window.switchAdminTab = (tab, el) => {
   $('admin-tab-' + tab)?.classList.add('active');
 };
 
-/* ⭐ IMPERSONATE USER — Full Access */
+/* ⭐ FULL ADMIN IMPERSONATION */
 window.impersonateUser = async () => {
-  if (!AppState.selectedAdminUser) { showToast('warning', t('select_user')); return; }
+  if (!AppState.selectedAdminUser) { showToast('warning', 'ইউজার নির্বাচন করুন'); return; }
   const user = AppState.selectedAdminUser;
   if (user.uid === AppState.currentUser.uid) {
-    showToast('warning', currentLang === 'bn' ? 'আপনি নিজেই এই ইউজার' : 'This is you');
+    showToast('warning', 'আপনি নিজেই এই ইউজার');
     return;
   }
   const ok = await showConfirm(
-    t('impersonate_btn'),
-    currentLang === 'bn'
-      ? `${user.fullName || user.email} এর আইডিতে প্রবেশ করবেন। আপনি তার সব কাজ করতে পারবেন।`
-      : `Login as ${user.fullName || user.email}. You can do all their tasks.`,
-    { type: 'warning', okText: t('enter') }
+    'এই ইউজারের আইডিতে প্রবেশ?',
+    `${user.fullName || user.email} এর সব কাজ করতে পারবেন।`,
+    { type: 'warning', okText: 'প্রবেশ' }
   );
   if (!ok) return;
 
-  showLoader(true, currentLang === 'bn' ? 'প্রবেশ করা হচ্ছে...' : 'Entering...');
+  showLoader(true, 'প্রবেশ করা হচ্ছে...');
   AppState.impersonatingUser = user.uid;
   setTimeout(() => {
     onAuthStateChanged_reload();
-    showToast('success', t('admin_mode'), user.fullName || user.email);
+    showToast('success', 'অ্যাডমিন মোড', user.fullName || user.email);
   }, 100);
 };
 
@@ -2434,7 +2368,7 @@ window.exitImpersonation = async () => {
   if (!AppState.impersonatingUser) return;
   AppState.impersonatingUser = null;
   showLoader(true);
-  showToast('info', t('exit'));
+  showToast('info', 'প্রস্থান');
   setTimeout(() => onAuthStateChanged_reload(), 100);
 };
 
@@ -2502,7 +2436,7 @@ async function onAuthStateChanged_reload() {
 }
 
 window.adminViewUserData = () => {
-  if (!AppState.selectedAdminUser) { showToast('warning', t('select_user')); return; }
+  if (!AppState.selectedAdminUser) { showToast('warning', 'ইউজার নির্বাচন করুন'); return; }
   setText('viewDataUserName', AppState.selectedAdminUser.fullName || AppState.selectedAdminUser.email);
   switchViewDataTab('sales', document.querySelector('.view-data-tab'));
   new bootstrap.Modal($('adminViewDataModal')).show();
@@ -2520,33 +2454,33 @@ window.switchViewDataTab = async (type, el) => {
   const data = snap.val() ? Object.values(snap.val()) : [];
   if (data.length === 0) { c.innerHTML = `<div class="empty-state"><i class="fas fa-inbox"></i><h5>0</h5></div>`; return; }
   if (type === 'sales') {
-    c.innerHTML = `<div class="table-responsive"><table class="table modern-table"><thead><tr><th>${t('invoice')}</th><th>${t('customer')}</th><th>${t('total')}</th><th>${t('paid')}</th><th>${t('due')}</th><th>${t('date')}</th></tr></thead>
+    c.innerHTML = `<div class="table-responsive"><table class="table modern-table"><thead><tr><th>ইনভয়েস</th><th>কাস্টমার</th><th>মোট</th><th>পরিশোধিত</th><th>বাকি</th><th>তারিখ</th></tr></thead>
       <tbody>${data.map(s => `<tr><td>${escapeHtml(s.invoiceNo)}</td><td>${escapeHtml(s.customerName)}</td><td>৳${s.totalAmount}</td><td>৳${s.paid || 0}</td><td>৳${s.due || 0}</td><td>${escapeHtml(s.date)}</td></tr>`).join('')}</tbody></table></div>`;
   } else if (type === 'inventory') {
-    c.innerHTML = `<div class="table-responsive"><table class="table modern-table"><thead><tr><th>${t('product')}</th><th>${t('stock')}</th><th>${t('buy_price')}</th><th>${t('sell_price')}</th></tr></thead>
+    c.innerHTML = `<div class="table-responsive"><table class="table modern-table"><thead><tr><th>পণ্য</th><th>স্টক</th><th>ক্রয়</th><th>বিক্রয়</th></tr></thead>
       <tbody>${data.map(p => `<tr><td>${escapeHtml(p.name)}</td><td>${p.qty}</td><td>৳${p.buyPrice}</td><td>৳${p.sellPrice}</td></tr>`).join('')}</tbody></table></div>`;
   } else if (type === 'customers') {
-    c.innerHTML = `<div class="table-responsive"><table class="table modern-table"><thead><tr><th>${t('name')}</th><th>${t('phone')}</th><th>${t('due')}</th></tr></thead>
+    c.innerHTML = `<div class="table-responsive"><table class="table modern-table"><thead><tr><th>নাম</th><th>ফোন</th><th>বাকি</th></tr></thead>
       <tbody>${data.map(x => `<tr><td>${escapeHtml(x.name)}</td><td>${escapeHtml(x.phone)}</td><td>৳${x.due || 0}</td></tr>`).join('')}</tbody></table></div>`;
   } else if (type === 'expenses') {
-    c.innerHTML = `<div class="table-responsive"><table class="table modern-table"><thead><tr><th>${t('description')}</th><th>${t('amount')}</th><th>${t('date')}</th></tr></thead>
+    c.innerHTML = `<div class="table-responsive"><table class="table modern-table"><thead><tr><th>বিবরণ</th><th>টাকা</th><th>তারিখ</th></tr></thead>
       <tbody>${data.map(e => `<tr><td>${escapeHtml(e.title)}</td><td>৳${e.amount}</td><td>${escapeHtml(e.date)}</td></tr>`).join('')}</tbody></table></div>`;
   }
 };
 
 window.adminLoginHistory = async () => {
-  if (!AppState.selectedAdminUser) { showToast('warning', t('select_user')); return; }
+  if (!AppState.selectedAdminUser) { showToast('warning', 'ইউজার নির্বাচন করুন'); return; }
   const snap = await get(ref(db, 'users/' + AppState.selectedAdminUser.uid + '/loginHistory'));
   const history = snap.val() ? Object.values(snap.val()) : [];
   history.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
   const html = history.length === 0
     ? '<div class="empty-state"><i class="fas fa-clock-rotate-left"></i><h5>0</h5></div>'
-    : history.map(h => `<div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #e2e8f0;"><div style="width:36px;height:36px;border-radius:50%;background:#e0e7ff;color:#6366f1;display:flex;align-items:center;justify-content:center;"><i class="fas fa-right-to-bracket"></i></div><div style="flex:1;"><div style="font-weight:700;font-size:0.88rem;">${escapeHtml(h.action || 'Login')}</div><div style="display:flex;gap:12px;font-size:0.72rem;color:#64748b;flex-wrap:wrap;margin-top:4px;"><span><i class="fas fa-calendar"></i> ${escapeHtml(h.date)} ${escapeHtml(h.time)}</span></div></div></div>`).join('');
+    : history.map(h => `<div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #e2e8f0;"><div style="width:36px;height:36px;border-radius:50%;background:#e0e7ff;color:#6366f1;display:flex;align-items:center;justify-content:center;"><i class="fas fa-right-to-bracket"></i></div><div style="flex:1;"><div style="font-weight:700;font-size:0.88rem;">${escapeHtml(h.action || 'Login')}</div><div style="font-size:0.72rem;color:#64748b;margin-top:4px;"><i class="fas fa-calendar"></i> ${escapeHtml(h.date)} ${escapeHtml(h.time)}</div></div></div>`).join('');
   Swal.fire({ title: AppState.selectedAdminUser.fullName || AppState.selectedAdminUser.email, html: `<div style="max-height:400px;overflow-y:auto;text-align:left;">${html}</div>`, width: 600, confirmButtonText: 'OK' });
 };
 
 window.adminSaveProfile = async () => {
-  if (!AppState.selectedAdminUser) { showToast('warning', t('select_user')); return; }
+  if (!AppState.selectedAdminUser) { showToast('warning', 'ইউজার নির্বাচন করুন'); return; }
   const data = {
     fullName: $('adEditName').value.trim(),
     phone: $('adEditPhone').value.trim(),
@@ -2555,37 +2489,37 @@ window.adminSaveProfile = async () => {
     role: $('adEditRole').value,
     status: $('adEditStatus').value
   };
-  if (!data.fullName) { showToast('warning', t('full_name')); return; }
+  if (!data.fullName) { showToast('warning', 'নাম দিন'); return; }
   showLoader(true);
   try {
     await update(ref(db, 'users/' + AppState.selectedAdminUser.uid), data);
-    showToast('success', t('save_profile'));
-  } catch (e) { showToast('error', e.message); }
+    showToast('success', 'প্রোফাইল আপডেট হয়েছে');
+  } catch (e) { showToast('error', 'ব্যর্থ', e.message); }
   showLoader(false);
 };
 
 window.adminResetPassword = async () => {
-  if (!AppState.selectedAdminUser) { showToast('warning', t('select_user')); return; }
-  const ok = await showConfirm(t('reset_pwd'), AppState.selectedAdminUser.email, { type: 'warning' });
+  if (!AppState.selectedAdminUser) { showToast('warning', 'ইউজার নির্বাচন করুন'); return; }
+  const ok = await showConfirm('পাসওয়ার্ড রিসেট?', AppState.selectedAdminUser.email);
   if (!ok) return;
   try {
     await sendPasswordResetEmail(auth, AppState.selectedAdminUser.email);
-    showToast('success', t('send'));
-  } catch (e) { showToast('error', e.message); }
+    showToast('success', 'রিসেট লিংক পাঠানো হয়েছে');
+  } catch (e) { showToast('error', 'ব্যর্থ', e.message); }
 };
 
 window.adminForceLogout = async () => {
-  if (!AppState.selectedAdminUser) { showToast('warning', t('select_user')); return; }
-  const ok = await showConfirm(t('force_logout'), '?', { type: 'warning' });
+  if (!AppState.selectedAdminUser) { showToast('warning', 'ইউজার নির্বাচন করুন'); return; }
+  const ok = await showConfirm('সেশন টার্মিনেট?', '');
   if (!ok) return;
   try {
     await update(ref(db, 'users/' + AppState.selectedAdminUser.uid), { forceLogout: Date.now() });
-    showToast('success', t('terminate'));
-  } catch (e) { showToast('error', e.message); }
+    showToast('success', 'সেশন টার্মিনেট হয়েছে');
+  } catch (e) { showToast('error', 'ব্যর্থ', e.message); }
 };
 
 window.adminBlockUser = () => {
-  if (!AppState.selectedAdminUser) { showToast('warning', t('select_user')); return; }
+  if (!AppState.selectedAdminUser) { showToast('warning', 'ইউজার নির্বাচন করুন'); return; }
   $('blockUserName').value = AppState.selectedAdminUser.fullName || AppState.selectedAdminUser.email;
   $('blockDuration').value = '1';
   $('blockUnit').value = 'days';
@@ -2600,7 +2534,7 @@ function updateBlockPreview() {
   const dur = parseInt($('blockDuration').value) || 1;
   const unit = $('blockUnit').value;
   const end = new Date();
-  if (unit === 'forever') { setText('blockPreviewEnd', currentLang === 'bn' ? 'চিরতরে' : 'Forever'); return; }
+  if (unit === 'forever') { setText('blockPreviewEnd', 'চিরতরে'); return; }
   if (unit === 'minutes') end.setMinutes(end.getMinutes() + dur);
   else if (unit === 'hours') end.setHours(end.getHours() + dur);
   else if (unit === 'days') end.setDate(end.getDate() + dur);
@@ -2627,32 +2561,31 @@ window.confirmAdminBlock = async () => {
   showLoader(true);
   try {
     await update(ref(db, 'users/' + AppState.selectedAdminUser.uid), {
-      status: 'Blocked', blockUntil, blockReason: reason,
-      blockedAt: new Date().toISOString(), blockedBy: AppState.currentUser.uid
+      status: 'Blocked', blockUntil, blockReason: reason
     });
-    showToast('success', t('block'));
+    showToast('success', 'ব্লক করা হয়েছে');
     bootstrap.Modal.getInstance($('adminBlockModal')).hide();
-  } catch (e) { showToast('error', e.message); }
+  } catch (e) { showToast('error', 'ব্যর্থ', e.message); }
   showLoader(false);
 };
 
 window.adminUnblockUser = async () => {
-  if (!AppState.selectedAdminUser) { showToast('warning', t('select_user')); return; }
-  const ok = await showConfirm(t('unblock'), '?', { type: 'success' });
+  if (!AppState.selectedAdminUser) { showToast('warning', 'ইউজার নির্বাচন করুন'); return; }
+  const ok = await showConfirm('আনব্লক?', '');
   if (!ok) return;
   showLoader(true);
   try {
     await update(ref(db, 'users/' + AppState.selectedAdminUser.uid), {
-      status: 'Active', blockUntil: null, blockReason: null, blockedAt: null, blockedBy: null
+      status: 'Active', blockUntil: null, blockReason: null
     });
-    showToast('success', t('unblock'));
-  } catch (e) { showToast('error', e.message); }
+    showToast('success', 'আনব্লক করা হয়েছে');
+  } catch (e) { showToast('error', 'ব্যর্থ', e.message); }
   showLoader(false);
 };
 
 window.adminResetUserData = async () => {
-  if (!AppState.selectedAdminUser) { showToast('warning', t('select_user')); return; }
-  const ok = await showConfirm(t('reset_data'), '?', { type: 'danger', danger: true });
+  if (!AppState.selectedAdminUser) { showToast('warning', 'ইউজার নির্বাচন করুন'); return; }
+  const ok = await showConfirm('ডেটা রিসেট?', 'সব ডেটা মুছে যাবে।', { type: 'danger', danger: true });
   if (!ok) return;
   showLoader(true);
   try {
@@ -2661,37 +2594,26 @@ window.adminResetUserData = async () => {
     await remove(ref(db, 'users/' + uid + '/customers'));
     await remove(ref(db, 'users/' + uid + '/sales'));
     await remove(ref(db, 'users/' + uid + '/expenses'));
-    showToast('success', t('reset'));
-  } catch (e) { showToast('error', e.message); }
+    showToast('success', 'ডেটা রিসেট হয়েছে');
+  } catch (e) { showToast('error', 'ব্যর্থ', e.message); }
   showLoader(false);
 };
 
 window.adminDeleteUserCompletely = async () => {
-  if (!AppState.selectedAdminUser) { showToast('warning', t('select_user')); return; }
+  if (!AppState.selectedAdminUser) { showToast('warning', 'ইউজার নির্বাচন করুন'); return; }
   const targetUser = AppState.selectedAdminUser;
-  if (targetUser.uid === AppState.currentUser.uid) { showToast('warning'); return; }
-  const ok = await showConfirm(t('delete_user'), currentLang === 'bn' ? `${targetUser.fullName || targetUser.email} এর সব ডেটা স্থায়ীভাবে মুছে যাবে!` : `All data will be permanently deleted!`, { type: 'danger', danger: true, okText: t('delete') });
+  if (targetUser.uid === AppState.currentUser.uid) { showToast('warning', 'নিজেকে ডিলিট করা যাবে না'); return; }
+  const ok = await showConfirm('সম্পূর্ণ ডিলিট?', `${targetUser.fullName || targetUser.email} এর সব ডেটা মুছে যাবে!`, { type: 'danger', danger: true, okText: 'ডিলিট' });
   if (!ok) return;
   showLoader(true);
   try {
     await remove(ref(db, 'users/' + targetUser.uid));
     clearUserSelection();
-    await Swal.fire({ icon: 'success', title: '✓', html: `<div style="text-align:left;"><p><strong>${targetUser.fullName || targetUser.email}</strong></p><p class="text-muted small">${currentLang === 'bn' ? 'সব ডেটা মুছে ফেলা হয়েছে।' : 'All data deleted.'}</p></div>`, confirmButtonText: 'OK' });
-  } catch (e) { showToast('error', 'Delete Failed', e.message); }
+    await Swal.fire({ icon: 'success', title: '✓', html: `<div style="text-align:left;"><p><strong>${targetUser.fullName || targetUser.email}</strong></p><p class="text-muted small">সব ডেটা মুছে ফেলা হয়েছে।</p></div>`, confirmButtonText: 'OK' });
+  } catch (e) { showToast('error', 'ব্যর্থ', e.message); }
   showLoader(false);
 };
 window.adminDeleteUser = window.adminDeleteUserCompletely;
-window.adminDeleteUserById = async (uid, email) => {
-  if (uid === AppState.currentUser.uid) { showToast('warning'); return; }
-  const ok = await showConfirm(t('delete_user'), email, { type: 'danger', danger: true });
-  if (!ok) return;
-  showLoader(true);
-  try {
-    await remove(ref(db, 'users/' + uid));
-    showToast('success', t('delete'));
-  } catch (e) { showToast('error', e.message); }
-  showLoader(false);
-};
 
 window.adminCreateUser = () => {
   ['newUserName','newUserEmail','newUserPhone','newUserShop','newUserAddress'].forEach(id => { const el = $(id); if (el) el.value = ''; });
@@ -2716,13 +2638,12 @@ window.confirmAdminCreateUser = async () => {
   const shopName = $('newUserShop').value.trim();
   const address = $('newUserAddress').value.trim();
   const password = $('newUserPassword').value.trim();
-  if (!name || !email || !password) { showToast('warning', t('full_name')); return; }
-  if (password.length < 6) { showToast('error', t('password')); return; }
-  const ok = await showConfirm(t('create'), email, { type: 'question' });
+  if (!name || !email || !password) { showToast('warning', 'নাম, ইমেইল, পাসওয়ার্ড দিন'); return; }
+  if (password.length < 6) { showToast('error', 'পাসওয়ার্ড কমপক্ষে ৬ অক্ষর'); return; }
+  const ok = await showConfirm('ইউজার তৈরি?', email);
   if (!ok) return;
   showLoader(true);
   try {
-    const adminEmail = auth.currentUser.email;
     const uc = await createUserWithEmailAndPassword(auth, email, password);
     const newUid = uc.user.uid;
     const now = new Date();
@@ -2730,18 +2651,18 @@ window.confirmAdminCreateUser = async () => {
       uid: newUid, fullName: name, email, phone, shopName, address,
       role, status: 'Active',
       createdAt: now.toISOString(),
-      createdByAdmin: adminEmail,
+      createdByAdmin: auth.currentUser.email,
       settings: DEFAULT_SETTINGS
     });
     await signOut(auth);
     await Swal.fire({
-      icon: 'success', title: '✓',
-      html: `<div style="text-align:left;"><p><strong>${t('full_name')}:</strong> ${escapeHtml(name)}</p><p><strong>Email:</strong> ${escapeHtml(email)}</p><p><strong>Password:</strong> <code style="background:#f1f5f9;padding:4px 8px;border-radius:6px;">${escapeHtml(password)}</code></p></div>`,
+      icon: 'success', title: 'ইউজার তৈরি হয়েছে!',
+      html: `<div style="text-align:left;"><p><strong>নাম:</strong> ${escapeHtml(name)}</p><p><strong>ইমেইল:</strong> ${escapeHtml(email)}</p><p><strong>পাসওয়ার্ড:</strong> <code style="background:#f1f5f9;padding:4px 8px;border-radius:6px;">${escapeHtml(password)}</code></p></div>`,
       confirmButtonText: 'OK'
     });
     bootstrap.Modal.getInstance($('adminNewUserModal')).hide();
   } catch (e) {
-    showToast('error', t('create'), getFirebaseErrorMessage(e.code));
+    showToast('error', 'ব্যর্থ', getFirebaseErrorMessage(e.code));
     showLoader(false);
   }
 };
@@ -2763,8 +2684,15 @@ window.showSection = (sec) => {
   document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
   $('nav-' + sec)?.classList.add('active');
 
-  const titleMap = { dashboard: t('dashboard'), sales: t('new_sale'), 'sales-list': t('sales_list'), inventory: t('product_cards'), 'inventory-list': t('product_table'), customers: t('customers'), expenses: t('expense_mgmt'), 'expenses-list': t('expenses_list'), invoices: t('invoices'), 'master-list': t('master_list'), 'activity-log': t('activity_log'), reports: t('reports'), analytics: t('analytics'), profile: t('profile'), settings: t('settings'), admin: t('admin_panel') };
-  setText('pageTitle', titleMap[sec] || t('dashboard'));
+  const titleMap = {
+    dashboard: 'ড্যাশবোর্ড', sales: 'নতুন বিক্রয় (POS)', 'sales-list': 'বিক্রয় তালিকা',
+    inventory: 'পণ্য কার্ড', 'inventory-list': 'পণ্য টেবিল', customers: 'কাস্টমার',
+    expenses: 'খরচ ব্যবস্থাপনা', 'expenses-list': 'খরচ তালিকা', invoices: 'ইনভয়েস',
+    'master-list': 'মাস্টার লিস্ট', 'activity-log': 'অ্যাক্টিভিটি লগ',
+    reports: 'রিপোর্টস', analytics: 'অ্যানালিটিক্স', profile: 'প্রোফাইল',
+    settings: 'সেটিংস', admin: 'অ্যাডমিন প্যানেল'
+  };
+  setText('pageTitle', titleMap[sec] || 'ড্যাশবোর্ড');
   setText('pageSubtitle', '');
 
   if (sec === 'sales' || sec === 'sales-list') $('salesSubmenu')?.classList.add('show');
@@ -2775,7 +2703,12 @@ window.showSection = (sec) => {
   if (sec === 'profile') { renderProfile(); }
   if (sec === 'admin') renderAdminUsersListPro();
   if (sec === 'sales') {
-    setTimeout(() => { updatePosPreview(); calculateCartTotal(); }, 100);
+    setTimeout(() => {
+      const ps = $('productSearch');
+      if (ps) { ps.value = ''; ps.focus(); }
+      updatePosPreview();
+      calculateCartTotal();
+    }, 100);
   }
   closeSidebar();
 };
@@ -2786,9 +2719,9 @@ window.showNotifications = () => {
   Swal.fire({
     title: '🔔',
     html: `<div class="text-start">
-      <div class="mb-2"><i class="fas fa-triangle-exclamation text-warning me-2"></i>${t('stock_alerts')}: <strong>${ls.length}</strong></div>
-      <div class="mb-2"><i class="fas fa-hand-holding-dollar text-danger me-2"></i>${t('total_due')}: <strong>${dc.length}</strong></div>
-      <div><i class="fas fa-chart-line text-info me-2"></i>${t('today_sales')}: <strong>৳${$('todaySales')?.textContent || '0'}</strong></div>
+      <div class="mb-2"><i class="fas fa-triangle-exclamation text-warning me-2"></i>স্টক কম: <strong>${ls.length}</strong></div>
+      <div class="mb-2"><i class="fas fa-hand-holding-dollar text-danger me-2"></i>বাকি: <strong>${dc.length}</strong></div>
+      <div><i class="fas fa-chart-line text-info me-2"></i>আজকের বিক্রি: <strong>৳${$('todaySales')?.textContent || '0'}</strong></div>
     </div>`,
     confirmButtonText: 'OK'
   });
@@ -2821,7 +2754,7 @@ window.closeBarcodeScanner = () => {
 };
 window.searchByBarcode = () => {
   const code = $('manualBarcode').value.trim();
-  if (!code) { showToast('warning', t('barcode')); return; }
+  if (!code) { showToast('warning', 'বারকোড দিন'); return; }
   const item = AppState.inventory.find(i => (i.barcode || '') === code || i.name.toLowerCase() === code.toLowerCase());
   if (item) {
     closeBarcodeScanner();
@@ -2829,8 +2762,8 @@ window.searchByBarcode = () => {
     AppState.lastSelectedProductId = item.id;
     $('productSearch').value = item.name;
     updatePosPreview();
-    showToast('success', t('product'), item.name);
-  } else { showToast('error', t('product'), code); }
+    showToast('success', 'পণ্য পাওয়া গেছে', item.name);
+  } else { showToast('error', 'পাওয়া যায়নি', code); }
 };
 
 /* ═══════════════════ CALCULATOR ═══════════════════ */
@@ -2882,7 +2815,7 @@ function updateCalcDisplay() { const input = $('calcInput'); if (input) input.va
     <div style="width:100%;max-width:680px;background:var(--bg-card);border-radius:20px;box-shadow:0 32px 80px rgba(0,0,0,0.4);overflow:hidden;border:1px solid var(--border);">
       <div style="display:flex;align-items:center;gap:12px;padding:18px 24px;border-bottom:1px solid var(--border);">
         <i class="fas fa-magnifying-glass" style="color:var(--primary);font-size:1.2rem;"></i>
-        <input type="text" id="cmdInput" placeholder="Search commands, products, customers, invoices..." style="flex:1;border:none;background:transparent;color:var(--text);font-size:1.05rem;outline:none;font-weight:500;">
+        <input type="text" id="cmdInput" placeholder="Search commands..." style="flex:1;border:none;background:transparent;color:var(--text);font-size:1.05rem;outline:none;font-weight:500;">
         <span class="kbd-hint">ESC</span>
       </div>
       <div id="cmdResults" style="max-height:440px;overflow-y:auto;padding:8px;"></div>
@@ -2896,66 +2829,25 @@ function updateCalcDisplay() { const input = $('calcInput'); if (input) input.va
 
   function buildCommands() {
     const commands = [
-      { section: currentLang === 'bn' ? 'নেভিগেশন' : 'Navigation', items: [
-        { title: t('dashboard'), icon: 'fas fa-chart-line', action: () => showSection('dashboard') },
-        { title: t('new_sale'), icon: 'fas fa-cart-plus', action: () => showSection('sales') },
-        { title: t('sales_list'), icon: 'fas fa-list-check', action: () => showSection('sales-list') },
-        { title: t('product_cards'), icon: 'fas fa-box', action: () => showSection('inventory') },
-        { title: t('customers'), icon: 'fas fa-users', action: () => showSection('customers') },
-        { title: t('expenses'), icon: 'fas fa-hand-holding-dollar', action: () => showSection('expenses') },
-        { title: t('invoices'), icon: 'fas fa-file-invoice-dollar', action: () => showSection('invoices') },
-        { title: t('reports'), icon: 'fas fa-chart-pie', action: () => showSection('reports') },
-        { title: t('analytics'), icon: 'fas fa-chart-column', action: () => showSection('analytics') },
-        { title: t('activity_log'), icon: 'fas fa-clock-rotate-left', action: () => showSection('activity-log') },
-        { title: t('profile'), icon: 'fas fa-user-circle', action: () => showSection('profile') },
-        { title: t('settings'), icon: 'fas fa-gear', action: () => showSection('settings') }
+      { section: 'নেভিগেশন', items: [
+        { title: 'ড্যাশবোর্ড', icon: 'fas fa-chart-line', action: () => showSection('dashboard') },
+        { title: 'নতুন বিক্রয়', icon: 'fas fa-cart-plus', action: () => showSection('sales') },
+        { title: 'বিক্রয় তালিকা', icon: 'fas fa-list-check', action: () => showSection('sales-list') },
+        { title: 'পণ্য কার্ড', icon: 'fas fa-box', action: () => showSection('inventory') },
+        { title: 'কাস্টমার', icon: 'fas fa-users', action: () => showSection('customers') },
+        { title: 'খরচ', icon: 'fas fa-hand-holding-dollar', action: () => showSection('expenses') },
+        { title: 'ইনভয়েস', icon: 'fas fa-file-invoice-dollar', action: () => showSection('invoices') },
+        { title: 'রিপোর্টস', icon: 'fas fa-chart-pie', action: () => showSection('reports') },
+        { title: 'সেটিংস', icon: 'fas fa-gear', action: () => showSection('settings') }
       ]},
-      { section: currentLang === 'bn' ? 'অ্যাকশন' : 'Actions', items: [
-        { title: t('add_product'), icon: 'fas fa-plus-circle', action: () => new bootstrap.Modal($('addProductModal')).show() },
-        { title: t('add_customer'), icon: 'fas fa-user-plus', action: () => new bootstrap.Modal($('addCustomerModal')).show() },
-        { title: t('add_expense'), icon: 'fas fa-receipt', action: () => new bootstrap.Modal($('addExpenseModal')).show() },
-        { title: t('calculator'), icon: 'fas fa-calculator', action: () => openCalculator() },
-        { title: t('barcode'), icon: 'fas fa-barcode', action: () => openBarcodeScanner() },
-        { title: t('export_all'), icon: 'fas fa-download', action: () => exportAllData() }
-      ]},
-      { section: currentLang === 'bn' ? 'অ্যাডমিন' : 'Admin', items: [
-        { title: t('admin_panel'), icon: 'fas fa-shield-halved', action: () => showSection('admin'), adminOnly: true }
+      { section: 'অ্যাকশন', items: [
+        { title: 'নতুন পণ্য', icon: 'fas fa-plus-circle', action: () => new bootstrap.Modal($('addProductModal')).show() },
+        { title: 'নতুন কাস্টমার', icon: 'fas fa-user-plus', action: () => new bootstrap.Modal($('addCustomerModal')).show() },
+        { title: 'নতুন খরচ', icon: 'fas fa-receipt', action: () => new bootstrap.Modal($('addExpenseModal')).show() },
+        { title: 'ক্যালকুলেটর', icon: 'fas fa-calculator', action: () => openCalculator() },
+        { title: 'বারকোড', icon: 'fas fa-barcode', action: () => openBarcodeScanner() }
       ]}
     ];
-
-    if (AppState.inventory.length > 0) {
-      commands.push({
-        section: currentLang === 'bn' ? 'পণ্য' : 'Products',
-        items: AppState.inventory.slice(0, 8).map(p => ({
-          title: p.name,
-          sub: `৳${p.sellPrice} • ${t('stock')}: ${p.qty}`,
-          icon: 'fas fa-box',
-          action: () => { showSection('sales'); setTimeout(() => selectProduct(p.id), 200); }
-        }))
-      });
-    }
-    if (AppState.customers.length > 0) {
-      commands.push({
-        section: currentLang === 'bn' ? 'কাস্টমার' : 'Customers',
-        items: AppState.customers.slice(0, 6).map(c => ({
-          title: c.name,
-          sub: `${c.phone || '—'} • ${t('due')}: ৳${c.due || 0}`,
-          icon: 'fas fa-user',
-          action: () => showSection('customers')
-        }))
-      });
-    }
-    if (AppState.allSalesCache.length > 0) {
-      commands.push({
-        section: currentLang === 'bn' ? 'ইনভয়েস' : 'Invoices',
-        items: AppState.allSalesCache.slice(-6).reverse().map(s => ({
-          title: s.invoiceNo,
-          sub: `${s.customerName || '—'} • ৳${s.totalAmount}`,
-          icon: 'fas fa-file-invoice',
-          action: () => showSection('sales-list')
-        }))
-      });
-    }
     return commands;
   }
 
@@ -2965,26 +2857,23 @@ function updateCalcDisplay() { const input = $('calcInput'); if (input) input.va
     const allItems = [];
 
     commands.forEach(group => {
-      const filtered = q ? group.items.filter(item => item.title.toLowerCase().includes(q) || (item.sub && item.sub.toLowerCase().includes(q))) : group.items;
+      const filtered = q ? group.items.filter(item => item.title.toLowerCase().includes(q)) : group.items;
       if (filtered.length > 0) {
         allItems.push({ type: 'section', title: group.section });
         filtered.forEach(item => allItems.push({ type: 'item', data: item }));
       }
     });
 
-    const isAdmin = AppState.currentUserRole === 'Admin' || AppState.impersonatingUser;
-    const finalItems = allItems.filter(item => !item.data?.adminOnly || isAdmin);
-
-    currentResults = finalItems;
+    currentResults = allItems;
     if (activeIndex >= currentResults.length) activeIndex = 0;
 
-    if (finalItems.length === 0) {
-      results.innerHTML = `<div style="text-align:center;padding:40px 20px;color:var(--text-muted);"><i class="fas fa-magnifying-glass" style="font-size:2.5rem;opacity:0.3;margin-bottom:12px;display:block;"></i><p>${currentLang === 'bn' ? 'কিছু পাওয়া যায়নি' : 'Nothing found'}</p></div>`;
+    if (allItems.length === 0) {
+      results.innerHTML = `<div style="text-align:center;padding:40px 20px;color:var(--text-muted);"><i class="fas fa-magnifying-glass" style="font-size:2.5rem;opacity:0.3;margin-bottom:12px;display:block;"></i><p>কিছু পাওয়া যায়নি</p></div>`;
       return;
     }
 
     results.innerHTML = '';
-    finalItems.forEach((item, idx) => {
+    allItems.forEach((item, idx) => {
       if (item.type === 'section') {
         const sec = document.createElement('div');
         sec.style.cssText = 'padding:10px 16px 4px;font-size:0.68rem;text-transform:uppercase;color:var(--text-soft);font-weight:700;letter-spacing:0.5px;';
@@ -2996,10 +2885,7 @@ function updateCalcDisplay() { const input = $('calcInput'); if (input) input.va
         div.dataset.index = idx;
         div.innerHTML = `
           <div style="width:36px;height:36px;border-radius:50%;background:var(--primary-soft);color:var(--primary);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="${item.data.icon}"></i></div>
-          <div style="flex:1;min-width:0;">
-            <div style="font-weight:600;">${escapeHtml(item.data.title)}</div>
-            ${item.data.sub ? `<div style="font-size:0.75rem;color:var(--text-muted);">${escapeHtml(item.data.sub)}</div>` : ''}
-          </div>
+          <div style="flex:1;min-width:0;"><div style="font-weight:600;">${escapeHtml(item.data.title)}</div></div>
           <i class="fas fa-arrow-right" style="color:var(--text-soft);font-size:0.8rem;"></i>`;
         div.addEventListener('click', () => execute(idx));
         div.addEventListener('mouseenter', () => { activeIndex = idx; renderResults(input.value); });
@@ -3037,77 +2923,46 @@ function updateCalcDisplay() { const input = $('calcInput'); if (input) input.va
   });
 })();
 
-/* ═══════════════════ QUICK SEARCH ═══════════════════ */
-window.quickSearch = debounce((e) => {
-  const q = e.target.value.toLowerCase().trim();
-  const results = $('quickSearchResults');
-  if (!results) return;
+/* ═══════════════════ GLOBAL KEYBOARD SHORTCUTS ═══════════════════ */
+document.addEventListener('keydown', (e) => {
+  const salesSection = $('sales-section');
+  if (!salesSection || salesSection.style.display === 'none') return;
 
-  if (!q) { results.style.display = 'none'; return; }
+  if (e.target.tagName === 'TEXTAREA') return;
 
-  const items = [];
+  const isSearchFocused = e.target.id === 'productSearch';
 
-  AppState.inventory.filter(p => p.name.toLowerCase().includes(q)).slice(0, 5).forEach(p => {
-    items.push({ section: 'পণ্য / Products', title: p.name, sub: `৳${p.sellPrice} • ${t('stock')}: ${p.qty}`, icon: 'fas fa-box', action: () => { showSection('sales'); setTimeout(() => selectProduct(p.id), 200); } });
-  });
-  AppState.customers.filter(c => c.name.toLowerCase().includes(q) || (c.phone || '').includes(q)).slice(0, 5).forEach(c => {
-    items.push({ section: 'কাস্টমার / Customers', title: c.name, sub: `${c.phone || '—'} • ${t('due')}: ৳${c.due || 0}`, icon: 'fas fa-user', action: () => showSection('customers') });
-  });
-  AppState.allSalesCache.filter(s => (s.invoiceNo || '').toLowerCase().includes(q) || (s.customerName || '').toLowerCase().includes(q)).slice(0, 5).forEach(s => {
-    items.push({ section: 'ইনভয়েস / Invoices', title: s.invoiceNo, sub: `${s.customerName || '—'} • ৳${s.totalAmount}`, icon: 'fas fa-file-invoice', action: () => showSection('sales-list') });
-  });
-
-  const staticMatches = [
-    { kw: ['dashboard', 'ড্যাশবোর্ড'], title: t('dashboard'), icon: 'fas fa-chart-line', action: () => showSection('dashboard'), section: 'পেজ / Pages' },
-    { kw: ['sales', 'বিক্রয়'], title: t('new_sale'), icon: 'fas fa-cart-plus', action: () => showSection('sales'), section: 'পেজ / Pages' },
-    { kw: ['settings', 'সেটিংস'], title: t('settings'), icon: 'fas fa-gear', action: () => showSection('settings'), section: 'পেজ / Pages' },
-    { kw: ['report', 'রিপোর্ট'], title: t('reports'), icon: 'fas fa-chart-pie', action: () => showSection('reports'), section: 'পেজ / Pages' }
-  ];
-  staticMatches.forEach(m => { if (m.kw.some(k => k.includes(q) || q.includes(k))) items.push(m); });
-
-  if (items.length === 0) {
-    results.innerHTML = `<div style="padding:20px;text-align:center;color:var(--text-muted);"><i class="fas fa-magnifying-glass" style="font-size:1.5rem;opacity:0.3;margin-bottom:8px;display:block;"></i>${currentLang === 'bn' ? 'কিছু পাওয়া যায়নি' : 'Nothing found'}</div>`;
-  } else {
-    let html = '';
-    let lastSection = '';
-    items.forEach((item, idx) => {
-      if (item.section !== lastSection) { html += `<div class="qsr-section">${item.section}</div>`; lastSection = item.section; }
-      html += `<div class="qsr-item" onclick="quickSearchClick(${idx})"><div class="qsr-item-icon"><i class="${item.icon}"></i></div><div class="qsr-item-content"><div class="qsr-item-title">${escapeHtml(item.title)}</div>${item.sub ? `<div class="qsr-item-sub">${escapeHtml(item.sub)}</div>` : ''}</div><i class="fas fa-arrow-right qsr-item-arrow"></i></div>`;
-    });
-    results.innerHTML = html;
-    window._quickSearchItems = items;
+  if (e.key === 'Enter' && isSearchFocused) {
+    e.preventDefault();
+    if (AppState.lastSelectedProductId) {
+      addToCartFromSearch();
+    } else {
+      const q = $('productSearch').value.toLowerCase();
+      const matches = AppState.inventory.filter(i => i.name.toLowerCase().includes(q) && parseInt(i.qty) > 0);
+      if (matches.length > 0) selectProduct(matches[0].id);
+    }
+    return;
   }
-  results.style.display = 'block';
-}, 200);
 
-window.showQuickSearchResults = () => {
-  const el = $('quickSearchResults');
-  if (el && el.innerHTML.trim()) el.style.display = 'block';
-};
+  if (e.key === 'Enter' && e.target.id === 'productQty') {
+    e.preventDefault();
+    if (AppState.lastSelectedProductId) addToCartFromSearch();
+    return;
+  }
 
-window.quickSearchClick = (idx) => {
-  const items = window._quickSearchItems || [];
-  const item = items[idx];
-  if (!item) return;
-  const results = $('quickSearchResults');
-  if (results) results.style.display = 'none';
-  $('quickSearchInput').value = '';
-  setTimeout(() => item.action(), 100);
-};
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+    e.preventDefault();
+    if (AppState.cart.length > 0) completeSale();
+    return;
+  }
 
-window.quickSearchAction = (action) => {
-  if (action === 'sales') showSection('sales');
-  else if (action === 'inventory') new bootstrap.Modal($('addProductModal')).show();
-  else if (action === 'customers') new bootstrap.Modal($('addCustomerModal')).show();
-  else if (action === 'expenses') new bootstrap.Modal($('addExpenseModal')).show();
-  else if (action === 'reports') showSection('reports');
-  else if (action === 'activity-log') showSection('activity-log');
-};
-
-document.addEventListener('click', (e) => {
-  const qs = $('quickSearchResults');
-  const qi = $('quickSearchInput');
-  if (qs && qi && !qs.contains(e.target) && e.target !== qi) qs.style.display = 'none';
+  if (e.key === 'Escape' && isSearchFocused) {
+    $('productSearch').value = '';
+    $('productSearchResults').innerHTML = '';
+    AppState.lastSelectedProductId = null;
+    $('posPreview').style.display = 'none';
+    $('addToCartBtn').disabled = true;
+  }
 });
 
 /* ═══════════════════ FAB ═══════════════════ */
@@ -3136,5 +2991,5 @@ window.addEventListener('beforeunload', () => {
   AppState.unsubscribers.forEach(unsub => { try { unsub(); } catch (e) {} });
 });
 
-console.log('%c🚀 HesabKhata Enterprise Pro v13.0', 'color:#6366f1;font-size:16px;font-weight:bold;');
-console.log('%c✓ Ultra Compact POS • Full Admin Impersonation • Accurate Calculations', 'color:#10b981;font-size:2px;');
+console.log('%c🚀 HesabKhata Enterprise Pro v14.0', 'color:#6366f1;font-size:16px;font-weight:bold;');
+console.log('%c✓ Fast POS • Full Admin Impersonation • Complete System', 'color:#10b981;font-size:12px;');
